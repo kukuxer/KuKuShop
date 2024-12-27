@@ -12,13 +12,27 @@
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "highlight.js": "^11.11.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-bootstrap": "^2.10.7",
+    "react-dom": "^18.3.1",
+    "react-responsive": "^10.0.0",
+    "react-router-dom": "^7.1.1",
+    "reactstrap": "^9.2.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@types/dotenv": "^8.2.3",
+    "@types/node": "^22.10.2",
     "@types/react": "^18.3.18",
+    "@types/react-bootstrap": "^0.32.37",
     "@types/react-dom": "^18.3.5",
+    "@types/react-fontawesome": "^1.6.8",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/reactstrap": "^8.7.2",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "eslint": "^9.17.0",
     "eslint-plugin-react-hooks": "^5.0.0",

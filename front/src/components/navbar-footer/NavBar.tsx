@@ -1,13 +1,18 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { useMediaQuery } from "react-responsive";
+import Profile from "../../entity/Profile";
 
 function NavBar() {
-  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const { user, isAuthenticated, loginWithRedirect, logout, getAccessTokenSilently  } = useAuth0();
+  const [profile, setProfile] = useState<Profile | undefined>(undefined);
+  const url = import.meta.env.VITE_BACKEND_URL;
+  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
 
   const logoutWithRedirect = () =>
     logout({
@@ -16,8 +21,62 @@ function NavBar() {
       },
     });
 
-  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
+    const fetchProtectedData = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        console.log(token);
+        console.log(url);
+        console.log(user);
 
+        const response = await fetch(`${url}/api/profile/get`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: user?.name,
+            email: user?.email,
+            nickname: user?.nickname,
+            familyName: user?.family_name,
+            givenName: user?.given_name,
+          }),
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        const userProfile = new Profile(
+          data.email,  
+          data.name,   
+          data.nickname || "",
+          data.givenName || "", 
+          data.familyName || "",  
+          data.role || "Guest" 
+        );
+        setProfile(userProfile);
+        console.log("response", data);
+      } catch (error) {
+        console.error("Error fetching protected data:", error);
+      }
+    };
+
+    useEffect(() => {
+      if (isAuthenticated) {
+        fetchProtectedData();
+      }
+    }, [isAuthenticated,user]);
+
+    useEffect(() => {
+      if (profile) {
+        console.log("Updated Profile:", profile);
+      }
+    }, [profile]);
+  
+
+  
   return (
     <Navbar expand="md" className="bg-body-tertiary" data-bs-theme="dark">
       <Container>

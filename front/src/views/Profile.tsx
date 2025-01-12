@@ -4,7 +4,7 @@ import { Container, Row, Col } from "reactstrap";
 
 
 import { useAuth0, withAuthenticationRequired, User } from "@auth0/auth0-react";
-import Loading from "../components/Loading";
+import Loading from "../components/utils/Loading";
 
 export const ProfileComponent: React.FC = () => {
   const { user } = useAuth0();

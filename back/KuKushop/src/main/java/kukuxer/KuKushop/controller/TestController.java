@@ -2,13 +2,12 @@ package kukuxer.KuKushop.controller;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import kukuxer.KuKushop.utils.JwtDecoder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -16,22 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
     @GetMapping("/public")
-    public String publicEndpoint() {
+    public String publicEndpoint(@RequestHeader(value = "Authorization")String token) {
+        String admin = JwtDecoder.payloadJWTExtraction(token, "email");
+        System.out.println(admin);
         return "This is a public endpoint";
     }
 
     @GetMapping("/protected")
-    public String protectedEndpoint(Authentication authentication) {
-        if (authentication instanceof JwtAuthenticationToken) {
-            Jwt jwt = ((JwtAuthenticationToken) authentication).getToken();
-
-            String token = jwt.getTokenValue();
-            System.out.println("Token: " + token);
-
-            return "This is a protected endpoint with token: " + token;
-        }
-        System.out.println("nope");
-
-        return "Unauthorized access!";
+    public String getProtectedData(@AuthenticationPrincipal Jwt jwt) {
+        // Extract the user's email from the JWT token
+        String email = jwt.getClaim("sub");
+        System.out.println(jwt.getClaims());
+        return "Your email is: " + email;
     }
 }

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "shop")
+@Table(name = "shops")
 public class Shop {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,7 @@ public class Shop {
     @CreationTimestamp
     LocalDateTime creationDate;
 
-    @Lob
-    @Column(name = "image")
-    byte[] image;
+
+    @Column(name = "image_id")
+    Long imageId;
 }

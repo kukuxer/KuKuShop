@@ -5,3 +5,13 @@ body {
   padding: 0;
   min-height: 100vh;
 }
+.backdrop-blur-sm {
+  will-change: backdrop-filter;
+}
+
+.group:hover {
+  transform: translateY(-5px) scale(1.05);
+  opacity: 1;
+}
+
+

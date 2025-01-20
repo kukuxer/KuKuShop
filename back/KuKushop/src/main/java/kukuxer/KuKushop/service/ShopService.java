@@ -3,8 +3,10 @@ package kukuxer.KuKushop.service;
 import kukuxer.KuKushop.dto.Mappers.ShopMapper;
 import kukuxer.KuKushop.dto.ProfileDto;
 import kukuxer.KuKushop.dto.ShopDto;
+import kukuxer.KuKushop.entity.Image;
 import kukuxer.KuKushop.entity.Profile;
 import kukuxer.KuKushop.entity.Shop;
+import kukuxer.KuKushop.repository.ImageRepository;
 import kukuxer.KuKushop.repository.ProfileRepository;
 import kukuxer.KuKushop.repository.ShopRepository;
 import lombok.AllArgsConstructor;
@@ -23,57 +25,47 @@ import java.util.Optional;
 public class ShopService {
     private final ShopRepository shopRepository;
     private final ProfileRepository profileRepository;
-    private final JdbcTemplate jdbcTemplate;
+    private final ImageRepository imageRepository;
 
 
-    public ShopDto createShop(ShopDto shopDto, String authId, MultipartFile image) {
+    public ShopDto createShop(ShopDto shopDto, String authId, MultipartFile image) throws IOException {
         boolean exists = shopRepository.findByUserAuthId(authId).isPresent();
         boolean theSameName = shopRepository.findByOwnerName(shopDto.getOwnerName()).isPresent();
         Profile profile = profileRepository.findByAuthId(authId).orElseThrow();
 
         if (exists) {
             throw new RuntimeException("User already have a shop");
-        }
-        if (theSameName) {
+        } else if (theSameName) {
             throw new RuntimeException("Shop with this name already exists");
         }
 
         System.out.println(shopDto);
-        System.out.println(image);
 
         Shop shop = ShopMapper.INSTANCE.toEntity(shopDto);
-        if (image != null && !image.isEmpty()) {
-            try {
-                shop.setImage(image.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+
+        if (!image.isEmpty()) {
+            Image image1 = Image.builder()
+                    .name(image.getOriginalFilename())
+                    .type(image.getContentType())
+                    .data(image.getBytes())
+                    .build();
+
+            Image savedImage = imageRepository.save(image1);
+            shop.setImageId(savedImage.getId());
         }
+
         shop.setOwnerName(profile.getName());
         shop.setUserAuthId(authId);
-
-        System.out.println("Shop entity before save: " + shop);
-        try {
-            shopRepository.save(shop);
-        } catch (Exception e) {
-            System.out.println("Error while saving shop: " + e.getMessage());
-            throw new RuntimeException("Error saving shop", e);
-        }
+        shopRepository.save(shop);
 
 
         return ShopMapper.INSTANCE.toDto(shop);
     }
-
-    @Transactional
-    public byte[] getImageFromShop(String authId) throws SQLException, IOException {
-        Optional<Long> imageOid = shopRepository.findImageOidByUserAuthId(authId);
-
-        if (imageOid.isPresent()) {
-            Long oid = imageOid.get();
-
-            String sql = "SELECT lo_get(?)";
-            return jdbcTemplate.queryForObject(sql, byte[].class, oid);
-        }
-        return null;
+    public Shop getByUserAuthId(String userAuth) {
+        return shopRepository.findByUserAuthId(userAuth)
+                .orElseThrow(() -> new RuntimeException("Shop not found for userAuth: " + userAuth));
+    }
+    public byte[] getShopImageData(Shop shop){
+     return imageRepository.findById(shop.getImageId()).orElseThrow(() -> new RuntimeException("Image not found for shop: " + shop.getName())).getData();
     }
 }

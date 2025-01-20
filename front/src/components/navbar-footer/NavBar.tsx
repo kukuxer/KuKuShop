@@ -1,184 +1,262 @@
-import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
-import { Form } from "react-bootstrap";
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
-import { useMediaQuery } from "react-responsive";
-import Profile from "../../entity/Profile";
+import { useAuth0 } from "@auth0/auth0-react";
+import {
+  FiMenu,
+  FiX,
+  FiShoppingBag,
+  FiHeart,
+  FiUser,
+  FiSearch,
+  FiLogOut,
+  FiSlash,
+  FiPackage,
+} from "react-icons/fi";
+import { Link } from "react-router-dom";
 
-function NavBar() {
-  const { user, isAuthenticated, loginWithRedirect, logout, getAccessTokenSilently  } = useAuth0();
-  const [profile, setProfile] = useState<Profile | undefined>(undefined);
-  const url = import.meta.env.VITE_BACKEND_URL;
-  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
+const Navbar = () => {
+  const {
+    user,
+    isAuthenticated,
+    loginWithRedirect,
+    logout,
+    getAccessTokenSilently,
+  } = useAuth0();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  interface Profile {
+    email: string;
+    familyName: string;
+    givenName: string;
+    name: string;
+    nickname: string;
+    role: string;
+  }
+
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [shopImage, setShopImage] = useState<string | null>(null);
 
   const logoutWithRedirect = () =>
     logout({
-      logoutParams: {
-        returnTo: window.location.origin,
+      logoutParams: { returnTo: window.location.origin },
+    });
+
+  const fetchOrCreateProfile = async () => {
+    try {
+      if (!isAuthenticated) return;
+
+      const token = await getAccessTokenSilently();
+
+      const response = await fetch("http://localhost:8080/api/profile/get", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: user?.name || "",
+          email: user?.email || "",
+          familyName: user?.family_name || "",
+          givenName: user?.given_name || "",
+          nickname: user?.nickname || "",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch or create profile");
+      }
+
+      const profileData = await response.json();
+      setProfile(profileData);
+      console.log(token);
+    } catch (error) {
+      console.error("Error fetching or creating profile:", error);
+    }
+  };
+
+
+  const fetchShopImage = async () => {
+  try {
+    const token = await getAccessTokenSilently(); 
+
+    const response = await fetch("http://localhost:8080/api/shop/myShopImage", {
+      method: "GET", 
+      headers: {
+        Authorization: `Bearer ${token}`, 
       },
     });
 
-    const fetchProtectedData = async () => {
-      try {
-        const token = await getAccessTokenSilently();
-        console.log(token);
-        console.log(url);
-        console.log(user);
+    if (response.ok) {
+      
+      const imageBlob = await response.blob();
+      const imageUrl = URL.createObjectURL(imageBlob);
+      setShopImage(imageUrl); 
+    } else {
+      console.error("Failed to fetch shop image");
+    }
+  } catch (error) {
+    console.error("Error fetching shop image:", error);
+  }
+};
 
-        const response = await fetch(`${url}/api/profile/get`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: user?.name,
-            email: user?.email,
-            nickname: user?.nickname,
-            familyName: user?.family_name,
-            givenName: user?.given_name,
-          }),
-        });
-  
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-  
-        const data = await response.json();
-        const userProfile = new Profile(
-          data.email,  
-          data.name,   
-          data.nickname || "",
-          data.givenName || "", 
-          data.familyName || "",  
-          data.role || "Guest" 
-        );
-        setProfile(userProfile);
-        console.log("response", data);
-      } catch (error) {
-        console.error("Error fetching protected data:", error);
-      }
-    };
+  useEffect(() => {
+    fetchOrCreateProfile();
+    fetchShopImage();
+  }, [isAuthenticated, user]);
 
-    useEffect(() => {
-      if (isAuthenticated) {
-        fetchProtectedData();
-      }
-    }, [isAuthenticated,user]);
-
-    useEffect(() => {
-      if (profile) {
-        console.log("Updated Profile:", profile);
-      }
-    }, [profile]);
-  
-
-  
   return (
-    <Navbar expand="md" className="bg-body-tertiary" data-bs-theme="dark">
-      <Container>
-        <Navbar.Brand href="/">
-          <i
-            className="bi bi-ban"
-            style={{ fontSize: "1.5rem", marginRight: "8px" }}
-          ></i>
-          <span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-            KuKushop
-          </span>
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            {!isAuthenticated && (
-              <Nav.Link href="/profile" onClick={() => loginWithRedirect()}>
-                Log in
-              </Nav.Link>
-            )}
-            {isAuthenticated && user && (
-              <>
-                {isMobile ? (
-                  <>
-                    <Nav.Link href="/profile">
-                    <img
-                          src={user.picture || ""}
-                          alt="Profile"
-                          className="rounded-circle"
-                          width="30"
-                          height="30"
-                          style={{ marginRight: "8px" }}
-                        />
-                    {user.name}
-                    </Nav.Link>
-                    <Nav.Link onClick={() => logoutWithRedirect()}>Log out</Nav.Link>
-                  </>
-                ) : (
-                  <NavDropdown
-                    title={
-                      <span>
-                        <img
-                          src={user.picture || ""}
-                          alt="Profile"
-                          className="rounded-circle"
-                          width="30"
-                          height="30"
-                          style={{ marginRight: "8px" }}
-                        />
-                        {user.name}
-                      </span>
-                    }
-                    id="profile-dropdown"
+    <nav className="bg-gray-900 text-white shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 md:block hidden">
+              <img
+                className="h-8 w-8"
+                src={shopImage || "https://via.placeholder.com/32"}
+                alt="Logo"
+              />
+            </div>
+            <Link to={"/"}>
+              <div className="md:block hidden ml-2 font-bold text-xl text-purple-500">
+                KuKuShop {profile?.role}
+              </div>
+            </Link>
+            <div className="md:block hidden ml-4">
+              <Link to="/myshop">
+                <button className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 transform hover:scale-105">
+                  <FiPackage className="animate-bounce" />
+                  <span>MyShop</span>
+                </button>
+              </Link>
+            </div>
+            <div className="md:hidden flex items-center">
+              <FiSlash className="h-8 w-8 text-purple-500" />
+            </div>
+          </div>
+
+          <div className="hidden md:block flex-1 mx-8">
+            <div className="relative flex-1">
+              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full bg-gray-800 text-white pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+          </div>
+
+          <div className="hidden md:block">
+            <div className="ml-4 flex items-center space-x-4">
+              <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                <FiHeart className="mr-1" />
+                Favourites
+              </button>
+
+              <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                <FiShoppingBag className="mr-1" />
+                Basket
+              </button>
+
+              {isAuthenticated && user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center space-x-2 text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium"
                   >
-                    <NavDropdown.Item href="/profile">
-                      <i
-                        className="bi bi-person-fill"
-                        style={{ marginRight: "8px" }}
-                      ></i>
-                      Profile
-                    </NavDropdown.Item>
-                    <NavDropdown.Item onClick={() => logoutWithRedirect()}>
-                      <i
-                        className="bi bi-box-arrow-right"
-                        style={{ marginRight: "8px" }}
-                      ></i>
-                      Log out
-                    </NavDropdown.Item>
-                  </NavDropdown>
-                )}
-              </>
-            )}
-          </Nav>
-          
-          <Form
-            className="d-none d-md-flex mx-auto"
-            style={{ maxWidth: "400px" }}
-          >
-            <Form.Control
-              type="text"
-              placeholder="Search your product"
-              className="me-2"
-            />
-          </Form>
+                    <img
+                      src={user.picture || "https://via.placeholder.com/32"}
+                      alt="User"
+                      className="h-6 w-6 rounded-full"
+                    />
+                    <span>{user.name}</span>
+                  </button>
 
-          <Nav className="ms-auto">
-            <Nav.Link href="#link">
-              <i
-                className="bi bi-heart-fill"
-                style={{ marginRight: "8px" }}
-              ></i>
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5">
+                      <div className="py-1" role="menu">
+                        <Link to={"/profile"}>
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-purple-500"
+                            role="menuitem"
+                          >
+                            <FiUser className="inline mr-2" />
+                            Profile
+                          </button>
+                        </Link>
+                        <button
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-purple-500"
+                          role="menuitem"
+                          onClick={logoutWithRedirect}
+                        >
+                          <FiLogOut className="inline mr-2" />
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={() => loginWithRedirect()}
+                  className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-md text-sm font-medium"
+                >
+                  Login
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-gray-300 hover:text-purple-500"
+            >
+              {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {isOpen && (
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <button className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+              <FiHeart className="inline mr-2" />
               Favourites
-            </Nav.Link>
-            <Nav.Link href="#link">
-              <i className="bi bi-basket" style={{ marginRight: "8px" }}></i>
-              Basket
-            </Nav.Link>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
-  );
-}
+            </button>
 
-export default NavBar;
+            <button className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+              <FiShoppingBag className="inline mr-2" />
+              Basket
+            </button>
+
+            {isAuthenticated && user ? (
+              <>
+                <button className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+                  <FiUser className="inline mr-2" />
+                  Profile
+                </button>
+                <button
+                  className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left"
+                  onClick={logoutWithRedirect}
+                >
+                  <FiLogOut className="inline mr-2" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => loginWithRedirect()}
+                className="bg-purple-600 hover:bg-purple-700 block px-3 py-2 rounded-md text-base font-medium w-full"
+              >
+                Login
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+export default Navbar;

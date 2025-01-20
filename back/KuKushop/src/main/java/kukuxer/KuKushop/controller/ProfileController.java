@@ -32,14 +32,13 @@ public class ProfileController {
     public ResponseEntity<ProfileDto> getOrCreateProfile(@AuthenticationPrincipal Jwt jwt,@RequestBody ProfileDto profileDto) {
         String authId = jwt.getClaim("sub");
 
-        Optional<Profile> optionalProfile = profileService.findByAuthId(authId);
+        Optional<Profile> optionalProfile = profileService.getByAuthId(authId);
         profileDto.setAuthId(authId);
         System.out.println(profileDto.toString());
         if (optionalProfile.isPresent()) {
             ProfileDto profileDtoResponse = profileMapper.toDto(optionalProfile.get());
             return ResponseEntity.ok(profileDtoResponse);
         }
-        // if profile doesn't exist, -> create one
         profileDto.setRole("Guest");
         Profile newProfile = profileService.createProfile(profileDto);
         return ResponseEntity.ok(ProfileMapper.INSTANCE.toDto(newProfile));

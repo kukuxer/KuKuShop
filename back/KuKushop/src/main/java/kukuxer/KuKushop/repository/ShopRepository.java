@@ -12,6 +12,5 @@ import java.util.Optional;
 public interface ShopRepository extends JpaRepository<Shop,Long> {
     Optional<Shop> findByUserAuthId(String userAuthId);
     Optional<Shop> findByOwnerName(String ownerName);
-    @Query("SELECT s.image FROM Shop s WHERE s.userAuthId = :userAuthId")
-    Optional<Long> findImageOidByUserAuthId(@Param("userAuthId") String userAuthId);
+
 }

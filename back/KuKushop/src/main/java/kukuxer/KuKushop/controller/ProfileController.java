@@ -17,11 +17,12 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ProfileController {
 
-    private ProfileService profileService;
+    private final ProfileService profileService;
+    private final ProfileMapper profileMapper;
 
     @PostMapping
     public ResponseEntity<ProfileDto> createProfile(@RequestBody ProfileDto profileDto) {
-        ProfileDto createdProfileDto = ProfileMapper.toDto(
+        ProfileDto createdProfileDto = profileMapper.INSTANCE.toDto(
                 profileService.createProfile(profileDto)
         );
         return ResponseEntity.ok(createdProfileDto);
@@ -35,12 +36,12 @@ public class ProfileController {
         profileDto.setAuthId(authId);
         System.out.println(profileDto.toString());
         if (optionalProfile.isPresent()) {
-            ProfileDto profileDtoResponse = ProfileMapper.toDto(optionalProfile.get());
+            ProfileDto profileDtoResponse = profileMapper.toDto(optionalProfile.get());
             return ResponseEntity.ok(profileDtoResponse);
         }
         // if profile doesn't exist, -> create one
         profileDto.setRole("Guest");
         Profile newProfile = profileService.createProfile(profileDto);
-        return ResponseEntity.ok(ProfileMapper.toDto(newProfile));
+        return ResponseEntity.ok(ProfileMapper.INSTANCE.toDto(newProfile));
     }
 }

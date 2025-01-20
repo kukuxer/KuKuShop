@@ -5,7 +5,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,26 +13,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "profiles")
-public class Profile {
-
+@Table(name = "shop")
+public class Shop {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column
-    String role;
-
-    String familyName;
-    String givenName;
     String name;
-    String nickname;
+    String ownerName;
+    String userAuthId;
+    String description;
 
-    @Column(unique = true)
-    String email;
-
-    @Column(unique = true)
-    String authId;
     @CreationTimestamp
     LocalDateTime creationDate;
+
+    @Lob
+    @Column(name = "image")
+    byte[] image;
 }

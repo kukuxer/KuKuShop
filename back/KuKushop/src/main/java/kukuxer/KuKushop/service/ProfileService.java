@@ -25,7 +25,7 @@ public class ProfileService {
             throw new RuntimeException("Profile with authId " + profileDto.getAuthId() + " already exists");
         }
 
-        Profile profile = ProfileMapper.toEntity(profileDto);
+        Profile profile = ProfileMapper.INSTANCE.toEntity(profileDto);
         return profileRepository.save(profile);
     }
 }

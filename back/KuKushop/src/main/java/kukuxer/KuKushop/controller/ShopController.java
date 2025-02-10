@@ -1,7 +1,6 @@
 package kukuxer.KuKushop.controller;
 
 
-import kukuxer.KuKushop.dto.Mappers.ShopMapper;
 import kukuxer.KuKushop.dto.ShopDto;
 import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.service.ProfileService;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 @RestController
 @RequestMapping("/api/shop")
@@ -32,23 +30,24 @@ public class ShopController {
                                               @RequestPart(value = "image",required = false) MultipartFile image) throws IOException {
 
         ShopDto createdShopDto = shopService.createShop(shopDto, jwt.getClaim("sub"), image);
-
-
         return ResponseEntity.ok(createdShopDto);
     }
     @GetMapping("/myShopImage")
-    public ResponseEntity<byte[]> getShopImage(@AuthenticationPrincipal Jwt jwt) throws SQLException, IOException {
+    public ResponseEntity<String> getShopImage(@AuthenticationPrincipal Jwt jwt) {
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
-        byte[] imageBytes = shopService.getShopImageData(shop);
 
-        if (imageBytes != null) {
+        if (shop.getImageUrl() != null) {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE)
-                    .body(imageBytes);
+                    .body(shop.getImageUrl());
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
+
+
+
     @GetMapping("/doUserOwnAShop")
     public ResponseEntity<Boolean> checkIfUserOwnAShop(@AuthenticationPrincipal Jwt jwt) {
     boolean ownAShop = profileService.checkIfUserOwnAShop(jwt.getClaim("sub"));

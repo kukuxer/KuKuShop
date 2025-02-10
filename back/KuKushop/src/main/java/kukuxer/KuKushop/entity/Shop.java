@@ -27,7 +27,5 @@ public class Shop {
     @CreationTimestamp
     LocalDateTime creationDate;
 
-
-    @Column(name = "image_id")
-    Long imageId;
+    String imageUrl;
 }

@@ -54,13 +54,15 @@
 			<version>LATEST</version>
 			<scope>provided</scope>
 		</dependency>
+                <!--AWS S3-->
 
-<!--		<dependency>-->
-<!--			<groupId>org.flywaydb</groupId>-->
-<!--			<artifactId>flyway-database-postgresql</artifactId>-->
-<!--			<version>LATEST</version>-->
-<!--			<scope>runtime</scope>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>2.20.28</version> <!-- Use the latest version -->
+		</dependency>
+
+
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>

@@ -1,17 +1,20 @@
 package kukuxer.KuKushop.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProfileDto {
-    private String role;
-    private String name;
-    private String email;
-    private String familyName;
-    private String givenName;
-    private String nickname;
+     String role;
+     String name;
+     String email;
+     String familyName;
+     String givenName;
+     String nickname;
     @JsonIgnore
-    private String authId;
+     String authId;
 }

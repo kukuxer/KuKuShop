@@ -2,66 +2,50 @@ import React, { useState, useEffect } from "react";
 import { FaStar, FaShoppingCart, FaSearch, FaHeart, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
+import ShopBanner from "./ShopBanner";
+import { Link } from "react-router-dom";
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  rating: number;
-  imageUrl?: string;
-  isFavorite?: boolean;
-  reviews?: number;
-}
-
-const MyShopPageExample: React.FC = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [shopImage, setShopImage] = useState<string>("/default-shop-image.jpg");
+const DarkShop = () => {
+  const [error, setError] = useState(null);
+  const [shopImage, setShopImage] = useState("/default-shop-image.jpg");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [cartCount, setCartCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const { getAccessTokenSilently } = useAuth0();
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [cartCount, setCartCount] = useState<number>(0);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-
   useEffect(() => {
-    const fetchShopImage = async () => {
-      try {
-        const token = await getAccessTokenSilently();
-    
-        const response = await fetch("http://localhost:8080/api/shop/myShopImage", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-    
-        if (response.ok) {
-          const imageUrl = await response.text(); 
-          setShopImage(imageUrl); 
-          console.log("Shop image URL:", imageUrl);
-        } else {
-          setShopImage("/default-shop-image.jpg"); 
+      const fetchShopImage = async () => {
+        try {
+          const token = await getAccessTokenSilently();
+      
+          const response = await fetch("http://localhost:8080/api/shop/myShopImage", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+      
+          if (response.ok) {
+            const imageUrl = await response.text(); 
+            setShopImage(imageUrl); 
+            console.log("Shop image URL:", imageUrl);
+          } else {
+            setShopImage("/default-shop-image.jpg"); 
+          }
+        } catch (error) {
+          console.error("Error fetching shop image:", error);
         }
-      } catch (error) {
-        console.error("Error fetching shop image:", error);
-      }
-    };
-    fetchShopImage();
-  }, [getAccessTokenSilently]);
+      };
+      fetchShopImage();
+    }, [getAccessTokenSilently]);
 
   useEffect(() => {
     const fetchShopProducts = async () => {
       try {
-        const token = await getAccessTokenSilently();
-        const response = await axios.get("http://localhost:8080/api/product/getMyProducts", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        const productsData: Product[] = Array.isArray(response.data) ? response.data : [];
+        const response = await axios.get("http://localhost:8080/api/product/getMyProducts");
+        const productsData = Array.isArray(response.data) ? response.data : [];
         setProducts(productsData);
-  
       } catch (err) {
         setError("Error fetching products");
         console.error("Error fetching products:", err);
@@ -69,11 +53,10 @@ const MyShopPageExample: React.FC = () => {
         setLoading(false);
       }
     };
-  
     fetchShopProducts();
-  }, [getAccessTokenSilently]);
+  }, []);
 
-  const toggleFavorite = (productId: string) => {
+  const toggleFavorite = (productId) => {
     setProducts(products.map(product => 
       product.id === productId 
         ? { ...product, isFavorite: !product.isFavorite }
@@ -85,7 +68,7 @@ const MyShopPageExample: React.FC = () => {
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
+  const RatingStars = ({ rating }) => {
     return (
       <div className="flex items-center">
         {[...Array(5)].map((_, index) => (
@@ -98,8 +81,8 @@ const MyShopPageExample: React.FC = () => {
     );
   };
 
-  const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
-    const [isHovered, setIsHovered] = useState<boolean>(false);
+  const ProductCard = ({ product }) => {
+    const [isHovered, setIsHovered] = useState(false);
 
     return (
       <div
@@ -139,7 +122,7 @@ const MyShopPageExample: React.FC = () => {
     );
   };
 
-  const AddMoreCard: React.FC = () => (
+  const AddMoreCard = () => (
     <div className="bg-gray-800 rounded-lg overflow-hidden h-full flex items-center justify-center cursor-pointer hover:bg-gray-700 transition-colors duration-300">
       <div className="text-center p-8">
         <FaPlus className="w-12 h-12 text-purple-500 mx-auto mb-4" />
@@ -148,13 +131,15 @@ const MyShopPageExample: React.FC = () => {
     </div>
   );
 
-  const EmptyState: React.FC = () => (
+  const EmptyState = () => (
     <div className="text-center py-16">
       <FaShoppingCart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
       <h3 className="text-2xl font-bold text-white mb-4">You don't have any items yet</h3>
+      <Link to={"/productForm"}>
       <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300">
         Create New Item
       </button>
+      </Link>
     </div>
   );
 
@@ -167,23 +152,13 @@ const MyShopPageExample: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black">
-      <div className="relative h-96">
-        <img
-          src={shopImage}
-          alt="Shop Banner"
-          className="w-full h-96 object-cover"
-        />
-        <div className="absolute inset-0 bg-black bg-opacity-60 flex flex-col items-center justify-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">My Shop</h1>
-          <div className="flex items-center space-x-2">
-            <RatingStars rating={4.8} />
-            <span className="text-white">(1,267 reviews)</span>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-900">
+      <ShopBanner imageUrl={shopImage || "https://source.unsplash.com/1600x900/?shop"} />
 
-      <nav className="bg-gray-800 p-4 sticky top-0 z-50">
+     
+
+
+      <nav className="bg-gray-900 p-4 sticky top-0 z-50 border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <div className="relative w-full max-w-2xl">
             <input
@@ -191,7 +166,7 @@ const MyShopPageExample: React.FC = () => {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full bg-gray-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             <FaSearch className="absolute right-3 top-3 text-gray-400" />
           </div>
@@ -206,7 +181,7 @@ const MyShopPageExample: React.FC = () => {
         </div>
       </nav>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 bg-gray-900">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-white text-center">Featured Products</h2>
         </div>
@@ -226,4 +201,4 @@ const MyShopPageExample: React.FC = () => {
   );
 };
 
-export default MyShopPageExample;
+export default DarkShop;

@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,13 +23,11 @@ public class ProductDto {
 
     String price;
 
-    Set<String> categories;
+    Set<String> categories = new HashSet<>();
 
-     String imageUrl;
-
-
-    double rating;
+    String imageUrl;
 
     int quantity;
+    double rating;
 
 }

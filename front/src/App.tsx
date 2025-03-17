@@ -4,6 +4,7 @@ import NavBar from "./components/navbar-footer/NavBar";
 import './App.css';
 
 import Profile from "./components/profile/Profile";
+import ProductForm from "./components/shopPage/components/ProductForm";
 import MyShop from "./components/shopPage/MyShop";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Loading from "./components/utils/Loading";
@@ -14,6 +15,9 @@ const ProtectedShop = withAuthenticationRequired(MyShop, {
   onRedirecting: () => <Loading />,
 }); 
 const ProtectedProfile = withAuthenticationRequired(Profile, {
+  onRedirecting: () => <Loading />,
+});
+const ProtectedProductForm = withAuthenticationRequired(ProductForm, {
   onRedirecting: () => <Loading />,
 });
 
@@ -29,6 +33,8 @@ const App = () => {
              {/* Secure Route */}
              <Route path="/myshop" element={<ProtectedShop />} />
              <Route path="/profile" element={<ProtectedProfile />} />
+             <Route path="/productForm" element={<ProtectedProductForm />} />
+             
           </Routes>
         </div>
       </div>

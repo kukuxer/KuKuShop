@@ -35,7 +35,7 @@ public class ShopService {
 
         Shop shop = ShopMapper.INSTANCE.toEntity(shopDto);
 
-        if (!image.isEmpty()) {
+        if (image != null && !image.isEmpty()) {
             String fileKey = s3Service.uploadFile(image);
             shop.setImageUrl(fileKey);
         }

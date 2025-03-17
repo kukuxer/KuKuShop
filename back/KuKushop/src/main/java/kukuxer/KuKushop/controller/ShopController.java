@@ -1,6 +1,7 @@
 package kukuxer.KuKushop.controller;
 
 
+import kukuxer.KuKushop.dto.Mappers.ShopMapper;
 import kukuxer.KuKushop.dto.ShopDto;
 import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.service.ProfileService;
@@ -22,6 +23,7 @@ import java.io.IOException;
 public class ShopController {
 
     private final ShopService shopService;
+    private final ShopMapper shopMapper;
     private final ProfileService profileService;
 
     @PostMapping("/create")
@@ -44,6 +46,15 @@ public class ShopController {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping("/myShop")
+    public ResponseEntity<ShopDto> getShopDto(@AuthenticationPrincipal Jwt jwt) {
+        Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
+        if (shop == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(ShopMapper.INSTANCE.toDto(shop));
+    }
+
 
 
 

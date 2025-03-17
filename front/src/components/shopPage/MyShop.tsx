@@ -4,10 +4,11 @@ import axios from "axios";
 import ShopForm from "./components/ShopForm";
 import MyShopPage from "./components/MyShopPage";
 import MyShopPageExample from "./components/MyShopPageExample";
+import DarkShop from "./components/DarkShop";
 
 const Home: React.FC = () => {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [hasShop, setHasShop] = useState<boolean | null>(null); // null = loading state
+  const [hasShop, setHasShop] = useState<boolean | null>(null); 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +49,8 @@ const Home: React.FC = () => {
     <div>
       {hasShop ? (
         // <MyShopPage />
-        <MyShopPageExample />
+        // <MyShopPageExample />
+        <DarkShop />
       ) : (
         <ShopForm />
       )}

@@ -1,8 +1,10 @@
 package kukuxer.KuKushop.controller;
 
+import kukuxer.KuKushop.dto.Mappers.ProductMapper;
 import kukuxer.KuKushop.dto.Mappers.ProfileMapper;
 import kukuxer.KuKushop.dto.ProductDto;
 import kukuxer.KuKushop.dto.ProfileDto;
+import kukuxer.KuKushop.dto.ShopDto;
 import kukuxer.KuKushop.entity.Product;
 import kukuxer.KuKushop.entity.Profile;
 import kukuxer.KuKushop.entity.Shop;
@@ -15,10 +17,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Controller
@@ -28,20 +32,33 @@ public class ProductController {
 
     private final ProductService productService;
     private final ShopService shopService;
+    private final ProductMapper productMapper;
 
     @GetMapping("/getMyProducts")
-    public ResponseEntity<?> getMyProducts(
-            @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<?> getMyProducts(@AuthenticationPrincipal Jwt jwt) {
 
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
 
         List<Product> products = productService.getProductsByShopId(shop.getId());
 
-        if (products.isEmpty()) {
+        List<ProductDto> productDtos = products.stream()
+                .map(productMapper::toDto)
+                .collect(Collectors.toList());
+
+        if (productDtos.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(productDtos);
+    }
+    @PostMapping("/create")
+    public ResponseEntity<?> createProduct(@AuthenticationPrincipal Jwt jwt,
+                                           @ModelAttribute ProductDto productDto,
+                                           @RequestPart(value = "image",required = false) MultipartFile image) throws IOException {
+
+        Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
+        ProductDto productDtoResponse = productService.createProduct(productDto,image,shop.getId());
+        return ResponseEntity.ok(productDtoResponse);
     }
 }
 

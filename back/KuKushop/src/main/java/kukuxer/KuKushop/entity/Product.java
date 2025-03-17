@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -19,11 +20,11 @@ import java.util.UUID;
 @Table(name = "products")
 public class Product {
 
+
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    @Column(updatable = false, nullable = false, columnDefinition = "CHAR(36)")
-    UUID id;
+    @GeneratedValue
+    @UuidGenerator
+    UUID id = UUID.randomUUID();
 
     @Column(nullable = false)
     Long shopId;
@@ -35,11 +36,11 @@ public class Product {
     String description;
 
     String price;
-    
+
     String imageUrl;
 
     @ElementCollection
-    @CollectionTable(name = "product_categories", joinColumns = @JoinColumn(name = "product_id"))
+    @CollectionTable(name = "product_categories", joinColumns = @JoinColumn(name = "product_id", referencedColumnName = "id", columnDefinition = "BINARY(16)"))
     @Column(name = "category")
     Set<String> categories;
 

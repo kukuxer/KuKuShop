@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
+    "@aws-sdk/client-s3": "^3.744.0",
+    "@aws-sdk/s3-request-presigner": "^3.744.0",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
@@ -19,6 +21,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.7.9",
     "highlight.js": "^11.11.1",
     "react": "^18.3.1",

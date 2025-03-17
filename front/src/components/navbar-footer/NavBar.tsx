@@ -12,6 +12,7 @@ import {
   FiPackage,
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import Profile from "../../entity/Profile";
 
 const Navbar = () => {
   const {
@@ -24,14 +25,6 @@ const Navbar = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  interface Profile {
-    email: string;
-    familyName: string;
-    givenName: string;
-    name: string;
-    nickname: string;
-    role: string;
-  }
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [shopImage, setShopImage] = useState<string | null>(null);
@@ -46,7 +39,6 @@ const Navbar = () => {
       if (!isAuthenticated) return;
 
       const token = await getAccessTokenSilently();
-
       const response = await fetch("http://localhost:8080/api/profile/get", {
         method: "POST",
         headers: {
@@ -68,36 +60,32 @@ const Navbar = () => {
 
       const profileData = await response.json();
       setProfile(profileData);
-      console.log(token);
     } catch (error) {
       console.error("Error fetching or creating profile:", error);
     }
   };
 
-
   const fetchShopImage = async () => {
-  try {
-    const token = await getAccessTokenSilently(); 
+    try {
+      const token = await getAccessTokenSilently();
 
-    const response = await fetch("http://localhost:8080/api/shop/myShopImage", {
-      method: "GET", 
-      headers: {
-        Authorization: `Bearer ${token}`, 
-      },
-    });
+      const response = await fetch("http://localhost:8080/api/shop/myShopImage", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (response.ok) {
-      
-      const imageBlob = await response.blob();
-      const imageUrl = URL.createObjectURL(imageBlob);
-      setShopImage(imageUrl); 
-    } else {
-      console.error("Failed to fetch shop image");
+      if (response.ok) {
+        const imageUrl = await response.text();
+        setShopImage(imageUrl);
+      } else {
+        setShopImage("/default-shop-image.jpg");
+      }
+    } catch (error) {
+      console.error("Error fetching shop image:", error);
     }
-  } catch (error) {
-    console.error("Error fetching shop image:", error);
-  }
-};
+  };
 
   useEffect(() => {
     fetchOrCreateProfile();
@@ -110,11 +98,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 md:block hidden">
-              <img
-                className="h-8 w-8"
-                src={shopImage || "https://via.placeholder.com/32"}
-                alt="Logo"
-              />
+              <img className="h-8 w-8" src={shopImage || ""} alt="Logo" />
             </div>
             <Link to={"/"}>
               <div className="md:block hidden ml-2 font-bold text-xl text-purple-500">
@@ -172,7 +156,7 @@ const Navbar = () => {
                   </button>
 
                   {isDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5">
+                    <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
                       <div className="py-1" role="menu">
                         <Link to={"/profile"}>
                           <button
@@ -218,7 +202,7 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className="md:hidden">
+        <div className="md:hidden z-50">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <button className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
               <FiHeart className="inline mr-2" />

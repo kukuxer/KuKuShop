@@ -4,7 +4,7 @@ import NavBar from "./components/navbar-footer/NavBar";
 import './App.css';
 
 import Profile from "./components/profile/Profile";
-import ProductForm from "./components/shopPage/components/ProductForm";
+import ProductForm from "./components/forms/ProductForm";
 import MyShop from "./components/shopPage/MyShop";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Loading from "./components/utils/Loading";

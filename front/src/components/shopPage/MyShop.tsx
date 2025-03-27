@@ -1,10 +1,9 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import ShopForm from "./components/ShopForm";
-import MyShopPage from "./components/MyShopPage";
-import MyShopPageExample from "./components/MyShopPageExample";
-import DarkShop from "./components/DarkShop";
+import ShopForm from "../forms/ShopForm";
+import MyShopComponent from "./components/MyShopComponent";
+
 
 const Home: React.FC = () => {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
@@ -48,9 +47,7 @@ const Home: React.FC = () => {
   return (
     <div>
       {hasShop ? (
-        // <MyShopPage />
-        // <MyShopPageExample />
-        <DarkShop />
+        <MyShopComponent />
       ) : (
         <ShopForm />
       )}

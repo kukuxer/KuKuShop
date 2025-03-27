@@ -10,14 +10,15 @@ import { FiUpload } from "react-icons/fi";
 import { MdClose } from "react-icons/md";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
-import { FaDollarSign } from "react-icons/fa";
+import { FaAccessibleIcon, FaChevronDown, FaDollarSign, FaGem, FaHome, FaMobileAlt, FaPlus, FaRunning, FaSearch, FaTrash, FaTshirt } from "react-icons/fa";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
 
 interface FormData {
   name: string;
   description: string;
   price: string;
-  category: string;
+  categories: string[];
   customCategory: string;
   image: File | null;
 }
@@ -34,27 +35,76 @@ const ProductCreationForm = () => {
     name: "",
     description: "",
     price: "",
-    category: "",
+    categories: [],
     customCategory: "",
     image: null,
   });
+
+
+  
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [isAddingCustom, setIsAddingCustom] = useState(false);
+  const [customCategory, setCustomCategory] = useState("");
+
 
   const [errors, setErrors] = useState<Errors>({});
   const { getAccessTokenSilently } = useAuth0();
   const [PriceInputIsFocused, PriceInputSetIsFocused] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [showCustomCategory, setShowCustomCategory] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const navigate = useNavigate();
 
-  const categories: string[] = [
-    "Home Goods",
-    "Jewelry",
-    "Electronics",
-    "Clothing",
-    "Accessories",
+
+  const categories = [
+    { id: 1, name: "Jewelry", icon: <FaGem /> },
+    { id: 2, name: "Clothing", icon: <FaTshirt /> },
+    { id: 3, name: "Electronics", icon: <FaMobileAlt /> },
+    { id: 4, name: "Accessories", icon: <FaAccessibleIcon /> },
+    { id: 5, name: "Home Goods", icon: <FaHome /> },
+    { id: 6, name: "Sports & Outdoors", icon: <FaRunning /> },
   ];
+
+  const handleCategorySelect = (category: string) => {
+    if (selectedCategories.includes(category)) {
+      setSelectedCategories(selectedCategories.filter(cat => cat !== category));
+    } else if (selectedCategories.length < 3) {
+      setSelectedCategories([...selectedCategories, category]);
+    } else {
+      setError("Maximum 3 categories allowed");
+      setTimeout(() => setError(""), 3000);
+    }
+    setIsOpen(false);
+  };
+
+  const handleClearSelection = (categoryToRemove: string) => {
+    setSelectedCategories(selectedCategories.filter(cat => cat !== categoryToRemove));
+    setSearchTerm("");
+  };
+
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleCustomCategorySubmit = () => {
+    if (customCategory.trim()) {
+      if (selectedCategories.length < 3) {
+        setSelectedCategories([...selectedCategories, customCategory.trim()]);
+        setIsAddingCustom(false);
+        setCustomCategory("");
+        setIsOpen(false);
+      } else {
+        setError("Maximum 3 categories allowed");
+        setTimeout(() => setError(""), 3000);
+      }
+    }
+  };
+
 
   useEffect(() => {
     const savedDraft = localStorage.getItem("productFormDraft");
@@ -72,13 +122,9 @@ const ProductCreationForm = () => {
     if (!formData.price || parseFloat(formData.price) <= 0) {
       newErrors.price = "Price must be greater than 0";
     }
-    if (!formData.category) {
-      newErrors.category = "Please select a category";
-    }
     if (formData.image && formData.image.size > 5 * 1024 * 1024) {
       newErrors.image = "File size must be less than 5MB";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -193,13 +239,13 @@ const ProductCreationForm = () => {
 
     setIsSubmitting(true);
     try {
-      console.log("Submitting form data:", formData); 
+      console.log("Submitting form data:", formData);
       const token = await getAccessTokenSilently();
       const data = new FormData();
       data.append("name", formData.name);
       data.append("description", formData.description);
       data.append("price", formData.price);
-      data.append("category", formData.category);
+      data.append("categories", selectedCategories.join(",")); 
       if (formData.image) data.append("image", formData.image);
 
       const response = await axios.post(
@@ -219,13 +265,14 @@ const ProductCreationForm = () => {
         name: "",
         description: "",
         price: "",
-        category: "",
+        categories: [],
         customCategory: "",
         image: null,
       });
+      setSelectedCategories([]); 
       setImagePreview("");
       localStorage.removeItem("productFormDraft");
-      setShowModal(false);
+      navigate("/myshop");
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -275,36 +322,120 @@ const ProductCreationForm = () => {
             />
           </div>
 
-          {/* Category */}
-          <div>
-            <label htmlFor="category" className="block text-white mb-2">
-              Category <span className="text-red-500">*</span>
-            </label>
-            <select
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={(e) => {
-                if (e.target.value === "custom") {
-                  setShowCustomCategory(true);
-                } else {
-                  handleInputChange(e);
-                }
-              }}
-              className="w-full bg-[#1A1A2E] text-white rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-purple-400 border border-gray-700"
-            >
-              <option value="">Select a category</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-              <option value="custom">Add Custom Category</option>
-            </select>
-            {errors.category && (
-              <p className="text-red-400 text-sm mt-1">{errors.category}</p>
-            )}
+
+          {/* CATEGORY */}
+
+          <div className="relative">
+        <label
+          htmlFor="category"
+          className="block text-sm font-medium text-gray-200 mb-2"
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          Select Category
+        </label>
+        {showTooltip && (
+          <div className="absolute -top-10 left-0 bg-gray-700 text-white text-xs rounded py-1 px-2">
+            Choose a product category from the list
           </div>
+        )}
+        <div className="relative">
+          <button
+            type="button"
+            className={`w-full bg-gray-800 border ${error ? "border-red-500" : "border-purple-500"} rounded-md py-2 pl-3 pr-10 text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm text-gray-200`}
+            onClick={() => setIsOpen(!isOpen)}
+            aria-haspopup="listbox"
+            aria-expanded={isOpen}
+            aria-labelledby="category-label"
+          >
+            <span className="flex items-center flex-wrap gap-2">
+                Select category
+            </span>
+            <span className="absolute inset-y-0 right-0 flex items-center pr-2">
+              <FaChevronDown className="h-4 w-4 text-gray-400" aria-hidden="true" />
+            </span>
+          </button>
+
+          {isOpen && (
+            <div className="absolute z-10 mt-1 w-full bg-gray-800 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-purple-500 ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+              <div className="sticky top-0 z-10 bg-gray-800 p-2">
+                <div className="relative">
+                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-600 rounded-md leading-5 bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="Search categories..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {filteredCategories.map((category) => (
+                <div
+                  key={category.id}
+                  className={`cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-700 text-gray-200 ${selectedCategories.includes(category.name) ? "bg-purple-900" : ""}`}
+                  onClick={() => handleCategorySelect(category.name)}
+                  role="option"
+                  aria-selected={selectedCategories.includes(category.name)}
+                >
+                  <div className="flex items-center">
+                    <span className="mr-2">{category.icon}</span>
+                    {category.name}
+                  </div>
+                </div>
+              ))}
+
+              <div className="border-t border-gray-600 mt-2 pt-2">
+                {isAddingCustom ? (
+                  <div className="px-3 py-2">
+                    <input
+                      type="text"
+                      className="w-full px-3 py-1 border border-gray-600 rounded-md bg-gray-700 text-gray-200 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                      placeholder="Enter custom category"
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      onKeyPress={(e) => e.key === "Enter" && handleCustomCategorySubmit()}
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-700 text-purple-400 flex items-center"
+                    onClick={() => setIsAddingCustom(true)}
+                  >
+                    <FaPlus className="mr-2" />
+                    Add Custom Category
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-2 flex flex-wrap gap-2">
+          {selectedCategories.map(category => (
+            <div key={category} className="flex items-center bg-gray-700 px-2 py-1 rounded">
+              {categories.find(c => c.name === category)?.icon}
+              <span className="ml-1">{category}</span>
+              <button
+                type="button"
+                onClick={() => handleClearSelection(category)}
+                className="ml-2 text-gray-400 hover:text-gray-200"
+                aria-label="Remove category"
+              >
+                <FaTrash className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {error && (
+        <p className="mt-2 text-sm text-red-400" role="alert">
+          {error}
+        </p>
+      )}
+          
 
           {/* PRICE INPUT  */}
 
@@ -379,7 +510,11 @@ const ProductCreationForm = () => {
               <input
                 type="file"
                 ref={fileInputRef}
-                onChange={(e) => handleImageFile(e.target.files[0])}
+                onChange={(e) => {
+                  if (e.target.files) {
+                    handleImageFile(e.target.files[0]);
+                  }
+                }}
                 accept=".jpg,.jpeg,.png,.webp"
                 className="hidden"
               />

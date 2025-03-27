@@ -4,11 +4,13 @@ import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 import ShopBanner from "./ShopBanner";
 import { Link } from "react-router-dom";
+import Product from "../../../entity/Product";
+import ProductCard from "./ProductCard";
 
-const DarkShop = () => {
-  const [error, setError] = useState(null);
+const MyShopComponent = () => {
+  const [error, setError] = useState<string | null>(null);
   const [shopImage, setShopImage] = useState("/default-shop-image.jpg");
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [cartCount, setCartCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,7 +45,13 @@ const DarkShop = () => {
   useEffect(() => {
     const fetchShopProducts = async () => {
       try {
-        const response = await axios.get("http://localhost:8080/api/product/getMyProducts");
+        const token = await getAccessTokenSilently();
+        const response = await axios.get("http://localhost:8080/api/product/getMyProducts", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const productsData = Array.isArray(response.data) ? response.data : [];
         setProducts(productsData);
       } catch (err) {
@@ -68,66 +76,16 @@ const DarkShop = () => {
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const RatingStars = ({ rating }) => {
-    return (
-      <div className="flex items-center">
-        {[...Array(5)].map((_, index) => (
-          <FaStar
-            key={index}
-            className={`w-4 h-4 ${index < Math.floor(rating) ? "text-purple-500" : "text-gray-600"}`}
-          />
-        ))}
-      </div>
-    );
-  };
-
-  const ProductCard = ({ product }) => {
-    const [isHovered, setIsHovered] = useState(false);
-
-    return (
-      <div
-        className={`bg-gray-800 rounded-lg overflow-hidden transform transition-all duration-300 ${isHovered ? "scale-105 shadow-purple-500/50 shadow-lg" : ""}`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <div className="relative aspect-w-16 aspect-h-9">
-          <img
-            src={product.imageUrl || "/default-product-image.jpg"}
-            alt={product.name}
-            className="object-cover w-full h-48"
-            loading="lazy"
-          />
-          <button
-            onClick={() => toggleFavorite(product.id)}
-            className="absolute top-2 right-2 p-2 rounded-full bg-gray-800 bg-opacity-70 hover:bg-opacity-100 transition-all duration-300"
-          >
-            <FaHeart className={`w-5 h-5 ${product.isFavorite ? "text-red-500" : "text-gray-400"}`} />
-          </button>
-        </div>
-        <div className="p-4">
-          <h3 className="text-lg font-semibold text-white mb-2">{product.name}</h3>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-purple-400 font-bold">${product.price}</span>
-            <RatingStars rating={product.rating || 0} />
-          </div>
-          <p className="text-gray-400 text-sm mb-4">{product.reviews || 0} reviews</p>
-          <button
-            onClick={() => setCartCount(prev => prev + 1)}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300"
-          >
-            Add to Cart
-          </button>
-        </div>
-      </div>
-    );
-  };
-
+ 
+  
   const AddMoreCard = () => (
     <div className="bg-gray-800 rounded-lg overflow-hidden h-full flex items-center justify-center cursor-pointer hover:bg-gray-700 transition-colors duration-300">
+      <Link to={"/productForm"}>
       <div className="text-center p-8">
         <FaPlus className="w-12 h-12 text-purple-500 mx-auto mb-4" />
         <p className="text-white font-semibold">Add More Items</p>
       </div>
+      </Link>
     </div>
   );
 
@@ -191,7 +149,7 @@ const DarkShop = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} onToggleFavorite={toggleFavorite} />
             ))}
             <AddMoreCard />
           </div>
@@ -201,4 +159,4 @@ const DarkShop = () => {
   );
 };
 
-export default DarkShop;
+export default MyShopComponent;

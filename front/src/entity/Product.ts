@@ -7,6 +7,8 @@ class Product {
   imageUrl: string;
   rating: number;
   quantity: number;
+  isFavorite: any;
+  reviews: number;
 
   constructor(
     id: string,

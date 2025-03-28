@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS shops (
 );
 
 CREATE TABLE IF NOT EXISTS products (
-    id CHAR(36) PRIMARY KEY,
+    id BINARY(16) PRIMARY KEY,
     shop_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 CREATE TABLE IF NOT EXISTS product_categories (
-    product_id CHAR(36) NOT NULL,
+    product_id BINARY(16) NOT NULL,
     category_id BIGINT NOT NULL,
     PRIMARY KEY (product_id, category_id),
     CONSTRAINT fk_product_id FOREIGN KEY (product_id) REFERENCES products (id),

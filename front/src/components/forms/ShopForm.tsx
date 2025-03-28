@@ -2,6 +2,7 @@ import { useState, ChangeEvent, FormEvent } from "react";
 import { FiUpload } from "react-icons/fi";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react"; 
+import { useNavigate } from "react-router-dom";
 
 interface ShopDto {
   shopName: string;
@@ -25,6 +26,7 @@ const ShopCreationForm = () => {
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const navigate = useNavigate();
 
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -85,6 +87,7 @@ const ShopCreationForm = () => {
         setFormData({ shopName: "", image: null, description: "" });
         setAgreement(false);
         setImagePreview(null);
+        navigate("/myshop");
       } catch (error) {
         console.error("Error submitting form:", error);
       } finally {

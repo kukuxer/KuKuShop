@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaStar, FaShoppingCart, FaSearch, FaHeart, FaPlus } from "react-icons/fa";
+import { FaShoppingCart, FaSearch, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 import ShopBanner from "./ShopBanner";

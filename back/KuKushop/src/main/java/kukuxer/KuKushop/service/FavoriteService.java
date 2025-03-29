@@ -8,15 +8,22 @@ import kukuxer.KuKushop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final ProductRepository productRepository;
+
+    public Set<UUID> getFavoriteProductIdsByUserId(Long userId){
+        List<Favorite> favoritesByUserId = favoriteRepository.findFavoritesByUserId(userId);
+        Set<UUID> favoriteProductIds = new HashSet<>();
+        favoritesByUserId.forEach(
+                f -> favoriteProductIds.add(f.getProduct().getId())
+        );
+        return favoriteProductIds;
+    }
 
     public void toggleFavorite(UUID productId, Long id) {
         Optional<Favorite> favorite = favoriteRepository.findByUserIdAndProductId(id, productId);

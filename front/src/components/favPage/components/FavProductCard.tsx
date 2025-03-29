@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaTrash } from "react-icons/fa";
 import Product from "../../../entity/Product";
-import RatingStars from "./RatingStars";
 import { useAuth0 } from "@auth0/auth0-react";
+import RatingStars from "../../shopPage/components/RatingStars";
 
 interface ProductCardProps {
   product: Product;
   onToggleFavorite: (productId: string, isCurrentlyFavorite: boolean) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite }) => {
+const FavProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite }) => {
   const [isHovered, setIsHovered] = useState(false);
   const { getAccessTokenSilently } = useAuth0();
 
@@ -22,7 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite }) 
           Authorization: `Bearer ${token}`,
         },
       });
-      onToggleFavorite(product.id, product.favorite ?? false);
+      onToggleFavorite(product.id, product.isFavorite ?? false);
     } catch (error) {
       console.error("Failed to toggle favorite", error);
     }
@@ -47,7 +47,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite }) 
           onClick={handleToggleFavorite}
           className="absolute top-2 right-2 p-2 rounded-full bg-gray-800 bg-opacity-70 hover:bg-opacity-100 transition-all duration-300"
         >
-          <FaHeart className={`w-5 h-5 ${product.favorite ? "text-red-500" : "text-gray-400"}`} />
+          <FaTrash className={`w-5 h-5 ${product.isFavorite ? "text-red-500" : "text-gray-400"}`} />
         </button>
       </div>
       <div className="p-4">
@@ -66,4 +66,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite }) 
   );
 };
 
-export default ProductCard;
+export default FavProductCard;

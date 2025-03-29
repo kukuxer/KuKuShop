@@ -5,11 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     List<Favorite> findByUserId(Long id);
     Optional<Favorite> findByUserIdAndProductId(Long id, UUID product_id);
+    List<Favorite> findFavoritesByUserId(Long userId);
 
 }

@@ -56,6 +56,8 @@ CREATE TABLE IF NOT EXISTS product_categories
 CREATE TABLE IF NOT EXISTS favorites
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id     BIGINT     NOT NULL,
-    product_id BINARY(16) NOT NULL
+    user_id    BIGINT     NOT NULL,
+    product_id BINARY(16) NOT NULL,
+    CONSTRAINT fk_user_id_id FOREIGN KEY (user_id) REFERENCES profiles(id),
+    CONSTRAINT fk_product_id_id FOREIGN KEY (product_id) REFERENCES products(id)
 )

@@ -64,10 +64,11 @@ const MyShopComponent = () => {
     fetchShopProducts();
   }, []);
 
+
   const toggleFavorite = (productId) => {
     setProducts(products.map(product => 
       product.id === productId 
-        ? { ...product, isFavorite: !product.isFavorite }
+        ? { ...product, favorite: !product.favorite }
         : product
     ));
   };

@@ -7,7 +7,7 @@ class Product {
   imageUrl: string;
   rating: number;
   quantity: number;
-  isFavorite: any;
+  favorite: boolean;
   reviews: number;
 
   constructor(
@@ -18,7 +18,8 @@ class Product {
     categories: string[],  
     imageUrl: string,
     rating: number,
-    quantity: number
+    quantity: number,
+    favorite: any,
   ) {
     this.id = id;
     this.name = name;
@@ -28,6 +29,7 @@ class Product {
     this.imageUrl = imageUrl;
     this.rating = rating;
     this.quantity = quantity;
+    this.favorite = favorite;
   }
 }
 

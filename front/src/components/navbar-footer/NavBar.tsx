@@ -131,10 +131,15 @@ const Navbar = () => {
 
           <div className="hidden md:block">
             <div className="ml-4 flex items-center space-x-4">
-              <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                <FiHeart className="mr-1" />
-                Favourites
-              </button>
+            <Link
+                  to="/favorites"
+                  className="text-white hover:text-purple-400 transition-colors duration-300"
+                >
+                  <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center">
+                  <FiHeart className="mr-1" />
+                  Favourites
+                  </button>
+                </Link>
 
               <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center">
                 <FiShoppingBag className="mr-1" />

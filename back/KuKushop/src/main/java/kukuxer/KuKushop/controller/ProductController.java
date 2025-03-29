@@ -8,6 +8,7 @@ import kukuxer.KuKushop.dto.ShopDto;
 import kukuxer.KuKushop.entity.Product;
 import kukuxer.KuKushop.entity.Profile;
 import kukuxer.KuKushop.entity.Shop;
+import kukuxer.KuKushop.service.FavoriteService;
 import kukuxer.KuKushop.service.ProductService;
 import kukuxer.KuKushop.service.ProfileService;
 import kukuxer.KuKushop.service.ShopService;
@@ -22,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -33,22 +36,29 @@ public class ProductController {
     private final ProductService productService;
     private final ShopService shopService;
     private final ProductMapper productMapper;
+    private final ProfileService profileService;
+    private final FavoriteService favoriteService;
 
     @GetMapping("/getMyProducts")
     public ResponseEntity<?> getMyProducts(@AuthenticationPrincipal Jwt jwt) {
-
-        Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
-
+        String authId = jwt.getClaim("sub");
+        Profile user = profileService.getByAuthId(authId)
+                .orElseThrow(()->new RuntimeException("User not found"));
+        Shop shop = shopService.getByUserAuthId(authId);
         List<Product> products = productService.getProductsByShopId(shop.getId());
+        Set<UUID> favoriteProductIds = favoriteService.getFavoriteProductIdsByUserId(user.getId());
 
         List<ProductDto> productDtos = products.stream()
-                .map(productMapper::toDto)
+                .map(product ->{
+                    ProductDto dto = productMapper.toDto(product);
+                    dto.setFavorite(favoriteProductIds.contains(product.getId()));
+                    return dto;
+                })
                 .collect(Collectors.toList());
 
         if (productDtos.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
-
         return ResponseEntity.ok(productDtos);
     }
     @PostMapping("/create")

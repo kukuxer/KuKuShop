@@ -64,10 +64,11 @@ const MyShopComponent = () => {
     fetchShopProducts();
   }, []);
 
+
   const toggleFavorite = (productId) => {
     setProducts(products.map(product => 
       product.id === productId 
-        ? { ...product, isFavorite: !product.isFavorite }
+        ? { ...product, favorite: !product.favorite }
         : product
     ));
   };
@@ -75,8 +76,6 @@ const MyShopComponent = () => {
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
- 
   
   const AddMoreCard = () => (
     <div className="bg-gray-800 rounded-lg overflow-hidden h-full flex items-center justify-center cursor-pointer hover:bg-gray-700 transition-colors duration-300">

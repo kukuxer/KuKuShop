@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./components/mainPage/Home";
 import NavBar from "./components/navbar-footer/NavBar";
 import './App.css';
-
+import LikedProducts from "./components/favPage/LikedProducts";
 import Profile from "./components/profile/Profile";
 import ProductForm from "./components/forms/ProductForm";
 import MyShop from "./components/shopPage/MyShop";
@@ -34,7 +34,8 @@ const App = () => {
              <Route path="/myshop" element={<ProtectedShop />} />
              <Route path="/profile" element={<ProtectedProfile />} />
              <Route path="/productForm" element={<ProtectedProductForm />} />
-             
+             <Route path="/favorites" element={<LikedProducts/>} />
+
           </Routes>
         </div>
       </div>

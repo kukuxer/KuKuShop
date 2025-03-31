@@ -3,7 +3,6 @@ package kukuxer.KuKushop.controller;
 import kukuxer.KuKushop.dto.ProductDto;
 import kukuxer.KuKushop.entity.Profile;
 import kukuxer.KuKushop.service.FavoriteService;
-import kukuxer.KuKushop.service.ProductService;
 import kukuxer.KuKushop.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

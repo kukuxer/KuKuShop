@@ -140,11 +140,17 @@ const Navbar = () => {
                   Favourites
                   </button>
                 </Link>
-
+                
+                <Link
+                  to="/basket"
+                  className="text-white hover:text-purple-400 transition-colors duration-300"
+                >
               <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center">
                 <FiShoppingBag className="mr-1" />
                 Basket
               </button>
+              </Link>
+
 
               {isAuthenticated && user ? (
                 <div className="relative">

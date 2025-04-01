@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +47,7 @@ public class BasketService {
 
         BasketProduct basket = BasketProduct.builder()
                 .product(product)
+                .quantity(1)
                 .userId(profile.getId())
                 .build();
 
@@ -55,8 +57,25 @@ public class BasketService {
     public List<BasketProductDto> getAllBasketProducts(Jwt jwt) {
         Profile profile = getProfile(jwt);
         List<BasketProduct> baskets = basketRepository.findBasketProductsByUserId(profile.getId());
-        return basketMapper.toBasketProductDto(baskets);
+
+        return baskets.stream()
+                .map(basketProduct -> {
+                    Product product = basketProduct.getProduct();
+                    BasketProductDto dto = new BasketProductDto();
+
+                    dto.setId(product.getId());
+                    dto.setName(product.getName());
+                    dto.setDescription(product.getDescription());
+                    dto.setPrice(product.getPrice());
+                    dto.setImageUrl(product.getImageUrl());
+                    dto.setRating(product.getRating());
+                    dto.setQuantity(basketProduct.getQuantity());
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
+
 
 
     private Profile getProfile(Jwt jwt) {

@@ -1,9 +1,7 @@
 package kukuxer.KuKushop.controller;
 
-import kukuxer.KuKushop.dto.BasketDto;
+
 import kukuxer.KuKushop.dto.BasketProductDto;
-import kukuxer.KuKushop.dto.ProductDto;
-import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import kukuxer.KuKushop.service.BasketService;

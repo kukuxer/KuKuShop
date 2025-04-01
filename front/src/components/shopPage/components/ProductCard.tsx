@@ -3,6 +3,7 @@ import { FaHeart } from "react-icons/fa";
 import Product from "../../../entity/Product";
 import RatingStars from "./RatingStars";
 import { useAuth0 } from "@auth0/auth0-react";
+import AddToBasketButton from "../../buttons/AddToCartBtn";
 
 interface ProductCardProps {
   product: Product;
@@ -58,9 +59,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite }) 
         </div>
         <p className="text-gray-400 text-sm mb-4">{product.reviews || 0} reviews</p>
 
-        <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300">
-          Add to Cart
-        </button>
+      
+        <AddToBasketButton productId={product.id} isProductAlreadyInCart={product.favorite} />
       </div>
     </div>
   );

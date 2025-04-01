@@ -21,6 +21,8 @@ public class BasketProduct {
 
     Long userId;
 
+    int quantity;
+
     @ManyToOne
     Product product;
 }

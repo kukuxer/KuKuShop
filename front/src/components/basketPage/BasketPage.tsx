@@ -1,66 +1,56 @@
 import { useState, useEffect } from "react";
 import { FiMinus, FiPlus, FiTrash2, FiShoppingBag } from "react-icons/fi";
+import Product from "../../entity/Product";
+import { useAuth0 } from "@auth0/auth0-react";
+import Loading from "../utils/Loading";
+import ProductBasketCard from "./components/ProductBasketCard";
+import { it } from "node:test";
 
 const BasketPage = () => {
-  const [cartItems, setCartItems] = useState(() => {
-    const savedItems = localStorage.getItem("cartItems");
-    return savedItems ? JSON.parse(savedItems) : [];
-  });
+  const [cartItems, setCartItems] = useState<Product[]>([]);
+  const { getAccessTokenSilently } = useAuth0();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);  
 
-  const initialProducts = [
-    {
-      id: 1,
-      name: "Premium Wireless Headphones",
-      price: 299.99,
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
-      quantity: 1
-    },
-    {
-      id: 2,
-      name: "Smart Watch Pro",
-      price: 399.99,
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
-      quantity: 1
-    },
-    {
-      id: 3,
-      name: "Laptop Ultra Slim",
-      price: 1299.99,
-      image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853",
-      quantity: 1
-    }
-  ];
 
   useEffect(() => {
-    if (cartItems.length === 0) {
-      setCartItems(initialProducts);
-    }
-  }, []);
+    const fetchProducts = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        const response = await fetch("http://localhost:8080/api/public/basket/products", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch products");
+        const data: Product[] = await response.json();
+        setCartItems(data);
+        console.log("Fetched products:", data);
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, [getAccessTokenSilently]); 
 
-  useEffect(() => {
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems]);
+  if (loading) return <Loading />;
+  if (error) return <p className="text-center text-red-400">{error}</p>;
 
-  const updateQuantity = (id, change) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
-    );
-  };
+  
 
-  const removeItem = (id) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-  };
+  // const removeItem = (id: number) => {
+  //   setCartItems(prevItems => prevItems.filter(item => item.id !== id.toString()));
+  // };
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum: number, item) => sum + Number(item.price) * item.quantity,
     0
   );
   const shipping = 9.99;
-  const total = subtotal + shipping;
+  const total =  5 ;
+  // subtotal + shipping;
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -81,13 +71,15 @@ const BasketPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item) => (
-                <div
+                <>
+                <ProductBasketCard product={item} />
+                {/* <div
                   key={item.id}
                   className="bg-gray-800 rounded-lg p-4 transition-all duration-300 hover:bg-gray-750 border border-purple-900 hover:border-purple-600"
                 >
                   <div className="flex items-center space-x-4">
                     <img
-                      src={item.image}
+                      src={item.imageUrl}
                       alt={item.name}
                       className="w-24 h-24 object-cover rounded-md"
                       onError={(e) => {
@@ -125,7 +117,8 @@ const BasketPage = () => {
                       ${(item.price * item.quantity).toFixed(2)}
                     </div>
                   </div>
-                </div>
+                </div> */}
+                </>
               ))}
             </div>
 

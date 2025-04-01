@@ -1,6 +1,8 @@
 package kukuxer.KuKushop.service;
 
 import kukuxer.KuKushop.dto.BasketDto;
+import kukuxer.KuKushop.dto.BasketProductDto;
+import kukuxer.KuKushop.dto.Mappers.BasketMapper;
 import kukuxer.KuKushop.entity.BasketProduct;
 import kukuxer.KuKushop.entity.Product;
 import kukuxer.KuKushop.entity.Profile;
@@ -21,6 +23,7 @@ public class BasketService {
     private final BasketRepository basketRepository;
     private final ProfileRepository profileRepository;
     private final ProductRepository productRepository;
+    private final BasketMapper basketMapper;
 
     public void deleteProduct(UUID productId, Jwt jwt) {
         Profile profile = getProfile(jwt);
@@ -49,17 +52,10 @@ public class BasketService {
         basketRepository.save(basket);
     }
 
-    public BasketDto getAllBasketProducts(Jwt jwt) {
+    public List<BasketProductDto> getAllBasketProducts(Jwt jwt) {
         Profile profile = getProfile(jwt);
         List<BasketProduct> baskets = basketRepository.findBasketProductsByUserId(profile.getId());
-        long fullPrice = 0l;
-        for (BasketProduct basket : baskets) {
-            fullPrice += Long.parseLong(basket.getProduct().getPrice());
-        }
-        return BasketDto.builder()
-                .basketProducts(baskets)
-                .fullPrice(fullPrice)
-                .build();
+        return basketMapper.toBasketProductDto(baskets);
     }
 
 

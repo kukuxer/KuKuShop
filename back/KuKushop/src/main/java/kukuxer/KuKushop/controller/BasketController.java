@@ -1,6 +1,7 @@
 package kukuxer.KuKushop.controller;
 
 import kukuxer.KuKushop.dto.BasketDto;
+import kukuxer.KuKushop.dto.BasketProductDto;
 import kukuxer.KuKushop.dto.ProductDto;
 import lombok.Getter;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class BasketController {
     }
 
     @GetMapping("/products")
-    public BasketDto getAllProducts(@AuthenticationPrincipal Jwt jwt){
+    public List<BasketProductDto> getAllProducts(@AuthenticationPrincipal Jwt jwt){
         return basketService.getAllBasketProducts(jwt);
     }
 

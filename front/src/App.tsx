@@ -3,6 +3,8 @@ import Home from "./components/mainPage/Home";
 import NavBar from "./components/navbar-footer/NavBar";
 import './App.css';
 import LikedProducts from "./components/favPage/LikedProducts";
+import BasketPage from "./components/basketPage/BasketPage";
+
 import Profile from "./components/profile/Profile";
 import ProductForm from "./components/forms/ProductForm";
 import MyShop from "./components/shopPage/MyShop";
@@ -21,6 +23,14 @@ const ProtectedProductForm = withAuthenticationRequired(ProductForm, {
   onRedirecting: () => <Loading />,
 });
 
+const ProtectedLikedProducts = withAuthenticationRequired(LikedProducts, {
+  onRedirecting: () => <Loading />,
+});
+
+const ProtectedBasket = withAuthenticationRequired(BasketPage, {
+  onRedirecting: () => <Loading />,
+});
+
 const App = () => {
   return (
     <div id="app" className="d-flex flex-column h-100">
@@ -34,7 +44,8 @@ const App = () => {
              <Route path="/myshop" element={<ProtectedShop />} />
              <Route path="/profile" element={<ProtectedProfile />} />
              <Route path="/productForm" element={<ProtectedProductForm />} />
-             <Route path="/favorites" element={<LikedProducts/>} />
+             <Route path="/favorites" element={<ProtectedLikedProducts/>} />
+             <Route path="/basket" element={<ProtectedBasket/>} />
 
           </Routes>
         </div>

@@ -60,4 +60,5 @@ CREATE TABLE IF NOT EXISTS favorites
     product_id BINARY(16) NOT NULL,
     CONSTRAINT fk_user_id_id FOREIGN KEY (user_id) REFERENCES profiles(id),
     CONSTRAINT fk_product_id_id FOREIGN KEY (product_id) REFERENCES products(id)
-)
+);
+

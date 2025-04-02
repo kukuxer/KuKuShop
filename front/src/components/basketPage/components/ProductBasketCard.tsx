@@ -16,6 +16,7 @@ interface ProductBasketCardProps {
 const ProductBasketCard: React.FC<ProductBasketCardProps> = ({ product, updateQuantity, removeItem }) => {
   if (!product) return null; 
   
+  
   return (
     <div className="bg-gray-800 rounded-lg p-4">
       <div className="flex items-center space-x-4">

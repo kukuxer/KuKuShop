@@ -16,7 +16,7 @@ public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final ProductRepository productRepository;
 
-    public Set<UUID> getFavoriteProductIdsByUserId(Long userId){
+    public Set<UUID> getFavoriteProductIdsByUserId(Long userId) {
         List<Favorite> favoritesByUserId = favoriteRepository.findFavoritesByUserId(userId);
         Set<UUID> favoriteProductIds = new HashSet<>();
         favoritesByUserId.forEach(
@@ -37,6 +37,7 @@ public class FavoriteService {
             favoriteRepository.save(newFavorite);
         }
     }
+
     public List<ProductDto> getFavoriteProducts(Long id) {
         List<Favorite> favorites = favoriteRepository.findByUserId(id);
         return favorites.stream()

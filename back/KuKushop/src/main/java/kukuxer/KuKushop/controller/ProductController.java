@@ -1,5 +1,6 @@
 package kukuxer.KuKushop.controller;
 
+import kukuxer.KuKushop.dto.BasketProductDto;
 import kukuxer.KuKushop.dto.Mappers.ProductMapper;
 import kukuxer.KuKushop.dto.Mappers.ProfileMapper;
 import kukuxer.KuKushop.dto.ProductDto;
@@ -8,10 +9,7 @@ import kukuxer.KuKushop.dto.ShopDto;
 import kukuxer.KuKushop.entity.Product;
 import kukuxer.KuKushop.entity.Profile;
 import kukuxer.KuKushop.entity.Shop;
-import kukuxer.KuKushop.service.FavoriteService;
-import kukuxer.KuKushop.service.ProductService;
-import kukuxer.KuKushop.service.ProfileService;
-import kukuxer.KuKushop.service.ShopService;
+import kukuxer.KuKushop.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,20 +36,26 @@ public class ProductController {
     private final ProductMapper productMapper;
     private final ProfileService profileService;
     private final FavoriteService favoriteService;
+    private final BasketService basketService;
 
     @GetMapping("/getMyProducts")
     public ResponseEntity<?> getMyProducts(@AuthenticationPrincipal Jwt jwt) {
         String authId = jwt.getClaim("sub");
         Profile user = profileService.getByAuthId(authId)
-                .orElseThrow(()->new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
         Shop shop = shopService.getByUserAuthId(authId);
         List<Product> products = productService.getProductsByShopId(shop.getId());
         Set<UUID> favoriteProductIds = favoriteService.getFavoriteProductIdsByUserId(user.getId());
+        List<BasketProductDto> basketProducts = basketService.getAllBasketProducts(jwt);
+        List<UUID> basketProductIds = basketProducts.stream()
+                .map(BasketProductDto::getId)
+                .toList();
 
         List<ProductDto> productDtos = products.stream()
-                .map(product ->{
+                .map(product -> {
                     ProductDto dto = productMapper.toDto(product);
                     dto.setFavorite(favoriteProductIds.contains(product.getId()));
+                    dto.setInBasket(basketProductIds.contains(product.getId()));
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -61,13 +65,14 @@ public class ProductController {
         }
         return ResponseEntity.ok(productDtos);
     }
+
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@AuthenticationPrincipal Jwt jwt,
                                            @ModelAttribute ProductDto productDto,
-                                           @RequestPart(value = "image",required = false) MultipartFile image) throws IOException {
+                                           @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
-        ProductDto productDtoResponse = productService.createProduct(productDto,image,shop.getId());
+        ProductDto productDtoResponse = productService.createProduct(productDto, image, shop.getId());
         return ResponseEntity.ok(productDtoResponse);
     }
 }

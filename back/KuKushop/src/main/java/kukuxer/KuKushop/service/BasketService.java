@@ -77,7 +77,6 @@ public class BasketService {
     }
 
 
-
     private Profile getProfile(Jwt jwt) {
         String authId = jwt.getClaim("sub");
         return profileRepository.findByAuthId(authId).orElseThrow(

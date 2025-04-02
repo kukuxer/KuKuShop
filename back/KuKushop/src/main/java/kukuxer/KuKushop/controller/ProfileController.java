@@ -29,7 +29,7 @@ public class ProfileController {
     }
 
     @PostMapping("/get")
-    public ResponseEntity<ProfileDto> getOrCreateProfile(@AuthenticationPrincipal Jwt jwt,@RequestBody ProfileDto profileDto) {
+    public ResponseEntity<ProfileDto> getOrCreateProfile(@AuthenticationPrincipal Jwt jwt, @RequestBody ProfileDto profileDto) {
         String authId = jwt.getClaim("sub");
 
         Optional<Profile> optionalProfile = profileService.getByAuthId(authId);

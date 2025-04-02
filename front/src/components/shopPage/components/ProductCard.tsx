@@ -60,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite }) 
         <p className="text-gray-400 text-sm mb-4">{product.reviews || 0} reviews</p>
 
       
-        <AddToBasketButton productId={product.id} isProductAlreadyInCart={product.favorite} />
+        <AddToBasketButton productId={product.id} isProductAlreadyInCart={product.inBasket} />
       </div>
     </div>
   );

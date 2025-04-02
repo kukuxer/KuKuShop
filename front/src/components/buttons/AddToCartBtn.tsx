@@ -10,28 +10,25 @@ interface AddToBasketButtonProps {
 const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({ productId, isProductAlreadyInCart }) => {
   const { getAccessTokenSilently } = useAuth0();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [clicked, setClicked] = useState(false); // Track if the button has been clicked
+
 
   const handleClick = async () => {
+    setClicked(true); // Set clicked to true when the button is clicked
     if (isProductAlreadyInCart) return;
 
-    setLoading(true);
-    setMessage(null);
 
     try {
       const token = await getAccessTokenSilently();
-      const response = await axios.post(
+      await axios.post(
         `http://localhost:8080/api/public/basket/add/${productId}`,
-        {}, // Empty body if no data needs to be sent
+        {}, 
         {
           headers: { Authorization: `Bearer ${token}` }, 
         }
       );
     
-
-      setMessage(response.data);
     } catch (error) {
-      setMessage("Failed to add product to basket.");
       console.error("Error adding product:", error);
     } finally {
       setLoading(false);
@@ -44,12 +41,11 @@ const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({ productId, isProd
         onClick={handleClick}
         disabled={loading || isProductAlreadyInCart}
         className={`w-full font-semibold py-2 px-4 rounded-lg transition-colors duration-300 ${
-          isProductAlreadyInCart || loading ? "bg-transparent text-purple-500 cursor-not-allowed"  : "bg-purple-600 hover:bg-purple-700 text-white"
+          isProductAlreadyInCart || clicked ? "bg-transparent text-purple-500 cursor-not-allowed"  : "bg-purple-600 hover:bg-purple-700 text-white"
       }`}
     >
-        {isProductAlreadyInCart ? "This product in your cart" : loading ? "Adding..." : "Add to Cart"}
+        {isProductAlreadyInCart || clicked ? "This product in your cart" : "Add to Cart"}
       </button>
-      {message && <p className="mt-2 text-sm text-gray-300">{message}</p>}
     </div>
   );
 };

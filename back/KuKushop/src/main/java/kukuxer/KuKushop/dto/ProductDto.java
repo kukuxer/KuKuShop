@@ -31,4 +31,5 @@ public class ProductDto {
     int quantity;
     double rating;
     boolean favorite;
+    boolean inBasket;
 }

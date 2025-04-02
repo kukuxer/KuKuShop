@@ -22,8 +22,7 @@ public class BasketController {
     @DeleteMapping("/delete/{productId}")
     public ResponseEntity<String> deleteProduct(
             @PathVariable UUID productId,
-            @AuthenticationPrincipal Jwt jwt)
-    {
+            @AuthenticationPrincipal Jwt jwt) {
         basketService.deleteProduct(productId, jwt);
         return ResponseEntity.ok().body("Object was successfully deleted");
     }
@@ -31,14 +30,13 @@ public class BasketController {
     @PostMapping("/add/{productId}")
     public ResponseEntity<String> addProduct(
             @PathVariable UUID productId,
-            @AuthenticationPrincipal Jwt jwt)
-    {
+            @AuthenticationPrincipal Jwt jwt) {
         basketService.addProduct(productId, jwt);
         return ResponseEntity.ok().body("Object was successfully added");
     }
 
     @GetMapping("/products")
-    public List<BasketProductDto> getAllProducts(@AuthenticationPrincipal Jwt jwt){
+    public List<BasketProductDto> getAllProducts(@AuthenticationPrincipal Jwt jwt) {
         return basketService.getAllBasketProducts(jwt);
     }
 

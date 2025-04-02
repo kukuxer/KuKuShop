@@ -21,6 +21,7 @@ public class ProfileService {
     public Optional<Profile> getByAuthId(String authId) {
         return profileRepository.findByAuthId(authId);
     }
+
     public Profile createProfile(ProfileDto profileDto) {
         boolean exists = profileRepository.findByAuthId(profileDto.getAuthId()).isPresent();
 
@@ -33,6 +34,6 @@ public class ProfileService {
     }
 
     public boolean checkIfUserOwnAShop(String userAuth) {
-       return shopRepository.findByUserAuthId(userAuth).isPresent();
+        return shopRepository.findByUserAuthId(userAuth).isPresent();
     }
 }

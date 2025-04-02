@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { FiMinus, FiPlus, FiTrash2, FiShoppingBag } from "react-icons/fi";
+import { FiShoppingBag } from "react-icons/fi";
 import Product from "../../entity/Product";
 import { useAuth0 } from "@auth0/auth0-react";
 import Loading from "../utils/Loading";
 import ProductBasketCard from "./components/ProductBasketCard";
-import { it } from "node:test";
+
 
 const BasketPage = () => {
   const [cartItems, setCartItems] = useState<Product[]>([]);
@@ -34,28 +34,60 @@ const BasketPage = () => {
     };
     fetchProducts();
   }, [getAccessTokenSilently]); 
+  
+  const deleteProduct = async (id: string) => {
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await fetch(`http://localhost:8080/api/public/basket/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) throw new Error("Failed to delete product");
+  
+  
+      setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+  
+      console.log(`Product ${id} deleted successfully`);
+    } catch (err) {
+      console.error("Error deleting product:", err);
+    }
+  };
 
   if (loading) return <Loading />;
   if (error) return <p className="text-center text-red-400">{error}</p>;
 
   
 
-  // const removeItem = (id: number) => {
-  //   setCartItems(prevItems => prevItems.filter(item => item.id !== id.toString()));
-  // };
+  const removeItem = (id: string) => {
+    deleteProduct(id);
+    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+  };
+
+  const updateQuantity = (id: string, change: number) => {
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === id
+          ? { ...item, quantity: Math.max(1, item.quantity + change) }
+          : item
+      )
+    );
+  };
 
   const subtotal = cartItems.reduce(
     (sum: number, item) => sum + Number(item.price) * item.quantity,
     0
   );
   const shipping = 9.99;
-  const total =  5 ;
-  // subtotal + shipping;
+  const total = subtotal + shipping; ;
+ 
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-purple-300 mb-8">Your Basket</h1>
+        <h1 className="text-5xl font-bold text-purple-300 mb-8 text-center ">Your Basket</h1>
 
         {cartItems.length === 0 ? (
           <div className="text-center py-12">
@@ -71,54 +103,7 @@ const BasketPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item) => (
-                <>
-                <ProductBasketCard product={item} />
-                {/* <div
-                  key={item.id}
-                  className="bg-gray-800 rounded-lg p-4 transition-all duration-300 hover:bg-gray-750 border border-purple-900 hover:border-purple-600"
-                >
-                  <div className="flex items-center space-x-4">
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="w-24 h-24 object-cover rounded-md"
-                      onError={(e) => {
-                        e.target.src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e";
-                      }}
-                    />
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-purple-300">
-                        {item.name}
-                      </h3>
-                      <p className="text-gray-400">${item.price.toFixed(2)}</p>
-                      <div className="flex items-center space-x-4 mt-2">
-                        <button
-                          onClick={() => updateQuantity(item.id, -1)}
-                          className="p-1 rounded-full hover:bg-purple-700 transition-colors"
-                        >
-                          <FiMinus className="text-purple-300" />
-                        </button>
-                        <span className="text-purple-300">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, 1)}
-                          className="p-1 rounded-full hover:bg-purple-700 transition-colors"
-                        >
-                          <FiPlus className="text-purple-300" />
-                        </button>
-                        <button
-                          onClick={() => removeItem(item.id)}
-                          className="p-1 rounded-full hover:bg-red-700 transition-colors ml-4"
-                        >
-                          <FiTrash2 className="text-red-400" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="text-xl font-bold text-purple-300">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </div>
-                  </div>
-                </div> */}
-                </>
+                <ProductBasketCard product={item} updateQuantity={updateQuantity} removeItem={removeItem} />
               ))}
             </div>
 

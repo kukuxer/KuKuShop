@@ -32,8 +32,8 @@ public class ProductService {
         return productRepository.getAllByShopId(id);
     }
 
-    public ProductDto createProduct(ProductDto productDto, MultipartFile image,Long shopId) throws IOException {
-        if ( image != null && !image.isEmpty()) {
+    public ProductDto createProduct(ProductDto productDto, MultipartFile image, Long shopId) throws IOException {
+        if (image != null && !image.isEmpty()) {
             String fileKey = s3Service.uploadFile(image);
             productDto.setImageUrl(fileKey);
         }

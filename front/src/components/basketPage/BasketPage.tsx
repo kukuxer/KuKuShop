@@ -4,6 +4,8 @@ import Product from "../../entity/Product";
 import { useAuth0 } from "@auth0/auth0-react";
 import Loading from "../utils/Loading";
 import ProductBasketCard from "./components/ProductBasketCard";
+import { useNavigate } from "react-router-dom";
+
 
 
 const BasketPage = () => {
@@ -11,6 +13,7 @@ const BasketPage = () => {
   const { getAccessTokenSilently } = useAuth0();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);  
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -150,7 +153,10 @@ const BasketPage = () => {
                 >
                   Proceed to Checkout
                 </button>
-                <button className="w-full mt-4 border border-purple-600 text-purple-300 py-3 rounded-lg font-semibold hover:bg-purple-900 transition-colors">
+                <button
+                  onClick={() => navigate("/myshop")}
+                  className="w-full mt-4 border border-purple-600 text-purple-300 py-3 rounded-lg font-semibold hover:bg-purple-900 transition-colors"
+                >
                   Continue Shopping
                 </button>
               </div>

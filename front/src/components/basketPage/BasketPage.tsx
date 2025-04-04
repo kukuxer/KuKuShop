@@ -66,14 +66,32 @@ const BasketPage = () => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (id: string, change: number) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
-    );
+  const updateQuantity = async (id: string, change: number) => {
+    const newQuantity = cartItems.find(item => item.id === id)?.quantity + change;
+
+    // Prevent negative quantities
+    if (newQuantity && newQuantity < 1) return;
+
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await fetch(`http://localhost:8080/api/public/basket/update-quantity/${id}?quantity=${newQuantity}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to update quantity");
+
+      const updatedItem = await response.json();
+      setCartItems(prevItems =>
+        prevItems.map(item =>
+          item.id === id ? { ...item, quantity: updatedItem.quantity } : item
+        )
+      );
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+    }
   };
 
   const subtotal = cartItems.reduce(

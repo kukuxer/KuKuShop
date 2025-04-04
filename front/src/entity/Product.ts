@@ -22,6 +22,7 @@ class Product {
     quantity: number,
     favorite: boolean,
     inBasket: boolean,
+    reviews: number,
   ) {
     this.id = id;
     this.name = name;
@@ -33,6 +34,7 @@ class Product {
     this.quantity = quantity;
     this.favorite = favorite;
     this.inBasket = inBasket;
+    this.reviews = reviews;
   }
 }
 

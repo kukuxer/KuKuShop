@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,7 @@ public class BasketService {
         Product product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
 
         BasketProduct basket = BasketProduct.builder()
+                .id(productId)
                 .product(product)
                 .quantity(1)
                 .userId(profile.getId())
@@ -84,4 +86,16 @@ public class BasketService {
         );
     }
 
+    public BasketProduct updateQuantity(UUID id, int quantity) {
+        BasketProduct basketProduct = basketRepository.findBasketProductById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));;
+        if (quantity < 1) {
+            throw new RuntimeException("Quantity cannot be less than 1");
+        }
+        basketProduct.setQuantity(quantity);
+        product.setQuantity(quantity);
+        return basketRepository.save(basketProduct);
+    }
 }

@@ -2,6 +2,7 @@ package kukuxer.KuKushop.controller;
 
 
 import kukuxer.KuKushop.dto.BasketProductDto;
+import kukuxer.KuKushop.entity.BasketProduct;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import kukuxer.KuKushop.service.BasketService;
@@ -38,6 +39,19 @@ public class BasketController {
     @GetMapping("/products")
     public List<BasketProductDto> getAllProducts(@AuthenticationPrincipal Jwt jwt) {
         return basketService.getAllBasketProducts(jwt);
+    }
+
+    @PutMapping("/update-quantity/{id}")
+    public ResponseEntity<BasketProduct> updateQuantity(
+            @PathVariable("id") UUID id,
+            @RequestParam("quantity") int quantity
+    ){
+        try{
+            BasketProduct updatedProduct = basketService.updateQuantity(id, quantity);
+            return ResponseEntity.ok(updatedProduct);
+        }catch (Exception e){
+            return ResponseEntity.status(400).body(null);
+        }
     }
 
 }

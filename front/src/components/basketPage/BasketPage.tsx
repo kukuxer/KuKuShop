@@ -4,6 +4,8 @@ import Product from "../../entity/Product";
 import { useAuth0 } from "@auth0/auth0-react";
 import Loading from "../utils/Loading";
 import ProductBasketCard from "./components/ProductBasketCard";
+import { useNavigate } from "react-router-dom";
+
 
 
 const BasketPage = () => {
@@ -11,6 +13,7 @@ const BasketPage = () => {
   const { getAccessTokenSilently } = useAuth0();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);  
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -66,14 +69,32 @@ const BasketPage = () => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (id: string, change: number) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + change) }
-          : item
-      )
-    );
+  const updateQuantity = async (id: string, change: number) => {
+    const newQuantity = cartItems.find(item => item.id === id)?.quantity + change;
+
+    // Prevent negative quantities
+    if (newQuantity && newQuantity < 1) return;
+
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await fetch(`http://localhost:8080/api/public/basket/update-quantity/${id}?quantity=${newQuantity}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to update quantity");
+
+      const updatedItem = await response.json();
+      setCartItems(prevItems =>
+        prevItems.map(item =>
+          item.id === id ? { ...item, quantity: updatedItem.quantity } : item
+        )
+      );
+    } catch (err) {
+      console.error("Error updating quantity:", err);
+    }
   };
 
   const subtotal = cartItems.reduce(
@@ -132,7 +153,10 @@ const BasketPage = () => {
                 >
                   Proceed to Checkout
                 </button>
-                <button className="w-full mt-4 border border-purple-600 text-purple-300 py-3 rounded-lg font-semibold hover:bg-purple-900 transition-colors">
+                <button
+                  onClick={() => navigate("/myshop")}
+                  className="w-full mt-4 border border-purple-600 text-purple-300 py-3 rounded-lg font-semibold hover:bg-purple-900 transition-colors"
+                >
                   Continue Shopping
                 </button>
               </div>

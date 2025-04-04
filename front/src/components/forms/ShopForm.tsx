@@ -82,14 +82,16 @@ const ShopCreationForm = () => {
             "Content-Type": "multipart/form-data", 
           },
         });
-  
+
+console.log("navigating..")
+        navigate("/myshopComponent");
         console.log("Shop created:", response.data);
         setFormData({ shopName: "", image: null, description: "" });
         setAgreement(false);
         setImagePreview(null);
-        navigate("/myshop");
+       
       } catch (error) {
-        console.error("Error submitting form:", error);
+        console.error("Error submitting form:", error)
       } finally {
         setLoading(false);
       }

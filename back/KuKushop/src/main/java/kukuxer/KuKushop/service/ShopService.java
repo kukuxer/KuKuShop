@@ -46,6 +46,7 @@ public class ShopService {
 
         return ShopMapper.INSTANCE.toDto(shop);
     }
+
     public Shop getByUserAuthId(String userAuth) {
         return shopRepository.findByUserAuthId(userAuth)
                 .orElseThrow(() -> new RuntimeException("Shop not found for userAuth: " + userAuth));

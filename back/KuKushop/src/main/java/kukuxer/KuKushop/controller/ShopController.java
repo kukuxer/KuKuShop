@@ -29,11 +29,12 @@ public class ShopController {
     @PostMapping("/create")
     public ResponseEntity<ShopDto> createShop(@AuthenticationPrincipal Jwt jwt,
                                               @ModelAttribute ShopDto shopDto,
-                                              @RequestPart(value = "image",required = false) MultipartFile image) throws IOException {
+                                              @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
         ShopDto createdShopDto = shopService.createShop(shopDto, jwt.getClaim("sub"), image);
         return ResponseEntity.ok(createdShopDto);
     }
+
     @GetMapping("/myShopImage")
     public ResponseEntity<String> getShopImage(@AuthenticationPrincipal Jwt jwt) {
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
@@ -46,6 +47,7 @@ public class ShopController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @GetMapping("/myShop")
     public ResponseEntity<ShopDto> getShopDto(@AuthenticationPrincipal Jwt jwt) {
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
@@ -56,12 +58,9 @@ public class ShopController {
     }
 
 
-
-
-
     @GetMapping("/doUserOwnAShop")
     public ResponseEntity<Boolean> checkIfUserOwnAShop(@AuthenticationPrincipal Jwt jwt) {
-    boolean ownAShop = profileService.checkIfUserOwnAShop(jwt.getClaim("sub"));
+        boolean ownAShop = profileService.checkIfUserOwnAShop(jwt.getClaim("sub"));
         if (ownAShop) {
             return ResponseEntity.ok(true);
         } else {

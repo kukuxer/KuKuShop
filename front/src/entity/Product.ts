@@ -8,6 +8,7 @@ class Product {
   rating: number;
   quantity: number;
   favorite: boolean;
+  inBasket: boolean;
   reviews: number;
 
   constructor(
@@ -19,7 +20,8 @@ class Product {
     imageUrl: string,
     rating: number,
     quantity: number,
-    favorite: any,
+    favorite: boolean,
+    inBasket: boolean,
   ) {
     this.id = id;
     this.name = name;
@@ -30,6 +32,7 @@ class Product {
     this.rating = rating;
     this.quantity = quantity;
     this.favorite = favorite;
+    this.inBasket = inBasket;
   }
 }
 

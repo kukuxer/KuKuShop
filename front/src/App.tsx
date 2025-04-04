@@ -3,21 +3,39 @@ import Home from "./components/mainPage/Home";
 import NavBar from "./components/navbar-footer/NavBar";
 import './App.css';
 import LikedProducts from "./components/favPage/LikedProducts";
+import BasketPage from "./components/basketPage/BasketPage";
+
 import Profile from "./components/profile/Profile";
 import ProductForm from "./components/forms/ProductForm";
 import MyShop from "./components/shopPage/MyShop";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Loading from "./components/utils/Loading";
 import TailWindNavBar from "./components/navbar-footer/NavBar";
+import ShopForm from "./components/forms/ShopForm";
+import MyShopComponent from "./components/shopPage/components/MyShopComponent";
 
 
 const ProtectedShop = withAuthenticationRequired(MyShop, {
+  onRedirecting: () => <Loading />,
+}); 
+const ProtectedShopComponent = withAuthenticationRequired(MyShopComponent, {
   onRedirecting: () => <Loading />,
 }); 
 const ProtectedProfile = withAuthenticationRequired(Profile, {
   onRedirecting: () => <Loading />,
 });
 const ProtectedProductForm = withAuthenticationRequired(ProductForm, {
+  onRedirecting: () => <Loading />,
+});
+
+const ProtectedLikedProducts = withAuthenticationRequired(LikedProducts, {
+  onRedirecting: () => <Loading />,
+});
+
+const ProtectedBasket = withAuthenticationRequired(BasketPage, {
+  onRedirecting: () => <Loading />,
+});
+const ProtectedShopForm = withAuthenticationRequired(ShopForm, {
   onRedirecting: () => <Loading />,
 });
 
@@ -32,9 +50,12 @@ const App = () => {
             
              {/* Secure Route */}
              <Route path="/myshop" element={<ProtectedShop />} />
+             <Route path="/myshopComponent" element={<ProtectedShopComponent />} />
              <Route path="/profile" element={<ProtectedProfile />} />
              <Route path="/productForm" element={<ProtectedProductForm />} />
-             <Route path="/favorites" element={<LikedProducts/>} />
+             <Route path="/shopForm" element={<ProtectedShopForm />} />
+             <Route path="/favorites" element={<ProtectedLikedProducts/>} />
+             <Route path="/basket" element={<ProtectedBasket/>} />
 
           </Routes>
         </div>

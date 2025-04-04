@@ -10,7 +10,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface BasketMapper extends Mappable<BasketProduct, BasketProductDto> {
 
-    @Mapping(target = "productId", source = "product.id")
     BasketProductDto toBasketProductDto(BasketProduct basketProduct);
 
     List<BasketProductDto> toBasketProductDto(List<BasketProduct> basketProducts);

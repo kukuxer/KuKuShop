@@ -3,6 +3,9 @@ package kukuxer.KuKushop.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.UuidGenerator;
+
+import java.util.UUID;
 
 
 @Entity
@@ -16,8 +19,7 @@ import lombok.experimental.FieldDefaults;
 public class BasketProduct {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    UUID id;
 
     Long userId;
 

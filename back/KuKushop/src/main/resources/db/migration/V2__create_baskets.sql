@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS basket_product
 (
-    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id         BINARY(16) PRIMARY KEY,
     user_id    BIGINT     NOT NULL,
     quantity   INT     NOT NULL,
     product_id BINARY(16) NOT NULL,

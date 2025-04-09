@@ -49,8 +49,17 @@ public class ShopController {
     }
 
     @GetMapping("/myShop")
-    public ResponseEntity<ShopDto> getShopDto(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<ShopDto> getMyShopDto(@AuthenticationPrincipal Jwt jwt) {
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
+        if (shop == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(ShopMapper.INSTANCE.toDto(shop));
+    }
+
+    @GetMapping("/{shopName}")
+    public ResponseEntity<ShopDto> getShopDto(@PathVariable String shopName) {
+        Shop shop = shopService.getByName(shopName);
         if (shop == null) {
             return ResponseEntity.notFound().build();
         }

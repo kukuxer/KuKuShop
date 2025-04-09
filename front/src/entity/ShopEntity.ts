@@ -1,4 +1,4 @@
-class Shop {
+class ShopEntity {
   constructor(
     public name: string,
     public ownerName: string,
@@ -7,5 +7,5 @@ class Shop {
   ) {}
 }
 
-export default Shop;
+export default ShopEntity;
 

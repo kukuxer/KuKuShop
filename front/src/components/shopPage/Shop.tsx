@@ -2,55 +2,68 @@ import React, { useState, useEffect } from "react";
 import { FaShoppingCart, FaSearch, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
-import ShopBanner from "./ShopBanner";
-import { Link } from "react-router-dom";
-import Product from "../../../entity/Product";
-import ProductCard from "./ProductCard";
+import { useParams } from "react-router-dom";
+import Product from "../../entity/Product";
+import ShopEntity from "../../entity/ShopEntity";
+import ShopBanner from "./components/ShopBanner";
+import ProductCard from "./components/ProductCard";
+import ErrorPage from "../utils/ErrorPage";
+import Loading from "../utils/Loading";
 
-const MyShopComponent = () => {
+
+const Shop = () => {
   const [error, setError] = useState<string | null>(null);
   const [shopImage, setShopImage] = useState("/default-shop-image.jpg");
+  const [shop,setShop] = useState<ShopEntity>({});
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { shopName } = useParams();
+
 
   useEffect(() => {
-      const fetchShopImage = async () => {
-        try {
-          const token = await getAccessTokenSilently();
-      
-          const response = await fetch("http://localhost:8080/api/shop/myShopImage", {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-      
-          if (response.ok) {
-            const imageUrl = await response.text(); 
-            setShopImage(imageUrl); 
-            console.log("Shop image URL:", imageUrl);
-          } else {
-            setShopImage("/default-shop-image.jpg"); 
-          }
-        } catch (error) {
-          console.error("Error fetching shop image:", error);
+    const fetchShop = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/shop/${shopName}`, {});
+        if (response.data) {
+          setShop(response.data); 
+          setShopImage(response.data.imageUrl);
+        } else {
+          setError("Shop not found");
         }
-      };
-      fetchShopImage();
-    }, [getAccessTokenSilently]);
+        console.log("Shop data:", response.data);
+      } catch (err) {
+        setError("no shop found with this name");
+        console.error("Error fetching shop:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    if (shopName) {
+      fetchShop();
+    }
+  }, [shopName]);
+  
+  
 
   useEffect(() => {
     const fetchShopProducts = async () => {
       try {
-        const token = await getAccessTokenSilently();
-        const response = await axios.get("http://localhost:8080/api/product/getMyProducts", {
-          method: "GET",
-          headers: {
+        let headers = {};
+        if (isAuthenticated) {
+          const token = await getAccessTokenSilently();
+          headers = {
             Authorization: `Bearer ${token}`,
-          },
-        });
+          };
+        }
+
+        const response = await axios.get(
+          `http://localhost:8080/api/product/getShopProducts/${shopName}`,
+          { headers }
+        );
+
         const productsData = Array.isArray(response.data) ? response.data : [];
         setProducts(productsData);
       } catch (err) {
@@ -60,8 +73,11 @@ const MyShopComponent = () => {
         setLoading(false);
       }
     };
+
     fetchShopProducts();
-  }, []);
+  }, [getAccessTokenSilently, isAuthenticated, shopName]);
+
+
 
 
   const toggleFavorite = (productId) => {
@@ -76,40 +92,19 @@ const MyShopComponent = () => {
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
-  const AddMoreCard = () => (
-    <div className="bg-gray-800 rounded-lg overflow-hidden h-full flex items-center justify-center cursor-pointer hover:bg-gray-700 transition-colors duration-300">
-      <Link to={"/productForm"}>
-      <div className="text-center p-8">
-        <FaPlus className="w-12 h-12 text-purple-500 mx-auto mb-4" />
-        <p className="text-white font-semibold">Add More Items</p>
-      </div>
-      </Link>
-    </div>
-  );
 
-  const EmptyState = () => (
-    <div className="text-center py-16">
-      <FaShoppingCart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-      <h3 className="text-2xl font-bold text-white mb-4">You don't have any items yet</h3>
-      <Link to={"/productForm"}>
-      <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300">
-        Create New Item
-      </button>
-      </Link>
-    </div>
-  );
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    );
+    return <Loading />;
+  }
+
+  if (error) {
+    return <ErrorPage errorCode={error} />;
   }
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <ShopBanner imageUrl={shopImage || "https://source.unsplash.com/1600x900/?shop"} />
+      <ShopBanner title={shopName} imageUrl={shopImage || "https://source.unsplash.com/1600x900/?shop"} />
       <nav className="bg-gray-900 p-4 sticky top-0 z-50 border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <div className="relative w-full max-w-2xl">
@@ -131,13 +126,12 @@ const MyShopComponent = () => {
         </div>
 
         {filteredProducts.length === 0 ? (
-          <EmptyState />
+          <h2>Nothing here yet</h2>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map(product => (
               <ProductCard key={product.id} product={product} onToggleFavorite={toggleFavorite} />
             ))}
-            <AddMoreCard />
           </div>
         )}
       </main>
@@ -145,4 +139,4 @@ const MyShopComponent = () => {
   );
 };
 
-export default MyShopComponent;
+export default Shop;

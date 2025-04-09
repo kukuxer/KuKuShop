@@ -51,4 +51,8 @@ public class ShopService {
         return shopRepository.findByUserAuthId(userAuth)
                 .orElseThrow(() -> new RuntimeException("Shop not found for userAuth: " + userAuth));
     }
+    public Shop getByName(String shopName) {
+        return shopRepository.findByName(shopName)
+                .orElseThrow(() -> new RuntimeException("Shop not found for name: " + shopName));
+    }
 }

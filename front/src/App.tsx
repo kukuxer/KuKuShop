@@ -13,6 +13,7 @@ import Loading from "./components/utils/Loading";
 import TailWindNavBar from "./components/navbar-footer/NavBar";
 import ShopForm from "./components/forms/ShopForm";
 import MyShopComponent from "./components/shopPage/components/MyShopComponent";
+import Shop from "./components/shopPage/Shop";
 
 
 const ProtectedShop = withAuthenticationRequired(MyShop, {
@@ -47,7 +48,7 @@ const App = () => {
         <div className="mt-5">
           <Routes>
             <Route path="/" element={<Home />} />
-            
+            <Route path="/shops/:shopName" element={<Shop />} />
              {/* Secure Route */}
              <Route path="/myshop" element={<ProtectedShop />} />
              <Route path="/myshopComponent" element={<ProtectedShopComponent />} />

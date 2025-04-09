@@ -40,31 +40,46 @@ public class ProductController {
 
     @GetMapping("/getMyProducts")
     public ResponseEntity<?> getMyProducts(@AuthenticationPrincipal Jwt jwt) {
-        String authId = jwt.getClaim("sub");
-        Profile user = profileService.getByAuthId(authId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        Shop shop = shopService.getByUserAuthId(authId);
-        List<Product> products = productService.getProductsByShopId(shop.getId());
-        Set<UUID> favoriteProductIds = favoriteService.getFavoriteProductIdsByUserId(user.getId());
-        List<BasketProductDto> basketProducts = basketService.getAllBasketProducts(jwt);
-        List<UUID> basketProductIds = basketProducts.stream()
-                .map(BasketProductDto::getId)
-                .toList();
-
-        List<ProductDto> productDtos = products.stream()
-                .map(product -> {
-                    ProductDto dto = productMapper.toDto(product);
-                    dto.setFavorite(favoriteProductIds.contains(product.getId()));
-                    dto.setInBasket(basketProductIds.contains(product.getId()));
-                    return dto;
-                })
-                .collect(Collectors.toList());
+//        String authId = jwt.getClaim("sub");
+//        Profile user = profileService.getByAuthId(authId)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//        Shop shop = shopService.getByUserAuthId(authId);
+//        List<Product> products = productService.getProductsByShopId(shop.getId());
+//        Set<UUID> favoriteProductIds = favoriteService.getFavoriteProductIdsByUserId(user.getId());
+//        List<BasketProductDto> basketProducts = basketService.getAllBasketProducts(jwt);
+//        List<UUID> basketProductIds = basketProducts.stream()
+//                .map(BasketProductDto::getId)
+//                .toList();
+//
+//        List<ProductDto> productDtos = products.stream()
+//                .map(product -> {
+//                    ProductDto dto = productMapper.toDto(product);
+//                    dto.setFavorite(favoriteProductIds.contains(product.getId()));
+//                    dto.setInBasket(basketProductIds.contains(product.getId()));
+//                    return dto;
+//                })
+//                .collect(Collectors.toList());
+        Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
+        List<ProductDto> productDtos = productService.getShopProductsByName(shop.getName(), jwt);
 
         if (productDtos.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         return ResponseEntity.ok(productDtos);
     }
+    @GetMapping("/getShopProducts/{shopName}")
+    public ResponseEntity<?> getShopProducts(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable String shopName) {
+
+        List<ProductDto> productDtos = productService.getShopProductsByName(shopName, jwt);
+
+        if (productDtos.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        return ResponseEntity.ok(productDtos);
+    }
+
 
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@AuthenticationPrincipal Jwt jwt,
@@ -75,5 +90,6 @@ public class ProductController {
         ProductDto productDtoResponse = productService.createProduct(productDto, image, shop.getId());
         return ResponseEntity.ok(productDtoResponse);
     }
+
 }
 

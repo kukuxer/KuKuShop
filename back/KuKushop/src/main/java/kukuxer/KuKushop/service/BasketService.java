@@ -89,13 +89,10 @@ public class BasketService {
     public BasketProduct updateQuantity(UUID id, int quantity) {
         BasketProduct basketProduct = basketRepository.findBasketProductById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));;
         if (quantity < 1) {
             throw new RuntimeException("Quantity cannot be less than 1");
         }
         basketProduct.setQuantity(quantity);
-        product.setQuantity(quantity);
         return basketRepository.save(basketProduct);
     }
 }

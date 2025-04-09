@@ -25,7 +25,7 @@ const Shop = () => {
   useEffect(() => {
     const fetchShop = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/shop/${shopName}`, {});
+        const response = await axios.get(`http://localhost:8080/api/shop/get/${shopName}`, {});
         if (response.data) {
           setShop(response.data); 
           setShopImage(response.data.imageUrl);

@@ -33,32 +33,9 @@ public class ProductController {
 
     private final ProductService productService;
     private final ShopService shopService;
-    private final ProductMapper productMapper;
-    private final ProfileService profileService;
-    private final FavoriteService favoriteService;
-    private final BasketService basketService;
 
     @GetMapping("/getMyProducts")
     public ResponseEntity<?> getMyProducts(@AuthenticationPrincipal Jwt jwt) {
-//        String authId = jwt.getClaim("sub");
-//        Profile user = profileService.getByAuthId(authId)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//        Shop shop = shopService.getByUserAuthId(authId);
-//        List<Product> products = productService.getProductsByShopId(shop.getId());
-//        Set<UUID> favoriteProductIds = favoriteService.getFavoriteProductIdsByUserId(user.getId());
-//        List<BasketProductDto> basketProducts = basketService.getAllBasketProducts(jwt);
-//        List<UUID> basketProductIds = basketProducts.stream()
-//                .map(BasketProductDto::getId)
-//                .toList();
-//
-//        List<ProductDto> productDtos = products.stream()
-//                .map(product -> {
-//                    ProductDto dto = productMapper.toDto(product);
-//                    dto.setFavorite(favoriteProductIds.contains(product.getId()));
-//                    dto.setInBasket(basketProductIds.contains(product.getId()));
-//                    return dto;
-//                })
-//                .collect(Collectors.toList());
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
         List<ProductDto> productDtos = productService.getShopProductsByName(shop.getName(), jwt);
 

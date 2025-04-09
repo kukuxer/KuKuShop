@@ -33,7 +33,6 @@ public class FavoriteController {
     public List<ProductDto> getFavoriteProducts(@AuthenticationPrincipal Jwt jwt) {
         String authId = jwt.getClaim("sub");
         Profile user = profileService.getByAuthId(authId).orElseThrow();
-        Long id = user.getId();
-        return favoriteService.getFavoriteProducts(id);
+        return favoriteService.getFavoriteProducts(user.getId());
     }
 }

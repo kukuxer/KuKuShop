@@ -57,7 +57,7 @@ public class ShopController {
         return ResponseEntity.ok(ShopMapper.INSTANCE.toDto(shop));
     }
 
-    @GetMapping("/{shopName}")
+    @GetMapping("/get/{shopName}")
     public ResponseEntity<ShopDto> getShopDto(@PathVariable String shopName) {
         Shop shop = shopService.getByName(shopName);
         if (shop == null) {

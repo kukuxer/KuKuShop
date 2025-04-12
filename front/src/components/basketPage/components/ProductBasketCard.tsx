@@ -20,7 +20,7 @@ const ProductBasketCard: React.FC<ProductBasketCardProps> = ({ product, updateQu
   return (
     <div className="bg-gray-800 rounded-lg p-4">
       <div className="flex items-center space-x-4">
-        <img src={product.imageUrl} alt={product.name} className="w-24 h-24 object-cover rounded-md" />
+        <img src={product.imageUrl || "/Default.png"} alt={product.name} className="w-24 h-24 object-cover rounded-md" />
         <div className="flex-1">
           <h3 className="text-lg font-semibold text-purple-300">{product.name}</h3>
           <p className="text-gray-400">${parseFloat(product.price).toFixed(2)}</p>

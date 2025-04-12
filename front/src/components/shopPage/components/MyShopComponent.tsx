@@ -6,10 +6,13 @@ import ShopBanner from "./ShopBanner";
 import { Link } from "react-router-dom";
 import Product from "../../../entity/Product";
 import ProductCard from "./ProductCard";
+import ShopEntity from "../../../entity/ShopEntity";
+import ErrorPage from "../../utils/ErrorPage";
 
 const MyShopComponent = () => {
   const [error, setError] = useState<string | null>(null);
-  const [shopImage, setShopImage] = useState("/default-shop-image.jpg");
+  const [shopImage, setShopImage] = useState("/Default.png");
+  const [shop, setShop] = useState<ShopEntity>({} as ShopEntity);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,7 +20,6 @@ const MyShopComponent = () => {
 
   useEffect(() => {
       const fetchShopImage = async () => {
-        try {
           const token = await getAccessTokenSilently();
       
           const response = await fetch("http://localhost:8080/api/shop/myShopImage", {
@@ -30,13 +32,10 @@ const MyShopComponent = () => {
           if (response.ok) {
             const imageUrl = await response.text(); 
             setShopImage(imageUrl); 
-            console.log("Shop image URL:", imageUrl);
           } else {
-            setShopImage("/default-shop-image.jpg"); 
+            setShopImage("/ShopBanner.png"); 
           }
-        } catch (error) {
-          console.error("Error fetching shop image:", error);
-        }
+        
       };
       fetchShopImage();
     }, [getAccessTokenSilently]);
@@ -63,8 +62,34 @@ const MyShopComponent = () => {
     fetchShopProducts();
   }, []);
 
+  useEffect(() => {
+    const fetchShop = async () => {
+      try {
+        const token = await getAccessTokenSilently();
+        const response = await axios.get("http://localhost:8080/api/shop/myShop", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-  const toggleFavorite = (productId) => {
+        if (response.status === 200) {
+          setShop(response.data);
+        } else {
+          setError("Shop not found");
+        }
+      } catch (err) {
+        setError("Error fetching shop data");
+        console.error("Error fetching shop:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShop();
+  }, [getAccessTokenSilently]);
+
+
+  const toggleFavorite = (productId: string | number) => {
     setProducts(products.map(product => 
       product.id === productId 
         ? { ...product, favorite: !product.favorite }
@@ -106,10 +131,13 @@ const MyShopComponent = () => {
       </div>
     );
   }
+  if(error) {
+    return <ErrorPage errorCode={error} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <ShopBanner imageUrl={shopImage || "https://source.unsplash.com/1600x900/?shop"} />
+      <ShopBanner imageUrl={shopImage} title={shop.name} />
       <nav className="bg-gray-900 p-4 sticky top-0 z-50 border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <div className="relative w-full max-w-2xl">

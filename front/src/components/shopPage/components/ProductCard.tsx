@@ -4,6 +4,7 @@ import Product from "../../../entity/Product";
 import RatingStars from "./RatingStars";
 import { useAuth0 } from "@auth0/auth0-react";
 import AddToBasketButton from "../../buttons/AddToCartBtn";
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   product: Product;
@@ -30,6 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite }) 
   };
 
   return (
+    <Link to={`/productPageExample`} className="no-underline">
     <div
       className={`bg-gray-800 rounded-lg overflow-hidden transform transition-all duration-300 ${
         isHovered ? "scale-105 shadow-purple-500/50 shadow-lg" : ""
@@ -39,7 +41,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite }) 
     >
       <div className="relative aspect-w-16 aspect-h-9">
         <img
-          src={product.imageUrl || "/default-product-image.jpg"}
+          src={product.imageUrl || "/Default.png"}
           alt={product.name}
           className="object-cover w-full h-48"
           loading="lazy"
@@ -63,6 +65,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite }) 
         <AddToBasketButton productId={product.id} isProductAlreadyInCart={product.inBasket} />
       </div>
     </div>
+    </Link>
   );
 };
 

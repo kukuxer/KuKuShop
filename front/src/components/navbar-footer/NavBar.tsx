@@ -80,7 +80,7 @@ const Navbar = () => {
         const imageUrl = await response.text();
         setShopImage(imageUrl);
       } else {
-        setShopImage("/default-shop-image.jpg");
+        setShopImage("/logo.svg");
       }
     } catch (error) {
       console.error("Error fetching shop image:", error);
@@ -98,7 +98,9 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 md:block hidden">
+            <Link to={"/"}>
               <img className="h-8 w-8" src={shopImage || ""} alt="Logo" />
+              </Link>
             </div>
             <Link to={"/"}>
               <div className="md:block hidden ml-2 font-bold text-xl text-purple-500">
@@ -159,7 +161,7 @@ const Navbar = () => {
                     className="flex items-center space-x-2 text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     <img
-                      src={user.picture || "https://via.placeholder.com/32"}
+                      src={user.picture || "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"}
                       alt="User"
                       className="h-6 w-6 rounded-full"
                     />

@@ -39,7 +39,7 @@ const FavProductCard: React.FC<ProductCardProps> = ({ product, onToggleFavorite 
     >
       <div className="relative aspect-w-16 aspect-h-9">
         <img
-          src={product.imageUrl || "/default-product-image.jpg"}
+          src={product.imageUrl || "/Default.png"}
           alt={product.name}
           className="object-cover w-full h-48"
           loading="lazy"

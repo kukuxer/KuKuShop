@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
-import { FiArrowLeft } from "react-icons/fi";
+
 
 const ErrorPage = ({ errorCode = "404" }) => {
   const h1Ref = useRef<HTMLHeadingElement>(null);
@@ -82,7 +82,6 @@ const ErrorPage = ({ errorCode = "404" }) => {
 
       <div className="absolute inset-0 z-0 bg-glow" />
 
-      {/* Main Content with padding to avoid button overlap */}
       <div className="relative z-10 text-center px-4 max-w-full pb-32 sm:pb-40">
         <motion.h1
           ref={h1Ref}
@@ -107,7 +106,6 @@ const ErrorPage = ({ errorCode = "404" }) => {
         </motion.p>
       </div>
 
-      {/* Fixed Bottom Button */}
       <motion.button
         ref={buttonRef}
         onMouseLeave={() => handleMouseLeave(buttonRef)}

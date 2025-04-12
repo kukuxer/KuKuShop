@@ -1,41 +1,17 @@
 class Product {
-  id: string;
-  name: string;
-  description: string;
-  price: string;  
-  categories: string[];  
-  imageUrl: string;
-  rating: number;
-  quantity: number;
-  favorite: boolean;
-  inBasket: boolean;
-  reviews: number;
-
   constructor(
-    id: string,
-    name: string,
-    description: string,
-    price: string,  
-    categories: string[],  
-    imageUrl: string,
-    rating: number,
-    quantity: number,
-    favorite: boolean,
-    inBasket: boolean,
-    reviews: number,
-  ) {
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.price = price;
-    this.categories = categories;
-    this.imageUrl = imageUrl;
-    this.rating = rating;
-    this.quantity = quantity;
-    this.favorite = favorite;
-    this.inBasket = inBasket;
-    this.reviews = reviews;
-  }
+    public id: string,
+    public name: string,
+    public description: string,
+    public price: string,
+    public categories: string[],
+    public imageUrl: string = "logo.svg",
+    public rating: number,
+    public quantity: number,
+    public favorite: boolean,
+    public inBasket: boolean,
+    public reviews: number,
+  ) {}
 }
 
 export default Product;

@@ -5,6 +5,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import Loading from "../utils/Loading";
 import ProductBasketCard from "./components/ProductBasketCard";
 import { useNavigate } from "react-router-dom";
+import ErrorPage from "../utils/ErrorPage";
 
 
 
@@ -30,7 +31,7 @@ const BasketPage = () => {
         setCartItems(data);
         console.log("Fetched products:", data);
       } catch (err) {
-        setError((err as Error).message);
+        console.error("Error fetching products:", err);
       } finally {
         setLoading(false);
       }
@@ -60,7 +61,7 @@ const BasketPage = () => {
   };
 
   if (loading) return <Loading />;
-  if (error) return <p className="text-center text-red-400">{error}</p>;
+  if (error) return <ErrorPage errorCode={error} />;
 
   
 

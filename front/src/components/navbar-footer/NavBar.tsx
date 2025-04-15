@@ -13,6 +13,7 @@ import {
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Profile from "../../entity/Profile";
+import ErrorPage from "../utils/ErrorPage";
 
 const Navbar = () => {
   const {
@@ -25,7 +26,6 @@ const Navbar = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
   const [profile, setProfile] = useState<Profile | null>(null);
   const [shopImage, setShopImage] = useState<string | null>(null);
 
@@ -80,7 +80,7 @@ const Navbar = () => {
         const imageUrl = await response.text();
         setShopImage(imageUrl);
       } else {
-        setShopImage("/logo.svg");
+        setShopImage("/Shop.png");
       }
     } catch (error) {
       console.error("Error fetching shop image:", error);
@@ -99,7 +99,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <div className="flex-shrink-0 md:block hidden">
             <Link to={"/"}>
-              <img className="h-8 w-8" src={shopImage || ""} alt="Logo" />
+              <img className="h-8 w-8" src={shopImage || "/Shop.png"} alt="Logo" />
               </Link>
             </div>
             <Link to={"/"}>

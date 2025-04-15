@@ -8,6 +8,7 @@ import Product from "../../../entity/Product";
 import ProductCard from "./ProductCard";
 import ShopEntity from "../../../entity/ShopEntity";
 import ErrorPage from "../../utils/ErrorPage";
+import Loading from "../../utils/Loading";
 
 const MyShopComponent = () => {
   const [error, setError] = useState<string | null>(null);
@@ -125,11 +126,7 @@ const MyShopComponent = () => {
   );
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    );
+    return <Loading />;
   }
   if(error) {
     return <ErrorPage errorCode={error} />;

@@ -37,7 +37,7 @@ public class ProductController {
     @GetMapping("/getMyProducts")
     public ResponseEntity<?> getMyProducts(@AuthenticationPrincipal Jwt jwt) {
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
-        List<ProductDto> productDtos = productService.getShopProductsByName(shop.getName(), jwt);
+        List<ProductDto> productDtos = productService.getShopProductsDtoByName(shop.getName(), jwt);
 
         if (productDtos.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -49,7 +49,7 @@ public class ProductController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String shopName) {
 
-        List<ProductDto> productDtos = productService.getShopProductsByName(shopName, jwt);
+        List<ProductDto> productDtos = productService.getShopProductsDtoByName(shopName, jwt);
 
         if (productDtos.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -66,6 +66,15 @@ public class ProductController {
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
         ProductDto productDtoResponse = productService.createProduct(productDto, image, shop.getId());
         return ResponseEntity.ok(productDtoResponse);
+    }
+
+    @GetMapping("getProduct/{productId}")
+    public ResponseEntity<?> getProduct(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID productId) {
+
+       ProductDto productDto = productService.getProductDtoById(productId,jwt);
+        return ResponseEntity.ok(productDto);
     }
 
 }

@@ -55,7 +55,25 @@ public class ProductService {
         Product savedProduct = productRepository.save(product);
         return productMapper.toDto(savedProduct);
     }
-    public List<ProductDto> getShopProductsByName(String shopName, Jwt jwt) {
+
+    public ProductDto getProductDtoById(UUID uuid, Jwt jwt) {
+        Long userId = extractUserId(jwt);
+        Product product = productRepository.findById(uuid)
+                .orElseThrow(() -> new RuntimeException("no product with this id" + uuid));
+
+        ProductDto productDto = productMapper.toDto(product);
+
+        if(userId == null){
+            return productDto;
+        }
+
+        productDto.setInBasket(basketService.isInBasket(product.getId(),userId));
+        productDto.setFavorite(favoriteService.isFavorite(product.getId(),userId));
+
+        return productDto;
+    }
+
+    public List<ProductDto> getShopProductsDtoByName(String shopName, Jwt jwt) {
         Long userId = extractUserId(jwt);
         Shop shop = shopService.getByName(shopName);
         List<Product> products = getProductsByShopId(shop.getId());

@@ -1,51 +1,59 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaHeart, FaStar, FaStarHalf, FaShoppingCart } from "react-icons/fa";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import ShopCard from "./components/ShopCard";
 import SecurityInfo from "./components/SecurityInfo";
+import Product from "../../entity/Product";
+import axios from "axios";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useParams } from "react-router-dom";
+import Loading from "../utils/Loading";
+import ErrorPage from "../utils/ErrorPage";
 
-const ProductDetails = () => {
+const ProductPage = () => {
+  const [product, setProduct] = useState<Product | null>(null);
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [isInBasket, setIsInBasket] = useState(false);
   const [currentSort, setCurrentSort] = useState("recent");
   const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { productId } = useParams();
 
   
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        let headers = {};
+        if (isAuthenticated) {
+          const token = await getAccessTokenSilently();
+          headers = {
+            Authorization: `Bearer ${token}`,
+          };
+        }
 
-  const product = {
-    name: "Premium Wireless Headphones",
-    description: "Experience crystal-clear sound with our premium wireless headphones. Features active noise cancellation, 30-hour battery life, and premium comfort.",
-    price: 299.99,
-    quantity: 45,
-    categories: ["Electronics", "Audio", "Wireless"],
-    rating: 4.5,
-    images: [
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90",
-      "https://images.unsplash.com/photo-1487215078519-e21cc028cb29",
-      "https://images.unsplash.com/photo-1484704849700-f032a568e944"
-    ]
-  };
+        const response = await axios.get(
+          `http://localhost:8080/api/product/getProduct/${productId}`,
+          { headers }
+        );
 
-  const reviews = [
-    {
-      id: 1,
-      user: "John Doe",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
-      rating: 5,
-      text: "Exceptional quality and comfort. Best purchase ever!",
-      date: "2023-12-01"
-    },
-    {
-      id: 2,
-      user: "Jane Smith",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
-      rating: 4,
-      text: "Great sound quality, but battery life could be better.",
-      date: "2023-11-28"
-    }
-  ];
+        const data = response.data;
+        setProduct(data);
+        setIsLiked(data.favorite);
+        setIsInBasket(data.inBasket);
+      } catch (err) {
+        setError("Failed to fetch product");
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId, getAccessTokenSilently, isAuthenticated]);
+  
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -61,13 +69,17 @@ const ProductDetails = () => {
     return stars;
   };
 
-  const navigateImage = (direction: "next" | "prev") => {
-    if (direction === "next") {
-      setSelectedImage((prev) => (prev + 1) % product.images.length);
-    } else {
-      setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length);
-    }
-  };
+  // const navigateImage = (direction: "next" | "prev") => {
+  //   if (direction === "next") {
+  //     setSelectedImage((prev) => (prev + 1) % product.images.length);
+  //   } else {
+  //     setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length);
+  //   }
+  // };
+
+  if (loading) return <Loading /> ;
+  if (error) return < ErrorPage errorCode={error} />;
+  if(!product || loading) return <ErrorPage errorCode="ИДИИ НАХУУЙ" />;
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
@@ -76,7 +88,7 @@ const ProductDetails = () => {
           {/* Product Images Section */}
           <div className="space-y-4">
             <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-800">
-              {product.images.length > 3 && (
+              {/* {product.images.length > 3 && (
                 <>
                   <button
                     onClick={() => navigateImage("prev")}
@@ -91,15 +103,15 @@ const ProductDetails = () => {
                     <BsChevronRight size={20} />
                   </button>
                 </>
-              )}
+              )} */}
               <img
-                src={product.images[selectedImage]}
+                 src={product.imageUrl ? product.imageUrl[selectedImage] : "/Default.png"}
                 alt="Product"
                 className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105"
               />
             </div>
             <div className="grid grid-cols-4 gap-2">
-              {product.images.map((image, index) => (
+              {/* {product.images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -107,7 +119,7 @@ const ProductDetails = () => {
                 >
                   <img src={image} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                 </button>
-              ))}
+              ))} */}
             </div>
           </div>
 
@@ -181,7 +193,7 @@ const ProductDetails = () => {
           </div>
 
           <div className="space-y-6">
-            {reviews.map((review) => (
+            {/* {reviews.map((review) => (
               <div key={review.id} className="bg-gray-800 p-6 rounded-lg">
                 <div className="flex items-center space-x-4 mb-4">
                   <img
@@ -199,7 +211,7 @@ const ProductDetails = () => {
                 </div>
                 <p className="text-gray-300">{review.text}</p>
               </div>
-            ))}
+            ))} */}
           </div>
 
           {/* Review Pagination */}
@@ -224,4 +236,4 @@ const ProductDetails = () => {
   );
 };
 
-export default ProductDetails;
+export default ProductPage;

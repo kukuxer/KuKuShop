@@ -78,6 +78,10 @@ public class BasketService {
                 .collect(Collectors.toList());
     }
 
+    public boolean isInBasket(UUID productUuid,Long userId){
+        return basketRepository.findBasketProductByProductIdAndUserId(productUuid,userId).isPresent();
+    }
+
 
     private Profile getProfile(Jwt jwt) {
         String authId = jwt.getClaim("sub");

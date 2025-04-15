@@ -42,6 +42,12 @@ public class FavoriteService {
             favoriteRepository.save(newFavorite);
         }
     }
+    public boolean isFavorite(UUID productId,Long userId) {
+        return favoriteRepository.findByUserIdAndProductId(userId,productId).isPresent();
+    }
+
+
+
 
     public List<ProductDto> getFavoriteProducts(Long id) {
         List<BasketProduct> baskets = basketRepository.findBasketProductsByUserId(id);

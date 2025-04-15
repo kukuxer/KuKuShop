@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import ShopForm from "../forms/ShopForm";
 import MyShopComponent from "./components/MyShopComponent";
+import Loading from "../utils/Loading";
+import ErrorPage from "../utils/ErrorPage";
 
 
 const Home: React.FC = () => {
@@ -26,7 +28,6 @@ const Home: React.FC = () => {
 
         setHasShop(response.data); 
       } catch (err) {
-        setError("Error fetching shop data");
         console.error("Error checking if user owns a shop:", err);
       } finally {
         setLoading(false); 
@@ -37,11 +38,11 @@ const Home: React.FC = () => {
   }, [isAuthenticated, getAccessTokenSilently]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading/>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return <ErrorPage errorCode={error} />;
   }
 
   return (

@@ -1,4 +1,5 @@
 package kukuxer.KuKushop.config;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,9 +34,12 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/api/shop/get/**").permitAll()
-                        .requestMatchers("/api/product/getShopProducts/**").permitAll()
+                        .requestMatchers(
+                                "/api/public/**",
+                                "/api/shop/get/**",
+                                "/api/product/getShopProducts/**",
+                                "api/product/getProduct/**"
+                        ).permitAll()
                         .requestMatchers("/api/private").authenticated()
                         .anyRequest().authenticated()
                 )

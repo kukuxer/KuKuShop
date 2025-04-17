@@ -1,12 +1,17 @@
 import { FaStar, FaShoppingBag, FaStore, FaEnvelope, FaCheck, FaClock } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import ShopEntity from "../../../entity/ShopEntity";
 
-const ShopCard = () => {
+interface ShopCardProps{
+  shop: ShopEntity;
+}
+
+const ShopCard: React.FC<ShopCardProps>= ({shop}) => {
   const [isHovered, setIsHovered] = useState(false);
-
+  
   const shopData = {
-    shopName: "Artisan Crafts",
+    shopName: shop.name,
     rating: 4.8,
     sales: 1234,
     isVerified: true,

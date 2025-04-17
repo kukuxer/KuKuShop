@@ -9,6 +9,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -55,4 +56,9 @@ public class Product {
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     LocalDateTime creationDate;
+
+    @ElementCollection
+    @CollectionTable(name = "product_additional_pictures", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "picture_url")
+    List<String> additionalPictures;
 }

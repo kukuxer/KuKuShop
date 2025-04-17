@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -28,4 +29,6 @@ public class Shop {
     LocalDateTime creationDate;
 
     String imageUrl;
+    boolean isTrusted;
+    double rating;
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -54,5 +55,9 @@ public class ShopService {
     public Shop getByName(String shopName) {
         return shopRepository.findByName(shopName)
                 .orElseThrow(() -> new RuntimeException("Shop not found for name: " + shopName));
+    }
+
+    public Shop getById(Long id) {
+       return shopRepository.findById(id).orElseThrow(() -> new RuntimeException("Shop not found with id: " + id));
     }
 }

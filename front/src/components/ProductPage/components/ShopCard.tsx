@@ -2,6 +2,7 @@ import { FaStar, FaShoppingBag, FaStore, FaEnvelope, FaCheck, FaClock } from "re
 import { motion } from "framer-motion";
 import { useState } from "react";
 import ShopEntity from "../../../entity/ShopEntity";
+import { Link } from "react-router-dom";
 
 interface ShopCardProps{
   shop: ShopEntity;
@@ -10,14 +11,6 @@ interface ShopCardProps{
 const ShopCard: React.FC<ShopCardProps>= ({shop}) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  const shopData = {
-    shopName: shop.name,
-    rating: 4.8,
-    sales: 1234,
-    isVerified: true,
-    description: "Unique, handcrafted jewelry pieces made with love and precision",
-    avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3"
-  };
 
   const StarRating = ({ rating }) => {
     return (
@@ -49,11 +42,11 @@ const ShopCard: React.FC<ShopCardProps>= ({shop}) => {
               whileHover={{ scale: 1.1 }}
               className="relative">
               <img
-                src={shopData.avatarUrl}
-                alt={shopData.shopName}
+                src={shop.imageUrl || "/Default.png"}
+                alt={shop.name}
                 className="w-16 h-16 rounded-full object-cover border-2 border-purple-500"
                 onError={(e) => {
-                  e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3";
+                  e.target.src = "/Default.png";
                 }}
               />
               <div className="absolute -top-1 -right-1 bg-purple-500 rounded-full p-1">
@@ -61,9 +54,9 @@ const ShopCard: React.FC<ShopCardProps>= ({shop}) => {
               </div>
             </motion.div>
             <div>
-              <h2 className="text-xl font-bold text-white">{shopData.shopName}</h2>
+              <h2 className="text-xl font-bold text-white">{shop.name}</h2>
               <div className="flex items-center mt-1">
-                {shopData.isVerified ? (
+                {shop.isTrusted ? (
                   <span className="flex items-center text-green-400 text-sm">
                     <FaCheck className="w-3 h-3 mr-1" /> Trusted
                   </span>
@@ -79,14 +72,16 @@ const ShopCard: React.FC<ShopCardProps>= ({shop}) => {
           <div className="col-span-5 flex items-center">
             <div className="w-full space-y-3">
               <div className="flex justify-between items-center">
-                <StarRating rating={shopData.rating} />
-                <span className="text-gray-400 text-sm">{shopData.sales} sales</span>
+                <StarRating rating={shop.rating} />
               </div>
-              <p className="text-gray-300 text-sm">{shopData.description}</p>
+              <p className="text-gray-300 text-sm">{shop.description}</p>
             </div>
           </div>
 
+
+         
           <div className="col-span-4 flex items-center space-x-3">
+          <Link to={`/shops/${shop.name}`} >
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -98,6 +93,8 @@ const ShopCard: React.FC<ShopCardProps>= ({shop}) => {
               <FaShoppingBag className="w-5 h-5" />
               <span>Shop</span>
             </motion.button>
+           </Link>
+  
 
             <motion.button
               whileHover={{ scale: 1.02 }}

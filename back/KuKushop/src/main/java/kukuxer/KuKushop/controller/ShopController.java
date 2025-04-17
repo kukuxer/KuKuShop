@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/shop")
@@ -57,14 +58,23 @@ public class ShopController {
         return ResponseEntity.ok(ShopMapper.INSTANCE.toDto(shop));
     }
 
-    @GetMapping("/get/{shopName}")
-    public ResponseEntity<ShopDto> getShopDto(@PathVariable String shopName) {
+    @GetMapping("/getByName/{shopName}")
+    public ResponseEntity<ShopDto> getByName(@PathVariable String shopName) {
         Shop shop = shopService.getByName(shopName);
         if (shop == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(ShopMapper.INSTANCE.toDto(shop));
     }
+    @GetMapping("/getById/{id}")
+    public ResponseEntity<ShopDto> getById(@PathVariable Long id) {
+        Shop shop = shopService.getById(id);
+        if (shop == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(ShopMapper.INSTANCE.toDto(shop));
+    }
+
 
 
     @GetMapping("/doUserOwnAShop")

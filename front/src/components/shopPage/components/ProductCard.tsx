@@ -1,37 +1,18 @@
 import React, { useState } from "react";
-import { FaHeart } from "react-icons/fa";
 import Product from "../../../entity/Product";
 import RatingStars from "./RatingStars";
-import { useAuth0 } from "@auth0/auth0-react";
 import AddToBasketButton from "../../buttons/AddToCartBtn";
 import { Link } from "react-router-dom";
+import LikeBtn from "../../buttons/LikeBtn";
 
 interface ProductCardProps {
   product: Product;
-  onToggleFavorite: (productId: string, isCurrentlyFavorite: boolean) => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
-  onToggleFavorite,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const { getAccessTokenSilently } = useAuth0();
-
-  const handleToggleFavorite = async () => {
-    try {
-      const token = await getAccessTokenSilently();
-      await fetch(`http://localhost:8080/api/public/favorites/${product.id}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      onToggleFavorite(product.id, product.favorite ?? false);
-    } catch (error) {
-      console.error("Failed to toggle favorite", error);
-    }
-  };
 
   return (
     <div
@@ -45,21 +26,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <Link to={`/products/${product.id}`} className="no-underline">
           <img
             src={product.imageUrl || "/Default.png"}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/Default.png";
+            }}
             alt={product.name}
             className="object-cover w-full h-48"
             loading="lazy"
           />
         </Link>
-        <button
-          onClick={handleToggleFavorite}
-          className="absolute top-2 right-2 p-2 rounded-full bg-gray-800 bg-opacity-70 hover:bg-opacity-100 transition-all duration-300"
-        >
-          <FaHeart
-            className={`w-5 h-5 ${
-              product.favorite ? "text-red-500" : "text-gray-400"
-            }`}
-          />
-        </button>
+        <LikeBtn isFavorite={product.favorite} productId={product.id} />
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-white mb-2">

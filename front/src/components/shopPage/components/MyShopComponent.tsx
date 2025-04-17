@@ -61,7 +61,7 @@ const MyShopComponent = () => {
       }
     };
     fetchShopProducts();
-  }, []);
+  }, [getAccessTokenSilently]);
 
   useEffect(() => {
     const fetchShop = async () => {
@@ -89,14 +89,6 @@ const MyShopComponent = () => {
     fetchShop();
   }, [getAccessTokenSilently]);
 
-
-  const toggleFavorite = (productId: string | number) => {
-    setProducts(products.map(product => 
-      product.id === productId 
-        ? { ...product, favorite: !product.favorite }
-        : product
-    ));
-  };
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -160,7 +152,7 @@ const MyShopComponent = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} onToggleFavorite={toggleFavorite} />
+              <ProductCard key={product.id} product={product} />
             ))}
             <AddMoreCard />
           </div>

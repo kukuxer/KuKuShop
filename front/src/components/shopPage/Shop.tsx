@@ -14,7 +14,7 @@ import Loading from "../utils/Loading";
 const Shop = () => {
   const [error, setError] = useState<string | null>(null);
   const [shopImage, setShopImage] = useState("/Default.png");
-  const [shop,setShop] = useState<ShopEntity>({});
+  const [shop,setShop] = useState<ShopEntity | null>({});
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,7 +25,7 @@ const Shop = () => {
   useEffect(() => {
     const fetchShop = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/shop/get/${shopName}`, {});
+        const response = await axios.get(`http://localhost:8080/api/shop/getByName/${shopName}`, {});
         if (response.data) {
           setShop(response.data); 
           setShopImage(response.data.imageUrl);
@@ -45,8 +45,6 @@ const Shop = () => {
       fetchShop();
     }
   }, [shopName]);
-  
-  
 
   useEffect(() => {
     const fetchShopProducts = async () => {

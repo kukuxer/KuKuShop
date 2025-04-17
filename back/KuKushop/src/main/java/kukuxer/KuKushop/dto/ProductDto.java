@@ -18,6 +18,8 @@ import java.util.UUID;
 public class ProductDto {
     UUID id;
 
+    Long shopId;
+
     String name;
 
     String description;

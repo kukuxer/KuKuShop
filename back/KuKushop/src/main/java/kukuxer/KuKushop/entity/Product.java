@@ -6,12 +6,10 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.context.annotation.Lazy;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Data
@@ -26,7 +24,7 @@ public class Product {
     @Id
     @GeneratedValue
     @UuidGenerator
-    UUID id = UUID.randomUUID();
+    UUID id;
 
     @Column(nullable = false)
     Long shopId;
@@ -47,6 +45,13 @@ public class Product {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     Set<Category> categories = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "product_comment",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "comment_id")
+    )
+    List<Comment> comments = new ArrayList<>();
 
 
     double rating;

@@ -9,9 +9,13 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useParams } from "react-router-dom";
 import Loading from "../utils/Loading";
 import ErrorPage from "../utils/ErrorPage";
+import ShopEntity from "../../entity/ShopEntity";
+import AddToBasketButton from "../buttons/AddToCartBtn";
+import LikeBtn from "../buttons/LikeBtn";
 
 const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
+  const [shop, setShop] = useState<ShopEntity | null>(null);
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -22,7 +26,6 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   const { productId } = useParams();
 
-  
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -44,6 +47,7 @@ const ProductPage = () => {
         setIsLiked(data.favorite);
         setIsInBasket(data.inBasket);
         setSelectedImage(data.imageUrl);
+        console.log("Product data:", data);
       } catch (err) {
         setError("Failed to fetch product");
         console.error("Fetch error:", err);
@@ -54,7 +58,31 @@ const ProductPage = () => {
 
     fetchProduct();
   }, [productId, getAccessTokenSilently, isAuthenticated]);
-  
+
+  useEffect(() => {
+    const fetchShop = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/api/shop/getById/${product?.shopId}`
+        );
+        if (response.data) {
+          setShop(response.data);
+          console.log("Shop data:", response.data);
+        } else {
+          setError("Shop not found");
+        }
+      } catch (err) {
+        setError("No shop found with this ID");
+        console.error("Error fetching shop:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (product?.shopId) {
+      fetchShop();
+    }
+  }, [product?.shopId]);
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -78,9 +106,9 @@ const ProductPage = () => {
   //   }
   // };
 
-  if (loading) return <Loading /> ;
-  if (error) return < ErrorPage errorCode={error} />;
-  if(!product || loading) return <ErrorPage errorCode="ИДИИ НАХУУЙ" />;
+  if (loading) return <Loading />;
+  if (error) return <ErrorPage errorCode={error} />;
+  if (!product || loading) return <ErrorPage errorCode="ИДИИ НАХУУЙ" />;
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
@@ -106,7 +134,7 @@ const ProductPage = () => {
                 </>
               )} */}
               <img
-                 src={product.imageUrl ? product.imageUrl : "/Default.png"}
+                src={product.imageUrl ? product.imageUrl : "/Default.png"}
                 alt="Product"
                 className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105"
               />
@@ -129,7 +157,9 @@ const ProductPage = () => {
             <h1 className="text-4xl font-bold">{product.name}</h1>
             <p className="text-gray-400 text-lg">{product.description}</p>
             <div className="flex items-center space-x-4">
-              <span className="text-3xl font-bold text-purple-400">${product.price}</span>
+              <span className="text-3xl font-bold text-purple-400">
+                ${product.price}
+              </span>
               <div className="flex items-center">
                 {renderStars(product.rating)}
                 <span className="ml-2 text-gray-400">({product.rating})</span>
@@ -138,7 +168,10 @@ const ProductPage = () => {
 
             <div className="flex flex-wrap gap-2">
               {product.categories.map((category) => (
-                <span key={category} className="px-3 py-1 rounded-full bg-purple-900 text-purple-200 text-sm">
+                <span
+                  key={category}
+                  className="px-3 py-1 rounded-full bg-purple-900 text-purple-200 text-sm"
+                >
                   {category}
                 </span>
               ))}
@@ -146,36 +179,33 @@ const ProductPage = () => {
 
             {/* Add to Cart and Like Buttons */}
             <div className="space-y-4">
-              <p className={`text-lg ${product.quantity < 20 ? "text-red-400" : "text-green-400"}`}>
+              <p
+                className={`text-lg ${
+                  product.quantity < 20 ? "text-red-400" : "text-green-400"
+                }`}
+              >
                 {product.quantity} units in stock
               </p>
 
-              <div className="flex space-x-4">
-                <button
-                  onClick={() => setIsLiked(!isLiked)}
-                  className={`p-3 rounded-full transition-colors ${isLiked ? "bg-red-500" : "bg-gray-700 hover:bg-gray-600"}`}
-                >
-                  <FaHeart className={isLiked ? "text-white" : "text-gray-400"} />
-                </button>
-                <button
-                  onClick={() => setIsInBasket(!isInBasket)}
-                  className={`flex-1 flex items-center justify-center space-x-2 py-3 px-6 rounded-lg transition-colors ${isInBasket ? "bg-purple-600" : "bg-purple-500 hover:bg-purple-400"}`}
-                >
-                  <FaShoppingCart />
-                  <span>{isInBasket ? "Added to Basket" : "Add to Basket"}</span>
-                </button>
+              <div className="flex space-x-4">      
+                <LikeBtn isFavorite={product.favorite} productId={product.id} />
+                <div className="w-full">
+                  <AddToBasketButton
+                    productId={product.id}
+                    isProductAlreadyInCart={product.inBasket}
+                  />
+                </div>
               </div>
             </div>
 
             <SecurityInfo />
-
           </div>
         </div>
 
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Shop Details Section */}
           <div className="col-span-1 md:col-span-2">
-            <ShopCard />
+            {shop && <ShopCard shop={shop} />}
           </div>
         </div>
 
@@ -223,7 +253,9 @@ const ProductPage = () => {
             >
               <BsChevronLeft />
             </button>
-            <span className="px-4 py-2 rounded-lg bg-gray-800">{currentPage}</span>
+            <span className="px-4 py-2 rounded-lg bg-gray-800">
+              {currentPage}
+            </span>
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700"

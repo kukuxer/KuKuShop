@@ -9,9 +9,7 @@ interface ProductCardProps {
   product: Product;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-}) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -22,8 +20,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative aspect-w-16 aspect-h-9">
-      <Link to={`/products/${product.id}`} className="no-underline">
+      <div className="aspect-w-16 aspect-h-9 justify-end items-start">
+        <Link to={`/products/${product.id}`} className="no-underline">
           <img
             src={product.imageUrl || "/Default.png"}
             onError={(e) => {
@@ -34,7 +32,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
             loading="lazy"
           />
         </Link>
-        <LikeBtn isFavorite={product.favorite} productId={product.id} />
+        <div className="absolute top-2 right-2 z-10">
+          <LikeBtn isFavorite={product.favorite} productId={product.id} />
+        </div>
       </div>
       <div className="p-4">
         <h3 className="text-lg font-semibold text-white mb-2">

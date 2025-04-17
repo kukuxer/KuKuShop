@@ -7,89 +7,90 @@ import ProductBasketCard from "./components/ProductBasketCard";
 import { useNavigate } from "react-router-dom";
 import ErrorPage from "../utils/ErrorPage";
 
-
-
 const BasketPage = () => {
   const [cartItems, setCartItems] = useState<Product[]>([]);
   const { getAccessTokenSilently } = useAuth0();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);  
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const token = await getAccessTokenSilently();
-        const response = await fetch("http://localhost:8080/api/public/basket/products", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          "http://localhost:8080/api/public/basket/products",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         if (!response.ok) throw new Error("Failed to fetch products");
         const data: Product[] = await response.json();
         setCartItems(data);
-        console.log("Fetched products:", data);
       } catch (err) {
-        console.error("Error fetching products:", err);
+        setError(err as string);
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
-  }, [getAccessTokenSilently]); 
-  
+  }, [getAccessTokenSilently]);
+
   const deleteProduct = async (id: string) => {
     try {
       const token = await getAccessTokenSilently();
-      const response = await fetch(`http://localhost:8080/api/public/basket/delete/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
+      const response = await fetch(
+        `http://localhost:8080/api/public/basket/delete/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (!response.ok) throw new Error("Failed to delete product");
-  
-  
-      setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-  
-      console.log(`Product ${id} deleted successfully`);
+
+      setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
     } catch (err) {
-      console.error("Error deleting product:", err);
+      setError(err as string);
     }
   };
 
   if (loading) return <Loading />;
   if (error) return <ErrorPage errorCode={error} />;
 
-  
-
   const removeItem = (id: string) => {
     deleteProduct(id);
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
+    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
   const updateQuantity = async (id: string, change: number) => {
-    const newQuantity = cartItems.find(item => item.id === id)?.quantity + change;
+    const newQuantity =
+      (cartItems.find((item) => item.id === id)?.quantity ?? 0) + change;
 
     // Prevent negative quantities
     if (newQuantity && newQuantity < 1) return;
 
     try {
       const token = await getAccessTokenSilently();
-      const response = await fetch(`http://localhost:8080/api/public/basket/update-quantity/${id}?quantity=${newQuantity}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:8080/api/public/basket/update-quantity/${id}?quantity=${newQuantity}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to update quantity");
 
       const updatedItem = await response.json();
-      setCartItems(prevItems =>
-        prevItems.map(item =>
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
           item.id === id ? { ...item, quantity: updatedItem.quantity } : item
         )
       );
@@ -103,13 +104,14 @@ const BasketPage = () => {
     0
   );
   const shipping = 9.99;
-  const total = subtotal + shipping; ;
- 
+  const total = subtotal + shipping;
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-5xl font-bold text-purple-300 mb-8 text-center ">Your Basket</h1>
+        <h1 className="text-5xl font-bold text-purple-300 mb-8 text-center ">
+          Your Basket
+        </h1>
 
         {cartItems.length === 0 ? (
           <div className="text-center py-12">
@@ -125,7 +127,11 @@ const BasketPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
               {cartItems.map((item) => (
-                <ProductBasketCard product={item} updateQuantity={updateQuantity} removeItem={removeItem} />
+                <ProductBasketCard
+                  product={item}
+                  updateQuantity={updateQuantity}
+                  removeItem={removeItem}
+                />
               ))}
             </div>
 

@@ -4,9 +4,9 @@ class ShopEntity {
     public ownerName: string,
     public description: string,
     public imageUrl: string,
-    public rating: any,
+    public rating: number,
     public isTrusted: boolean
-  ) {}
+  ) { }
 }
 
 export default ShopEntity;

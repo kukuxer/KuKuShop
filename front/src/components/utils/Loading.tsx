@@ -7,7 +7,11 @@ const Loading = () => {
           <div className="w-12 h-12 border-4 border-transparent rounded-full animate-pulse bg-purple-500/20"></div>
         </div>
       </div>
-      <div className="mt-4 text-purple-300 text-lg font-medium animate-pulse" role="status" aria-live="polite">
+      <div
+        className="mt-4 text-purple-300 text-lg font-medium animate-pulse"
+        role="status"
+        aria-live="polite"
+      >
         <span className="sr-only">Loading in progress</span>
       </div>
     </div>

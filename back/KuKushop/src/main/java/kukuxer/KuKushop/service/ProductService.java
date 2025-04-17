@@ -3,15 +3,13 @@ package kukuxer.KuKushop.service;
 import kukuxer.KuKushop.dto.Mappers.ProductMapper;
 import kukuxer.KuKushop.dto.ProductDto;
 import kukuxer.KuKushop.dto.BasketProductDto;
-import kukuxer.KuKushop.entity.Category;
-import kukuxer.KuKushop.entity.Product;
-import kukuxer.KuKushop.entity.Shop;
-import kukuxer.KuKushop.entity.Profile;
+import kukuxer.KuKushop.entity.*;
 import kukuxer.KuKushop.repository.CategoryRepository;
 import kukuxer.KuKushop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -71,6 +69,13 @@ public class ProductService {
         productDto.setFavorite(favoriteService.isFavorite(product.getId(),userId));
 
         return productDto;
+    }
+    @Transactional(readOnly = true)
+    public List<Comment> getProductComments(UUID uuid){
+        Product product = productRepository.findById(uuid)
+                .orElseThrow(() -> new RuntimeException("no product with this id" + uuid));
+
+        return  product.getComments();
     }
 
     public List<ProductDto> getShopProductsDtoByName(String shopName, Jwt jwt) {

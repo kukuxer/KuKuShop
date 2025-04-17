@@ -6,31 +6,32 @@ import MyShopComponent from "./components/MyShopComponent";
 import Loading from "../utils/Loading";
 import ErrorPage from "../utils/ErrorPage";
 
-
 const Home: React.FC = () => {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const [hasShop, setHasShop] = useState<boolean | null>(null); 
+  const [hasShop, setHasShop] = useState<boolean | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Check if the user has a shop when the component mounts
   useEffect(() => {
     const checkIfUserOwnsShop = async () => {
       if (!isAuthenticated) return;
 
       try {
         const token = await getAccessTokenSilently();
-        const response = await axios.get("http://localhost:8080/api/shop/doUserOwnAShop", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:8080/api/shop/doUserOwnAShop",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        setHasShop(response.data); 
+        setHasShop(response.data);
       } catch (err) {
-        console.error("Error checking if user owns a shop:", err);
+        setError(err as string);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -38,22 +39,14 @@ const Home: React.FC = () => {
   }, [isAuthenticated, getAccessTokenSilently]);
 
   if (loading) {
-    return <Loading/>;
+    return <Loading />;
   }
 
   if (error) {
     return <ErrorPage errorCode={error} />;
   }
 
-  return (
-    <div>
-      {hasShop ? (
-        <MyShopComponent />
-      ) : (
-        <ShopForm />
-      )}
-    </div>
-  );
+  return <div>{hasShop ? <MyShopComponent /> : <ShopForm />}</div>;
 };
 
 export default Home;

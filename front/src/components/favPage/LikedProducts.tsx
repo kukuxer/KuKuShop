@@ -5,34 +5,34 @@ import FavProductCard from "./components/FavProductCard";
 import Product from "../../entity/Product";
 import axios from "axios";
 
-// Product type extended to include favorites
-
-
 const LikedProducts: React.FC = () => {
   const [likedProducts, setLikedProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [sortBy, setSortBy] = useState<"price-asc" | "price-desc" | "date">("date");
+  const [sortBy, setSortBy] = useState<"price-asc" | "price-desc" | "date">(
+    "date"
+  );
   const { getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
         const token = await getAccessTokenSilently();
-        const { data } = await axios.get("http://localhost:8080/api/public/favorites/products", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
+        const { data } = await axios.get(
+          "http://localhost:8080/api/public/favorites/products",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
         setLikedProducts(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Failed to fetch favorite products", err);
       }
     };
-  
-    fetchFavorites();
-  }, [getAccessTokenSilently, refreshTrigger]); 
-  
 
+    fetchFavorites();
+  }, [getAccessTokenSilently, refreshTrigger]);
 
   const handleSort = (type: "price-asc" | "price-desc" | "date") => {
     setSortBy(type);
@@ -54,12 +54,17 @@ const LikedProducts: React.FC = () => {
     setLikedProducts(sortedProducts);
   };
 
-  const handleToggleFavorite = (productId: string, isCurrentlyFavorite: boolean) => {
+  const handleToggleFavorite = (
+    productId: string,
+    isCurrentlyFavorite: boolean
+  ) => {
     if (isCurrentlyFavorite) {
-      setLikedProducts((prev) => prev.filter((p) => String(p.id) !== productId));
-      setRefreshTrigger((prev) => prev + 1); 
+      setLikedProducts((prev) =>
+        prev.filter((p) => String(p.id) !== productId)
+      );
+      setRefreshTrigger((prev) => prev + 1);
     } else {
-      fetchFavorites(); 
+      fetchFavorites();
     }
   };
 
@@ -71,7 +76,9 @@ const LikedProducts: React.FC = () => {
     <div className="min-h-screen bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-4 sm:mb-0">Liked Products</h1>
+          <h1 className="text-3xl font-bold text-white mb-4 sm:mb-0">
+            Liked Products
+          </h1>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <div className="relative">
               <input
@@ -86,7 +93,9 @@ const LikedProducts: React.FC = () => {
             <select
               value={sortBy}
               onChange={(e) =>
-                handleSort(e.target.value as "price-asc" | "price-desc" | "date")
+                handleSort(
+                  e.target.value as "price-asc" | "price-desc" | "date"
+                )
               }
               className="px-4 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
@@ -124,4 +133,3 @@ export default LikedProducts;
 function fetchFavorites() {
   throw new Error("Function not implemented.");
 }
-

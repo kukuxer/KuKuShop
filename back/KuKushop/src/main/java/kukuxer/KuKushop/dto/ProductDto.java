@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -29,6 +30,10 @@ public class ProductDto {
     Set<String> categories = new HashSet<>();
 
     String imageUrl;
+
+    LocalDateTime creationDate;
+
+
 
     int quantity;
     double rating;

@@ -22,7 +22,9 @@ const ShopBanner: React.FC<ShopBannerProps> = ({
       />
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50 flex flex-col items-center justify-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">{title}</h1>
+        <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+          {title}
+        </h1>
         <div className="flex items-center space-x-2">
           <span className="text-yellow-400 text-xl">★ {rating}</span>
           <span className="text-white">({reviews} reviews)</span>

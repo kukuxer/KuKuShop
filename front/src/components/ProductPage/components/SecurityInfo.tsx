@@ -5,30 +5,31 @@ const SecurityInfo = () => {
     {
       icon: <FaShieldAlt className="w-6 h-6 text-purple-500" />,
       title: "Secure Payment",
-      description: "Encrypted transactions"
+      description: "Encrypted transactions",
     },
     {
       icon: <FaTruck className="w-6 h-6 text-purple-500" />,
       title: "Safe Shipping",
-      description: "Tracked delivery"
+      description: "Tracked delivery",
     },
     {
       icon: <FaUserShield className="w-6 h-6 text-purple-500" />,
       title: "Data Privacy",
-      description: "Protected information"
+      description: "Protected information",
     },
     {
       icon: <FaLock className="w-6 h-6 text-purple-500" />,
       title: "Guaranteed",
-      description: "Easy returns"
-    }
+      description: "Easy returns",
+    },
   ];
 
   return (
     <div className="w-full max-w-md mx-auto p-2">
       <div className="bg-gray-800 rounded-lg p-3 shadow-lg border border-purple-500/20">
         <h2 className="text-lg font-semibold text-center text-white mb-3 hover:text-purple-400 transition-colors duration-300">
-          Shop with Confidence ✅
+          <span className="text-purple-400 opacity-35">Kuku</span>Shop with
+          Confidence ✅
         </h2>
 
         <div className="grid grid-cols-2 gap-2">
@@ -47,9 +48,7 @@ const SecurityInfo = () => {
                   <h3 className="text-sm font-medium text-white hover:text-purple-400 transition-colors duration-300">
                     {benefit.title}
                   </h3>
-                  <p className="text-xs text-gray-300">
-                    {benefit.description}
-                  </p>
+                  <p className="text-xs text-gray-300">{benefit.description}</p>
                 </div>
               </div>
             </div>

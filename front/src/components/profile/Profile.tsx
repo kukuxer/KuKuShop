@@ -11,7 +11,7 @@ interface FormData {
 }
 
 const Profile: React.FC = () => {
-  const { user, isAuthenticated } = useAuth0();
+  const { user } = useAuth0();
 
   // Ensure `user` is typed
   const typedUser = user as User;
@@ -78,17 +78,19 @@ const Profile: React.FC = () => {
               src={typedUser.picture || formData.image}
               alt="Profile"
               className="w-32 h-32 rounded-full object-cover border-4 border-purple-600"
-              // onError={(e) => {
-              //   e.target.src =
-              //     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
-              // }}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "/https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg";
+              }}
             />
           </div>
 
           {isEditing ? (
             <form onSubmit={handleSubmit} className="flex-1 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-400">Name</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  Name
+                </label>
                 <input
                   type="text"
                   name="name"
@@ -96,11 +98,15 @@ const Profile: React.FC = () => {
                   onChange={handleChange}
                   className="mt-1 w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 />
-                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400">Surname</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  Surname
+                </label>
                 <input
                   type="text"
                   name="surname"
@@ -114,7 +120,9 @@ const Profile: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400">Nickname</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  Nickname
+                </label>
                 <input
                   type="text"
                   name="nickname"
@@ -125,7 +133,9 @@ const Profile: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-400">Email</label>
+                <label className="block text-sm font-medium text-gray-400">
+                  Email
+                </label>
                 <input
                   type="email"
                   name="email"
@@ -133,7 +143,9 @@ const Profile: React.FC = () => {
                   onChange={handleChange}
                   className="mt-1 w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                )}
               </div>
 
               <div className="flex space-x-4">
@@ -169,7 +181,9 @@ const Profile: React.FC = () => {
 
               <div>
                 <h3 className="text-sm font-medium text-gray-400">Nickname</h3>
-                <p className="text-purple-400 text-lg font-medium">{typedUser?.nickname}</p>
+                <p className="text-purple-400 text-lg font-medium">
+                  {typedUser?.nickname}
+                </p>
               </div>
 
               <div>

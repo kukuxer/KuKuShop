@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import { motion } from "framer-motion";
 
-
 const ErrorPage = ({ errorCode = "404" }) => {
   const h1Ref = useRef<HTMLHeadingElement>(null);
   const pRef = useRef<HTMLParagraphElement>(null);
@@ -117,7 +116,6 @@ const ErrorPage = ({ errorCode = "404" }) => {
         className="fixed bottom-6 sm:bottom-20 z-10 flex items-center gap-2 px-5 sm:px-6 py-2 sm:py-3 text-white rounded-md transition-all transform hover:scale-105 text-sm sm:text-base md:text-lg font-semibold hover-spotlight"
         onClick={() => window.history.back()}
       >
-        
         ← Go Back
       </motion.button>
     </div>

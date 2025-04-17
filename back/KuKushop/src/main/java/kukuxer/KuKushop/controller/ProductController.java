@@ -1,13 +1,6 @@
 package kukuxer.KuKushop.controller;
-
-import kukuxer.KuKushop.dto.BasketProductDto;
-import kukuxer.KuKushop.dto.Mappers.ProductMapper;
-import kukuxer.KuKushop.dto.Mappers.ProfileMapper;
 import kukuxer.KuKushop.dto.ProductDto;
-import kukuxer.KuKushop.dto.ProfileDto;
-import kukuxer.KuKushop.dto.ShopDto;
 import kukuxer.KuKushop.entity.Product;
-import kukuxer.KuKushop.entity.Profile;
 import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.service.*;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
+
 import java.util.UUID;
-import java.util.stream.Collectors;
+
 
 
 @Controller
@@ -75,6 +68,14 @@ public class ProductController {
 
        ProductDto productDto = productService.getProductDtoById(productId,jwt);
         return ResponseEntity.ok(productDto);
+    }
+
+    @GetMapping("getProductComments/{productId}")
+    public ResponseEntity<?> getProductComments(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID productId) {
+
+        return ResponseEntity.ok(productService.getProductComments(productId));
     }
 
 }

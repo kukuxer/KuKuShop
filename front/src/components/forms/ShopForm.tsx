@@ -1,7 +1,7 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import { FiUpload } from "react-icons/fi";
 import axios from "axios";
-import { useAuth0 } from "@auth0/auth0-react"; 
+import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 
 interface ShopDto {
@@ -16,9 +16,9 @@ interface Errors {
 }
 
 const ShopCreationForm = () => {
-  const { getAccessTokenSilently } = useAuth0(); 
+  const { getAccessTokenSilently } = useAuth0();
   const [formData, setFormData] = useState<ShopDto>({
-    shopName:"",
+    shopName: "",
     image: null,
     description: "",
   });
@@ -28,8 +28,9 @@ const ShopCreationForm = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const navigate = useNavigate();
 
-
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -44,7 +45,7 @@ const ShopCreationForm = () => {
     const file = e.target.files?.[0];
     if (file) {
       setFormData((prev) => ({ ...prev, image: file }));
-      setImagePreview(URL.createObjectURL(file)); 
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
@@ -66,50 +67,56 @@ const ShopCreationForm = () => {
       setLoading(true);
       try {
         const token = await getAccessTokenSilently();
-  
-       
+
         const data = new FormData();
         data.append("name", formData.shopName);
-            data.append("description", formData.description);
-            if (formData.image) {
-                data.append("image", formData.image as Blob); 
-            }
-            console.log("Image type:", formData.image);
-  
-        const response = await axios.post("http://localhost:8080/api/shop/create", data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data", 
-          },
-        });
+        data.append("description", formData.description);
+        if (formData.image) {
+          data.append("image", formData.image as Blob);
+        }
+        console.log("Image type:", formData.image);
 
-console.log("navigating..")
+        const response = await axios.post(
+          "http://localhost:8080/api/shop/create",
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        console.log("navigating..");
         navigate("/myshopComponent");
         console.log("Shop created:", response.data);
         setFormData({ shopName: "", image: null, description: "" });
         setAgreement(false);
         setImagePreview(null);
-       
       } catch (error) {
-        console.error("Error submitting form:", error)
+        console.error("Error submitting form:", error);
       } finally {
         setLoading(false);
       }
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-xl shadow-2xl">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-white">Create Your Shop</h2>
-          <p className="mt-2 text-purple-400">Fill in the details to get started</p>
+          <p className="mt-2 text-purple-400">
+            Fill in the details to get started
+          </p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="shopName" className="block text-sm font-medium text-purple-300">
+            <label
+              htmlFor="shopName"
+              className="block text-sm font-medium text-purple-300"
+            >
               Shop Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -124,7 +131,9 @@ console.log("navigating..")
               value={formData.shopName}
               onChange={handleInputChange}
             />
-            {errors.shopName && <p className="mt-1 text-red-500 text-sm">{errors.shopName}</p>}
+            {errors.shopName && (
+              <p className="mt-1 text-red-500 text-sm">{errors.shopName}</p>
+            )}
           </div>
 
           <div>
@@ -164,7 +173,10 @@ console.log("navigating..")
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-purple-300">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-purple-300"
+            >
               Description <span className="text-gray-400">(optional)</span>
             </label>
             <textarea
@@ -189,11 +201,17 @@ console.log("navigating..")
               checked={agreement}
               onChange={handleAgreementChange}
             />
-            <label htmlFor="agreement" className="ml-2 block text-sm text-purple-300">
-              I agree to the terms and conditions <span className="text-red-500">*</span>
+            <label
+              htmlFor="agreement"
+              className="ml-2 block text-sm text-purple-300"
+            >
+              I agree to the terms and conditions{" "}
+              <span className="text-red-500">*</span>
             </label>
           </div>
-          {errors.agreement && <p className="text-red-500 text-sm">{errors.agreement}</p>}
+          {errors.agreement && (
+            <p className="text-red-500 text-sm">{errors.agreement}</p>
+          )}
 
           <button
             type="submit"

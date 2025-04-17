@@ -1,7 +1,6 @@
 import React, { Fragment } from "react";
 import Hero from "./components/Hero";
 import { useAuth0 } from "@auth0/auth0-react";
-import ShopBanner from "../shopPage/components/ShopBanner";
 const About = React.lazy(() => import("./components/About"));
 
 

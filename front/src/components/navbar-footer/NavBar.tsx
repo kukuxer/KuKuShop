@@ -13,7 +13,6 @@ import {
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Profile from "../../entity/Profile";
-import ErrorPage from "../utils/ErrorPage";
 
 const Navbar = () => {
   const {
@@ -88,9 +87,20 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    fetchOrCreateProfile();
-    fetchShopImage();
-  }, [isAuthenticated, user]);
+  let isMounted = true;
+
+  const fetchData = async () => {
+    if (!isAuthenticated) return;
+    await fetchOrCreateProfile();
+    await fetchShopImage();
+  };
+
+  if (isMounted) fetchData();
+
+  return () => {
+    isMounted = false;
+  };
+}, [isAuthenticated]);
 
   return (
     <nav className="bg-gray-900 text-white shadow-lg">

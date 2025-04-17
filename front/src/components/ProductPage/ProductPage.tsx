@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaHeart, FaStar, FaStarHalf, FaShoppingCart } from "react-icons/fa";
+import { FaStar, FaStarHalf } from "react-icons/fa";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import ShopCard from "./components/ShopCard";
 import SecurityInfo from "./components/SecurityInfo";
@@ -16,10 +16,9 @@ import LikeBtn from "../buttons/LikeBtn";
 const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [shop, setShop] = useState<ShopEntity | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isInBasket, setIsInBasket] = useState(false);
   const [currentSort, setCurrentSort] = useState("recent");
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -44,8 +43,6 @@ const ProductPage = () => {
 
         const data = response.data;
         setProduct(data);
-        setIsLiked(data.favorite);
-        setIsInBasket(data.inBasket);
         setSelectedImage(data.imageUrl);
         console.log("Product data:", data);
       } catch (err) {
@@ -83,6 +80,35 @@ const ProductPage = () => {
       fetchShop();
     }
   }, [product?.shopId]);
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!productId) return;
+  
+      try {
+        let headers = {};
+        if (isAuthenticated) {
+          const token = await getAccessTokenSilently();
+          headers = {
+            Authorization: `Bearer ${token}`,
+          };
+        }
+  
+        const response = await axios.get(
+          `http://localhost:8080/api/product/getProductComments/${productId}`,
+          { headers }
+        );
+  
+        setComments(response.data);
+        console.log("Comments:", response.data);
+      } catch (err) {
+        console.error("Failed to fetch comments:", err);
+      }
+    };
+  
+    fetchComments();
+  }, [productId, getAccessTokenSilently, isAuthenticated]);
+  
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -138,6 +164,9 @@ const ProductPage = () => {
                 alt="Product"
                 className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105"
               />
+              <div className="absolute top-3 right-3 z-10 scale-150 p-3">
+                <LikeBtn isFavorite={product.favorite} productId={product.id} />
+              </div>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {/* {product.images.map((image, index) => (
@@ -187,8 +216,7 @@ const ProductPage = () => {
                 {product.quantity} units in stock
               </p>
 
-              <div className="flex space-x-4">      
-                <LikeBtn isFavorite={product.favorite} productId={product.id} />
+              <div className="flex space-x-4">
                 <div className="w-full">
                   <AddToBasketButton
                     productId={product.id}
@@ -224,8 +252,8 @@ const ProductPage = () => {
           </div>
 
           <div className="space-y-6">
-            {/* {reviews.map((review) => (
-              <div key={review.id} className="bg-gray-800 p-6 rounded-lg">
+            {/* {comments.map((comment) => (
+              <div key={comment.id} className="bg-gray-800 p-6 rounded-lg">
                 <div className="flex items-center space-x-4 mb-4">
                   <img
                     src={review.avatar}

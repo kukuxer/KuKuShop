@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { FaShoppingCart, FaSearch, FaPlus } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaSearch } from "react-icons/fa";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useParams } from "react-router-dom";
@@ -10,24 +10,25 @@ import ProductCard from "./components/ProductCard";
 import ErrorPage from "../utils/ErrorPage";
 import Loading from "../utils/Loading";
 
-
 const Shop = () => {
   const [error, setError] = useState<string | null>(null);
   const [shopImage, setShopImage] = useState("/Default.png");
-  const [shop,setShop] = useState<ShopEntity | null>({});
+  const [shop, setShop] = useState<ShopEntity | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const { shopName } = useParams();
 
-
   useEffect(() => {
     const fetchShop = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/shop/getByName/${shopName}`, {});
+        const response = await axios.get(
+          `http://localhost:8080/api/shop/getByName/${shopName}`,
+          {}
+        );
         if (response.data) {
-          setShop(response.data); 
+          setShop(response.data);
           setShopImage(response.data.imageUrl);
         } else {
           setError("Shop not found");
@@ -40,7 +41,7 @@ const Shop = () => {
         setLoading(false);
       }
     };
-  
+
     if (shopName) {
       fetchShop();
     }
@@ -75,22 +76,9 @@ const Shop = () => {
     fetchShopProducts();
   }, [getAccessTokenSilently, isAuthenticated, shopName]);
 
-
-
-
-  const toggleFavorite = (productId) => {
-    setProducts(products.map(product => 
-      product.id === productId 
-        ? { ...product, favorite: !product.favorite }
-        : product
-    ));
-  };
-
-  const filteredProducts = products.filter(product =>
+  const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
-
 
   if (loading) {
     return <Loading />;
@@ -102,7 +90,10 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <ShopBanner title={shop.name} imageUrl={shopImage || "/ShopBanner.png"} />
+      <ShopBanner
+        title={shop?.name}
+        imageUrl={shopImage || "/ShopBanner.png"}
+      />
       <nav className="bg-gray-900 p-4 sticky top-0 z-50 border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <div className="relative w-full max-w-2xl">
@@ -120,15 +111,17 @@ const Shop = () => {
 
       <main className="container mx-auto px-4 py-8 bg-gray-900">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white text-center">Featured Products</h2>
+          <h2 className="text-2xl font-bold text-white text-center">
+            Featured Products
+          </h2>
         </div>
 
         {filteredProducts.length === 0 ? (
           <h2>Nothing here yet</h2>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} onToggleFavorite={toggleFavorite} />
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}

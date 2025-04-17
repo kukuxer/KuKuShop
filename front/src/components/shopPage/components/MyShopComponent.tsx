@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FaShoppingCart, FaSearch, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -20,37 +20,42 @@ const MyShopComponent = () => {
   const { getAccessTokenSilently } = useAuth0();
 
   useEffect(() => {
-      const fetchShopImage = async () => {
-          const token = await getAccessTokenSilently();
-      
-          const response = await fetch("http://localhost:8080/api/shop/myShopImage", {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-      
-          if (response.ok) {
-            const imageUrl = await response.text(); 
-            setShopImage(imageUrl); 
-          } else {
-            setShopImage("/ShopBanner.png"); 
-          }
-        
-      };
-      fetchShopImage();
-    }, [getAccessTokenSilently]);
+    const fetchShopImage = async () => {
+      const token = await getAccessTokenSilently();
+
+      const response = await fetch(
+        "http://localhost:8080/api/shop/myShopImage",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const imageUrl = await response.text();
+        setShopImage(imageUrl);
+      } else {
+        setShopImage("/ShopBanner.png");
+      }
+    };
+    fetchShopImage();
+  }, [getAccessTokenSilently]);
 
   useEffect(() => {
     const fetchShopProducts = async () => {
       try {
         const token = await getAccessTokenSilently();
-        const response = await axios.get("http://localhost:8080/api/product/getMyProducts", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:8080/api/product/getMyProducts",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const productsData = Array.isArray(response.data) ? response.data : [];
         setProducts(productsData);
       } catch (err) {
@@ -67,11 +72,14 @@ const MyShopComponent = () => {
     const fetchShop = async () => {
       try {
         const token = await getAccessTokenSilently();
-        const response = await axios.get("http://localhost:8080/api/shop/myShop", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:8080/api/shop/myShop",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (response.status === 200) {
           setShop(response.data);
@@ -89,18 +97,17 @@ const MyShopComponent = () => {
     fetchShop();
   }, [getAccessTokenSilently]);
 
-
-  const filteredProducts = products.filter(product =>
+  const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
+
   const AddMoreCard = () => (
     <div className="bg-gray-800 rounded-lg overflow-hidden h-full flex items-center justify-center cursor-pointer hover:bg-gray-700 transition-colors duration-300">
       <Link to={"/productForm"}>
-      <div className="text-center p-8">
-        <FaPlus className="w-12 h-12 text-purple-500 mx-auto mb-4" />
-        <p className="text-white font-semibold">Add More Items</p>
-      </div>
+        <div className="text-center p-8">
+          <FaPlus className="w-12 h-12 text-purple-500 mx-auto mb-4" />
+          <p className="text-white font-semibold">Add More Items</p>
+        </div>
       </Link>
     </div>
   );
@@ -108,11 +115,13 @@ const MyShopComponent = () => {
   const EmptyState = () => (
     <div className="text-center py-16">
       <FaShoppingCart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-      <h3 className="text-2xl font-bold text-white mb-4">You don't have any items yet</h3>
+      <h3 className="text-2xl font-bold text-white mb-4">
+        You don't have any items yet
+      </h3>
       <Link to={"/productForm"}>
-      <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300">
-        Create New Item
-      </button>
+        <button className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300">
+          Create New Item
+        </button>
       </Link>
     </div>
   );
@@ -120,7 +129,7 @@ const MyShopComponent = () => {
   if (loading) {
     return <Loading />;
   }
-  if(error) {
+  if (error) {
     return <ErrorPage errorCode={error} />;
   }
 
@@ -144,14 +153,16 @@ const MyShopComponent = () => {
 
       <main className="container mx-auto px-4 py-8 bg-gray-900">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white text-center">Featured Products</h2>
+          <h2 className="text-2xl font-bold text-white text-center">
+            Featured Products
+          </h2>
         </div>
 
         {filteredProducts.length === 0 ? (
           <EmptyState />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map(product => (
+            {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
             <AddMoreCard />

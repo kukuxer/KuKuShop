@@ -43,6 +43,7 @@ const ProductPage = () => {
         setProduct(data);
         setIsLiked(data.favorite);
         setIsInBasket(data.inBasket);
+        setSelectedImage(data.imageUrl);
       } catch (err) {
         setError("Failed to fetch product");
         console.error("Fetch error:", err);
@@ -105,7 +106,7 @@ const ProductPage = () => {
                 </>
               )} */}
               <img
-                 src={product.imageUrl ? product.imageUrl[selectedImage] : "/Default.png"}
+                 src={product.imageUrl ? product.imageUrl : "/Default.png"}
                 alt="Product"
                 className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105"
               />

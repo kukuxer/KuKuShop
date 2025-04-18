@@ -14,6 +14,9 @@ import ShopEntity from "../../entity/ShopEntity";
 import AddToBasketButton from "../buttons/AddToCartBtn";
 import LikeBtn from "../buttons/LikeBtn";
 import ProductCommentSection from "./components/ProductCommentSection";
+import ProductReview from "./components/ProductReview";
+import ProductRatingStar from "../shopPage/components/ProductRatingStar";
+import ImageEnlargementModal from "./components/ImageEnlargementModal";
 
 const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
@@ -26,6 +29,9 @@ const ProductPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { productId } = useParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImage, setModalImage] = useState<string | null>(null);
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -114,15 +120,34 @@ const ProductPage = () => {
 
   const renderStars = (rating: number) => {
     const stars = [];
+
     for (let i = 1; i <= 5; i++) {
-      if (i <= rating) {
-        stars.push(<FaStar key={i} className="text-yellow-400" />);
-      } else if (i - rating === 0.5) {
-        stars.push(<FaStarHalf key={i} className="text-yellow-400" />);
+      if (i <= Math.floor(rating)) {
+        // Full purple star
+        stars.push(<FaStar key={i} className="text-purple-400 w-5 h-5" />);
+      } else if (
+        i === Math.ceil(rating) &&
+        rating - Math.floor(rating) >= 0.4 &&
+        rating - Math.floor(rating) < 1
+      ) {
+        // Half star: left purple, right gray
+        stars.push(
+          <span key={i} className="relative inline-block w-11 h-5">
+            <FaStar className="text-gray-400 absolute top-0 left-0 w-full h-full" />
+            <div
+              className="absolute top-0 left-2.5 h-full overflow-hidden"
+              style={{ width: "55%" }}
+            >
+              <FaStarHalf className="text-purple-400 w-full h-full" />
+            </div>
+          </span>
+        );
       } else {
-        stars.push(<FaStar key={i} className="text-gray-400" />);
+        // Empty gray star
+        stars.push(<FaStar key={i} className="text-gray-400 w-5 h-5" />);
       }
     }
+
     return stars;
   };
 
@@ -161,10 +186,14 @@ const ProductPage = () => {
                   </button>
                 </>
               )} */}
+
               <img
                 src={product.imageUrl ? product.imageUrl : "/Default.png"}
                 alt="Product"
-                className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105"
+                className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105 cursor-pointer"
+                onClick={() =>
+                  setModalImage(product.imageUrl || "/Default.png")
+                }
               />
               <div className="absolute top-3 right-3 z-10 scale-150 p-3">
                 <LikeBtn isFavorite={product.favorite} productId={product.id} />
@@ -192,7 +221,7 @@ const ProductPage = () => {
                 ${product.price}
               </span>
               <div className="flex items-center">
-                {renderStars(product.rating)}
+                <ProductRatingStar rating={product.rating} />
                 <span className="ml-2 text-gray-400">({product.rating})</span>
               </div>
             </div>
@@ -211,9 +240,8 @@ const ProductPage = () => {
             {/* Add to Cart and Like Buttons */}
             <div className="space-y-4">
               <p
-                className={`text-lg ${
-                  product.quantity < 20 ? "text-red-400" : "text-green-400"
-                }`}
+                className={`text-lg ${product.quantity < 20 ? "text-red-400" : "text-green-400"
+                  }`}
               >
                 {product.quantity} units in stock
               </p>
@@ -236,7 +264,7 @@ const ProductPage = () => {
           {/* Shop Details Section */}
           <div className="col-span-1 md:col-span-2">
             {shop ? (
-              <ShopCard shop={shop} />
+              <ShopCard shop={shop} onImageClick={(img) => setModalImage(img)} />
             ) : (
               <p className="text-red-500">Shop not loaded</p>
             )}
@@ -259,25 +287,7 @@ const ProductPage = () => {
 
           <div className="space-y-6">
             {comments.map((comment) => (
-              <div key={comment?.id} className="bg-gray-800 p-6 rounded-lg">
-                <div className="flex items-center space-x-4 mb-4">
-                  <img
-                    src={comment.profileImage || "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"}
-                    alt={comment.username}
-                    className="w-12 h-12 rounded-full"
-                  />
-                  <div>
-                    <h3 className="font-semibold">{comment.username}</h3>
-                    <div className="flex items-center">
-                      {renderStars(comment.rating)}
-                      <span className="ml-2 text-sm text-gray-400">
-                        {comment.createdAt}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-gray-300">{comment.comment}</p>
-              </div>
+              <ProductReview comment={comment} renderStars={renderStars} />
             ))}
             <ProductCommentSection
               refreshComments={fetchComments}
@@ -305,6 +315,13 @@ const ProductPage = () => {
           </div>
         </div>
       </div>
+      {modalImage && (
+        <ImageEnlargementModal
+          imageUrl={modalImage}
+          isOpen={!!modalImage}
+          onClose={() => setModalImage(null)}
+        />
+      )}
     </div>
   );
 };

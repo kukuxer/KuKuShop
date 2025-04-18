@@ -13,9 +13,10 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +36,7 @@ public class CommentService {
         Product product = productRepository.findById(commentDto.getProductId()).orElseThrow(
                 () -> new RuntimeException("product with  id" + commentDto.getProductId() + " not found.")
         );
+
         Comment comment = commentMapper.toEntity(commentDto);
 
         comment.setUserId(profile.getId());
@@ -42,6 +44,7 @@ public class CommentService {
         Comment savedComment = commentRepository.save(comment);
 
         product.getComments().add(savedComment);
+        updateProductRating(product);
         productRepository.save(product);
     }
     @Transactional(readOnly = true)
@@ -68,6 +71,15 @@ public class CommentService {
         commentDto.setUsername(profile.getName());
 
         return commentDto;
+    }
+
+    private void updateProductRating(Product product){
+        float sumRating = 0;
+        int productComments = product.getComments().size();
+        for(int i=0;i<productComments;i++){
+            sumRating+= product.getComments().get(i).getRating();
+        }
+        product.setRating(Math.round((sumRating / productComments) * 100.0) / 100.0);
     }
 
 }

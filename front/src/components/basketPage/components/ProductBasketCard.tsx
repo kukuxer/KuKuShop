@@ -1,5 +1,7 @@
 import React from "react";
 import { FiMinus, FiPlus, FiTrash2 } from "react-icons/fi";
+import { Link } from "react-router-dom";
+
 
 interface ProductBasketCardProps {
   product: {
@@ -23,15 +25,20 @@ const ProductBasketCard: React.FC<ProductBasketCardProps> = ({
   return (
     <div className="bg-gray-800 rounded-lg p-4">
       <div className="flex items-center space-x-4">
+      <Link to={`/products/${product.id}`} className="no-underline">
         <img
           src={product.imageUrl || "/Default.png"}
           alt={product.name}
           className="w-24 h-24 object-cover rounded-md"
         />
+        </Link>
         <div className="flex-1">
+        <Link to={`/products/${product.id}`} className="no-underline">
           <h3 className="text-lg font-semibold text-purple-300">
             {product.name}
           </h3>
+          </Link>
+
           <p className="text-gray-400">
             ${parseFloat(product.price).toFixed(2)}
           </p>

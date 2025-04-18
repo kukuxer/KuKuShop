@@ -12,6 +12,7 @@ import ErrorPage from "../utils/ErrorPage";
 import ShopEntity from "../../entity/ShopEntity";
 import AddToBasketButton from "../buttons/AddToCartBtn";
 import LikeBtn from "../buttons/LikeBtn";
+import ProductCommentSection from "./components/ProductCommentSection";
 
 const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
@@ -59,6 +60,7 @@ const ProductPage = () => {
   useEffect(() => {
     const fetchShop = async () => {
       try {
+        console.log("Fetching shop for ID:", product?.shopId);
         const response = await axios.get(
           `http://localhost:8080/api/shop/getById/${product?.shopId}`
         );
@@ -233,7 +235,11 @@ const ProductPage = () => {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Shop Details Section */}
           <div className="col-span-1 md:col-span-2">
-            {shop && <ShopCard shop={shop} />}
+          {shop ? (
+  <ShopCard shop={shop} />
+) : (
+  <p className="text-red-500">Shop not loaded</p>
+)}
           </div>
         </div>
 
@@ -252,6 +258,7 @@ const ProductPage = () => {
           </div>
 
           <div className="space-y-6">
+            <ProductCommentSection productId={productId}/>
             {/* {comments.map((comment) => (
               <div key={comment.id} className="bg-gray-800 p-6 rounded-lg">
                 <div className="flex items-center space-x-4 mb-4">

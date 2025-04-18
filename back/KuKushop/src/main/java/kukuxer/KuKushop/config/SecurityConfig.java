@@ -39,7 +39,8 @@ public class SecurityConfig {
                                 "/api/shop/getByName/**",
                                 "/api/shop/getById/**",
                                 "/api/product/getShopProducts/**",
-                                "/api/product/getProduct/**"
+                                "/api/product/getProduct/**",
+                                "/api/comment/getProductComments/**"
 
                         ).permitAll()
                         .requestMatchers("/api/private").authenticated()

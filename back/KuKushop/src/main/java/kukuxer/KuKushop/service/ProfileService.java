@@ -1,5 +1,6 @@
 package kukuxer.KuKushop.service;
 
+import kukuxer.KuKushop.dto.Mappers.ProductMapper;
 import kukuxer.KuKushop.dto.Mappers.ProfileMapper;
 import kukuxer.KuKushop.dto.ProfileDto;
 import kukuxer.KuKushop.entity.Profile;
@@ -17,6 +18,7 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final ShopRepository shopRepository;
+    private  final ProfileMapper profileMapper;
 
     public Optional<Profile> getByAuthId(String authId) {
         return profileRepository.findByAuthId(authId);
@@ -29,7 +31,7 @@ public class ProfileService {
             throw new RuntimeException("Profile with authId " + profileDto.getAuthId() + " already exists");
         }
 
-        Profile profile = ProfileMapper.INSTANCE.toEntity(profileDto);
+        Profile profile = profileMapper.toEntity(profileDto);
         return profileRepository.save(profile);
     }
 

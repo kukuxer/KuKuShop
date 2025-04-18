@@ -70,13 +70,6 @@ public class ProductService {
 
         return productDto;
     }
-    @Transactional(readOnly = true)
-    public List<Comment> getProductComments(UUID uuid){
-        Product product = productRepository.findById(uuid)
-                .orElseThrow(() -> new RuntimeException("no product with this id" + uuid));
-
-        return  product.getComments();
-    }
 
     public List<ProductDto> getShopProductsDtoByName(String shopName, Jwt jwt) {
         Long userId = extractUserId(jwt);

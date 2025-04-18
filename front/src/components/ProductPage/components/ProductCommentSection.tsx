@@ -6,9 +6,10 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 interface ProductCommentSectionProps {
     productId: any;
+    refreshComments: () => void;
   }
 
-const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({productId}) => {
+const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({productId, refreshComments }) => {
   const [formData, setFormData] = useState({
     comment: "",
     rating: 0,
@@ -50,7 +51,7 @@ const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({productId}
       };
 
       await axios.post(
-        `http://localhost:8080/api/v1/comment/create`,
+        `http://localhost:8080/api/comment/create`,
         commentDto,
         {
           headers: {
@@ -63,6 +64,7 @@ const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({productId}
       setFormData({ comment: "", rating: 0 });
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
+      refreshComments();
     } catch (err) {
       console.error("Failed to submit comment:", err);
       setErrors({ global: "Failed to submit comment. Please try again." });

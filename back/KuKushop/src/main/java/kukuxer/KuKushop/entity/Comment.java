@@ -11,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -25,7 +26,7 @@ public class Comment {
     String comment;
     Double rating;
     @CreationTimestamp
-    LocalDateTime date;
+    LocalDateTime creationDate;
 
 
 

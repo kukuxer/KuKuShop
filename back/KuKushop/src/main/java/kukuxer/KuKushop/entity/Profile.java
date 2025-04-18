@@ -28,6 +28,7 @@ public class Profile {
     String givenName;
     String name;
     String nickname;
+    String imageUrl;
 
     @Column(unique = true)
     String email;

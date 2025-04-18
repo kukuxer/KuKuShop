@@ -12,7 +12,7 @@ CREATE TABLE comment (
     user_id BIGINT NOT NULL,
     comment TEXT,
     rating DOUBLE,
-    date DATETIME DEFAULT CURRENT_TIMESTAMP
+    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE product_comment (

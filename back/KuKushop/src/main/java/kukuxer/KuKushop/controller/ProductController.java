@@ -70,13 +70,7 @@ public class ProductController {
         return ResponseEntity.ok(productDto);
     }
 
-    @GetMapping("getProductComments/{productId}")
-    public ResponseEntity<?> getProductComments(
-            @AuthenticationPrincipal Jwt jwt,
-            @PathVariable UUID productId) {
 
-        return ResponseEntity.ok(productService.getProductComments(productId));
-    }
 
 }
 

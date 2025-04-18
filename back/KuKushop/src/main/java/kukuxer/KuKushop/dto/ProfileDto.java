@@ -15,6 +15,7 @@ public class ProfileDto {
      String familyName;
      String givenName;
      String nickname;
+     String imageUrl;
     @JsonIgnore
      String authId;
 }

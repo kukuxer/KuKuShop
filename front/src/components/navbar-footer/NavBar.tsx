@@ -50,6 +50,7 @@ const Navbar = () => {
           familyName: user?.family_name || "",
           givenName: user?.given_name || "",
           nickname: user?.nickname || "",
+          imageUrl: user?.picture || "",
         }),
       });
 

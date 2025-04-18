@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS profiles
     given_name    VARCHAR(255),
     name          VARCHAR(255),
     nickname      VARCHAR(255),
+    image_url     VARCHAR(2083),
     email         VARCHAR(255) UNIQUE,
     auth_id       VARCHAR(255) UNIQUE,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP

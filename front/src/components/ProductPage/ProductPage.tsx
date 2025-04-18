@@ -4,6 +4,7 @@ import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import ShopCard from "./components/ShopCard";
 import SecurityInfo from "./components/SecurityInfo";
 import Product from "../../entity/Product";
+import Comment from "../../entity/Comment";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useParams } from "react-router-dom";
@@ -83,34 +84,33 @@ const ProductPage = () => {
     }
   }, [product?.shopId]);
 
-  useEffect(() => {
-    const fetchComments = async () => {
-      if (!productId) return;
-  
-      try {
-        let headers = {};
-        if (isAuthenticated) {
-          const token = await getAccessTokenSilently();
-          headers = {
-            Authorization: `Bearer ${token}`,
-          };
-        }
-  
-        const response = await axios.get(
-          `http://localhost:8080/api/product/getProductComments/${productId}`,
-          { headers }
-        );
-  
-        setComments(response.data);
-        console.log("Comments:", response.data);
-      } catch (err) {
-        console.error("Failed to fetch comments:", err);
+  const fetchComments = async () => {
+    if (!productId) return;
+
+    try {
+      let headers = {};
+      if (isAuthenticated) {
+        const token = await getAccessTokenSilently();
+        headers = {
+          Authorization: `Bearer ${token}`,
+        };
       }
-    };
-  
+
+      const response = await axios.get(
+        `http://localhost:8080/api/comment/getProductComments/${productId}`,
+        { headers }
+      );
+
+      setComments(response.data);
+      console.log("Comments:", response.data);
+    } catch (err) {
+      console.error("Failed to fetch comments:", err);
+    }
+  };
+
+  useEffect(() => {
     fetchComments();
   }, [productId, getAccessTokenSilently, isAuthenticated]);
-  
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -235,11 +235,11 @@ const ProductPage = () => {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Shop Details Section */}
           <div className="col-span-1 md:col-span-2">
-          {shop ? (
-  <ShopCard shop={shop} />
-) : (
-  <p className="text-red-500">Shop not loaded</p>
-)}
+            {shop ? (
+              <ShopCard shop={shop} />
+            ) : (
+              <p className="text-red-500">Shop not loaded</p>
+            )}
           </div>
         </div>
 
@@ -258,26 +258,31 @@ const ProductPage = () => {
           </div>
 
           <div className="space-y-6">
-            <ProductCommentSection productId={productId}/>
-            {/* {comments.map((comment) => (
-              <div key={comment.id} className="bg-gray-800 p-6 rounded-lg">
+            {comments.map((comment) => (
+              <div key={comment?.id} className="bg-gray-800 p-6 rounded-lg">
                 <div className="flex items-center space-x-4 mb-4">
                   <img
-                    src={review.avatar}
-                    alt={review.user}
+                    src={comment.profileImage || "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"}
+                    alt={comment.username}
                     className="w-12 h-12 rounded-full"
                   />
                   <div>
-                    <h3 className="font-semibold">{review.user}</h3>
+                    <h3 className="font-semibold">{comment.username}</h3>
                     <div className="flex items-center">
-                      {renderStars(review.rating)}
-                      <span className="ml-2 text-sm text-gray-400">{review.date}</span>
+                      {renderStars(comment.rating)}
+                      <span className="ml-2 text-sm text-gray-400">
+                        {comment.createdAt}
+                      </span>
                     </div>
                   </div>
                 </div>
-                <p className="text-gray-300">{review.text}</p>
+                <p className="text-gray-300">{comment.comment}</p>
               </div>
-            ))} */}
+            ))}
+            <ProductCommentSection
+              refreshComments={fetchComments}
+              productId={productId}
+            />
           </div>
 
           {/* Review Pagination */}

@@ -21,5 +21,6 @@ public class CommentDto {
     Double rating;
     LocalDateTime date;
     String profileImage;
+    String username;
 
 }

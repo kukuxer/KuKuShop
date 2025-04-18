@@ -33,8 +33,6 @@ public class ProductDto {
 
     LocalDateTime creationDate;
 
-
-
     int quantity;
     double rating;
     boolean favorite;

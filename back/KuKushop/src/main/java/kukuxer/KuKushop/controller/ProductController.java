@@ -61,7 +61,7 @@ public class ProductController {
         return ResponseEntity.ok(productDtoResponse);
     }
 
-    @GetMapping("getProduct/{productId}")
+    @GetMapping("/getProduct/{productId}")
     public ResponseEntity<?> getProduct(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID productId) {

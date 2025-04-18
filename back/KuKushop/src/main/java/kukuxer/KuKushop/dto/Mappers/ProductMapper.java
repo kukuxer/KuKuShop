@@ -6,6 +6,7 @@ import kukuxer.KuKushop.entity.Category;
 import kukuxer.KuKushop.entity.Product;
 import kukuxer.KuKushop.entity.Profile;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.HashSet;
@@ -17,6 +18,7 @@ public interface ProductMapper {
 
     Product toEntity(ProductDto dto);
 
+    @Mapping(source = "shopId", target = "shopId")
     ProductDto toDto(Product product);
 
     static ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);

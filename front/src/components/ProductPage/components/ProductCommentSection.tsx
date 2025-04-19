@@ -5,11 +5,11 @@ import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 
 interface ProductCommentSectionProps {
-    productId: any;
-    refreshComments: () => void;
-  }
+  productId: any;
+  refreshComments: () => void;
+}
 
-const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({productId, refreshComments }) => {
+const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({ productId, refreshComments }) => {
   const [formData, setFormData] = useState({
     comment: "",
     rating: 0,
@@ -18,6 +18,8 @@ const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({productId,
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const [hoveredRating, setHoveredRating] = useState(0);
+
 
   const validateForm = () => {
     const newErrors: any = {};
@@ -108,14 +110,16 @@ const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({productId,
                 key={star}
                 type="button"
                 onClick={() => handleRatingClick(star)}
+                onMouseEnter={() => setHoveredRating(star)}
+                onMouseLeave={() => setHoveredRating(0)}
                 className="focus:outline-none"
               >
                 <FaStar
                   size={24}
                   className={
-                    formData.rating >= star
-                      ? "text-purple-400 hover:text-purple-300 transition-colors"
-                      : "text-gray-600 hover:text-purple-300 transition-colors"
+                    (hoveredRating || formData.rating) >= star
+                      ? "text-purple-400 transition-colors"
+                      : "text-gray-600 transition-colors"
                   }
                 />
               </button>

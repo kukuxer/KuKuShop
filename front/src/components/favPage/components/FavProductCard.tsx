@@ -4,6 +4,8 @@ import Product from "../../../entity/Product";
 import { useAuth0 } from "@auth0/auth0-react";
 import RatingStars from "../../shopPage/components/RatingStars";
 import AddToBasketButton from "../../buttons/AddToCartBtn";
+import { Link } from "react-router-dom";
+
 
 interface ProductCardProps {
   product: Product;
@@ -41,12 +43,14 @@ const FavProductCard: React.FC<ProductCardProps> = ({
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative aspect-w-16 aspect-h-9">
+      <Link to={`/products/${product.id}`} className="no-underline">
         <img
           src={product.imageUrl || "/Default.png"}
           alt={product.name}
           className="object-cover w-full h-48"
           loading="lazy"
         />
+        </Link>
         <button
           onClick={handleToggleFavorite}
           className="absolute top-2 right-2 p-2 rounded-full bg-gray-800 bg-opacity-70 hover:bg-opacity-100 transition-all duration-300"

@@ -34,10 +34,18 @@ public class ProductService {
         return productRepository.getAllByShopId(id);
     }
 
-    public ProductDto createProduct(ProductDto productDto, MultipartFile image, Long shopId) throws IOException {
+    public ProductDto createProduct(ProductDto productDto, MultipartFile image, MultipartFile[] additionalImages, Long shopId) throws IOException {
+        List<String> fileKeys = new ArrayList<>();
         if (image != null && !image.isEmpty()) {
             String fileKey = s3Service.uploadFile(image);
+            fileKeys.add(fileKey);
             productDto.setImageUrl(fileKey);
+        }
+        if(additionalImages !=null){
+            for (MultipartFile additionalImage : additionalImages) {
+                fileKeys.add(s3Service.uploadFile(additionalImage));
+            }
+            productDto.setAdditionalPictures(fileKeys);
         }
         Product product = ProductMapper.INSTANCE.toEntity(productDto);
         Set<Category> categoryEntities = productDto.getCategories().stream()

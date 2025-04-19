@@ -54,10 +54,12 @@ public class ProductController {
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@AuthenticationPrincipal Jwt jwt,
                                            @ModelAttribute ProductDto productDto,
-                                           @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
+                                           @RequestPart(value = "image", required = false) MultipartFile image,
+                                           @RequestPart(value = "additionalImages", required = false) MultipartFile[] additionalImages
+                                           ) throws IOException {
 
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
-        ProductDto productDtoResponse = productService.createProduct(productDto, image, shop.getId());
+        ProductDto productDtoResponse = productService.createProduct(productDto, image, additionalImages, shop.getId());
         return ResponseEntity.ok(productDtoResponse);
     }
 

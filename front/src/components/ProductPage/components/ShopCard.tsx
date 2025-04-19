@@ -13,9 +13,10 @@ import { Link } from "react-router-dom";
 
 interface ShopCardProps {
   shop: ShopEntity;
+  onImageClick: (imageUrl: string) => void;
 }
 
-const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
+const ShopCard: React.FC<ShopCardProps> = ({ shop, onImageClick }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
@@ -24,9 +25,8 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
         {[...Array(5)].map((_, index) => (
           <FaStar
             key={index}
-            className={`${
-              index < Math.floor(rating) ? "text-purple-400" : "text-gray-600"
-            } w-4 h-4`}
+            className={`${index < Math.floor(rating) ? "text-purple-400" : "text-gray-600"
+              } w-4 h-4`}
           />
         ))}
         <span className="ml-2 text-gray-300">{rating}</span>
@@ -39,9 +39,8 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`w-full mx-auto rounded-xl shadow-2xl overflow-hidden transition-all duration-300 ${
-        isHovered ? "bg-gray-800 ring-2 ring-purple-500" : "bg-gray-900"
-      }`}
+      className={`w-full mx-auto rounded-xl shadow-2xl overflow-hidden transition-all duration-300 ${isHovered ? "bg-gray-800 ring-2 ring-purple-500" : "bg-gray-900"
+        }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -52,7 +51,8 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
               <img
                 src={shop.imageUrl || "/Default.png"}
                 alt={shop.name}
-                className="w-16 h-16 rounded-full object-cover border-2 border-purple-500"
+                className="w-16 h-16 rounded-full object-cover border-2 border-purple-500 cursor-pointer"
+                onClick={() => onImageClick(shop.imageUrl || "/Default.png")}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/Default.png";
                 }}

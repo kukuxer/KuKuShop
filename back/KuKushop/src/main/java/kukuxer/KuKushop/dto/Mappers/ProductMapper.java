@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
-
+    @Mapping(source = "additionalPictures", target = "additionalPictures")
     Product toEntity(ProductDto dto);
 
     @Mapping(source = "shopId", target = "shopId")

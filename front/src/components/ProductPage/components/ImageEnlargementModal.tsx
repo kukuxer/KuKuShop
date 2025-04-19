@@ -40,7 +40,7 @@ const ImageEnlargementModal: React.FC<ImageEnlargementModalProps> = ({
             className="relative max-w-[40vw] max-h-[150vh]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-2 bg-purple-600 rounded-lg">
+            <div className="p-1.5 bg-purple-600 rounded-lg">
               <img
                 src={imageUrl}
                 alt="Enlarged product"
@@ -48,7 +48,7 @@ const ImageEnlargementModal: React.FC<ImageEnlargementModalProps> = ({
               />
               <button
                 onClick={onClose}
-                className="absolute -top-4 -right-4 bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 transition-colors duration-300"
+                className="absolute -top-3 -right-3 bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 transition-colors duration-300"
                 aria-label="Close modal"
               >
                 <IoMdClose className="text-xl" />

@@ -5,8 +5,9 @@ import {
   ChangeEvent,
   DragEvent,
   FormEvent,
+  useCallback,
 } from "react";
-import { FiUpload } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiUpload } from "react-icons/fi";
 import { MdClose } from "react-icons/md";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -25,6 +26,7 @@ import {
 } from "react-icons/fa";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
+import { useDropzone } from "react-dropzone";
 
 interface FormData {
   name: string;
@@ -33,6 +35,7 @@ interface FormData {
   categories: string[];
   customCategory: string;
   image: File | null;
+  additionalImages: File[];
 }
 
 interface Errors {
@@ -50,6 +53,7 @@ const ProductCreationForm = () => {
     categories: [],
     customCategory: "",
     image: null,
+    additionalImages: [],
   });
 
   const [isOpen, setIsOpen] = useState(false);
@@ -67,6 +71,10 @@ const ProductCreationForm = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
+
+  {/*Image*/}
+  const [primaryImage, setPrimaryImage] = useState(null);
+  const [additionalImages, setAdditionalImages] = useState([]);
 
   const categories = [
     { id: 1, name: "Jewelry", icon: <FaGem /> },
@@ -209,34 +217,109 @@ const ProductCreationForm = () => {
     }
   };
 
-  const handleImageDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    handleImageFile(file);
+  const validateFile = (file) => {
+    const validTypes = ["image/jpeg", "image/png", "image/webp"];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!validTypes.includes(file.type)) {
+      setError("Invalid file type. Please upload JPEG, PNG, or WebP images.");
+      return false;
+    }
+
+    if (file.size > maxSize) {
+      setError("File size exceeds 5MB limit.");
+      return false;
+    }
+
+    return true;
   };
 
-  const handleImageFile = (file: File | null) => {
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setErrors({ ...errors, image: "File size must be less than 5MB" });
-        return;
-      }
-      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-        setErrors({
-          ...errors,
-          image: "Only JPG, PNG, and WebP files are allowed",
-        });
-        return;
-      }
-      setFormData({ ...formData, image: file });
+  const onPrimaryDrop = useCallback((acceptedFiles) => {
+    setError("");
+    const file = acceptedFiles[0];
+    if (validateFile(file)) {
+      setPrimaryImage(Object.assign(file, { preview: URL.createObjectURL(file) }));
+    }
+  }, []);
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  const onAdditionalDrop = useCallback((acceptedFiles) => {
+    setError("");
+    if (additionalImages.length + acceptedFiles.length > 7) {
+      setError("Maximum 8 images allowed.");
+      return;
+    }
+    const validFiles = acceptedFiles.filter(validateFile);
+    const newImages = validFiles.map(file =>
+      Object.assign(file, { preview: URL.createObjectURL(file) })
+    );
+
+    setAdditionalImages(prev => [...prev, ...newImages]);
+  }, [additionalImages]);
+
+  const { getRootProps: getPrimaryRootProps, getInputProps: getPrimaryInputProps } = useDropzone({
+    onDrop: onPrimaryDrop,
+    accept: {
+      "image/jpeg": [],
+      "image/png": [],
+      "image/webp": []
+    },
+    multiple: false
+  });
+
+  const { getRootProps: getAdditionalRootProps, getInputProps: getAdditionalInputProps } = useDropzone({
+    onDrop: onAdditionalDrop,
+    accept: {
+      "image/jpeg": [],
+      "image/png": [],
+      "image/webp": []
+    },
+    multiple: true
+  });
+
+  const removePrimaryImage = () => {
+    if (primaryImage) {
+      URL.revokeObjectURL(primaryImage.preview);
+      setPrimaryImage(null);
     }
   };
+
+  const removeAdditionalImage = (index) => {
+    setAdditionalImages(prev => {
+      const newImages = [...prev];
+      URL.revokeObjectURL(newImages[index].preview);
+      newImages.splice(index, 1);
+      return newImages;
+    });
+  };
+
+  // const handleImageDrop = (e: DragEvent<HTMLDivElement>) => {
+  //   e.preventDefault();
+  //   const file = e.dataTransfer.files[0];
+  //   handleImageFile(file);
+  // };
+
+  // const handleImageFile = (file: File | null) => {
+  //   if (file) {
+  //     if (file.size > 5 * 1024 * 1024) {
+  //       setErrors({ ...errors, image: "File size must be less than 5MB" });
+  //       return;
+  //     }
+  //     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+  //       setErrors({
+  //         ...errors,
+  //         image: "Only JPG, PNG, and WebP files are allowed",
+  //       });
+  //       return;
+  //     }
+  //     setFormData({ ...formData, image: file });
+
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setImagePreview(reader.result as string);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -256,8 +339,8 @@ const ProductCreationForm = () => {
       data.append("description", formData.description);
       data.append("price", formData.price);
       data.append("categories", selectedCategories.join(","));
-      if (formData.image) data.append("image", formData.image);
-
+      if (primaryImage) data.append("image", primaryImage);
+      additionalImages.forEach((file) => data.append("additionalImages", file));
       const response = await axios.post(
         "http://localhost:8080/api/product/create",
         data,
@@ -278,6 +361,7 @@ const ProductCreationForm = () => {
         categories: [],
         customCategory: "",
         image: null,
+        additionalImages: []
       });
       setSelectedCategories([]);
       setImagePreview("");
@@ -520,7 +604,92 @@ const ProductCreationForm = () => {
           </div>
 
           {/* File Upload */}
-          <div>
+          <div className="min-h-screen bg-gray-900 p-6">
+      <div className="max-w-4xl mx-auto bg-gray-800 rounded-xl p-6 space-y-6">
+        <h2 className="text-2xl font-bold text-white mb-6">Image Upload</h2>
+
+        {error && (
+          <div className="bg-red-500 bg-opacity-20 text-red-200 p-4 rounded-lg" role="alert">
+            {error}
+          </div>
+        )}
+
+        <div className="space-y-6">
+          <div className="primary-upload">
+            <h3 className="text-lg font-semibold text-white mb-3">Primary Image</h3>
+            {!primaryImage ? (
+              <div
+                {...getPrimaryRootProps()}
+                className="border-2 border-dashed border-purple-500 rounded-lg p-8 hover:border-purple-400 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+              >
+                <input {...getPrimaryInputProps()} aria-label="Upload primary image" />
+                <div className="text-center">
+                  <FiUpload className="mx-auto h-12 w-12 text-purple-500" />
+                  <p className="mt-2 text-sm text-gray-300">
+                    Drag & drop your primary image here, or click to select
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="relative">
+                <img
+                  src={primaryImage.preview}
+                  alt="Primary preview"
+                  className="w-full h-64 object-cover rounded-lg"
+                />
+                <button
+                  onClick={removePrimaryImage}
+                  className="absolute top-2 right-2 p-2 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+                  aria-label="Remove primary image"
+                >
+                  <FiTrash2 className="text-white" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="additional-uploads">
+            <h3 className="text-lg font-semibold text-white mb-3">Additional Images</h3>
+            <div className="flex gap-4 overflow-x-auto pb-4">
+              {additionalImages.map((image, index) => (
+                <div key={index} className="relative flex-shrink-0">
+                  <img
+                    src={image.preview}
+                    alt={`Additional preview ${index + 1}`}
+                    className="w-32 h-32 object-cover rounded-lg"
+                  />
+                  <button
+                    onClick={() => removeAdditionalImage(index)}
+                    className="absolute top-1 right-1 p-1.5 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+                    aria-label={`Remove image ${index + 1}`}
+                  >
+                    <FiTrash2 className="text-white w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              {additionalImages.length < 7 && (
+                <div
+                  {...getAdditionalRootProps()}
+                  className="w-32 h-32 flex-shrink-0 border-2 border-dashed border-purple-500 rounded-lg flex items-center justify-center hover:border-purple-400 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+                >
+                  <input {...getAdditionalInputProps()} aria-label="Upload additional images" />
+                  <FiPlus className="h-8 w-8 text-purple-500" />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="text-sm text-gray-400 mt-4">
+          <p>Supported formats: JPEG, PNG, WebP</p>
+          <p>Maximum file size: 5MB per image</p>
+          <p>Maximum additional images: 7</p>
+        </div>
+      </div>
+    </div>
+
+
+          {/* <div>
             <label className="block text-white mb-2">
               Product Image <span className="text-gray-500">(optional)</span>
             </label>
@@ -574,9 +743,10 @@ const ProductCreationForm = () => {
             {errors.image && (
               <p className="text-red-400 text-sm mt-1">{errors.image}</p>
             )}
-          </div>
+          </div> */}
 
           {/* Submit Button */}
+          
           <button
             type="submit"
             disabled={isSubmitting}
@@ -591,3 +761,4 @@ const ProductCreationForm = () => {
 };
 
 export default ProductCreationForm;
+

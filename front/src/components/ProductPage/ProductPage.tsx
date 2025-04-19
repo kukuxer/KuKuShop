@@ -31,6 +31,9 @@ const ProductPage = () => {
   const { productId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalImage, setModalImage] = useState<string | null>(null);
+  const [selectedPicture, setSelectedPicture] = useState<string | null>(null);
+  const [thumbStartIndex, setThumbStartIndex] = useState(0);
+
 
 
   useEffect(() => {
@@ -51,7 +54,7 @@ const ProductPage = () => {
 
         const data = response.data;
         setProduct(data);
-        setSelectedImage(data.imageUrl);
+        setSelectedPicture(data.imageUrl);
         console.log("Product data:", data);
       } catch (err) {
         setError("Failed to fetch product");
@@ -63,6 +66,7 @@ const ProductPage = () => {
 
     fetchProduct();
   }, [productId, getAccessTokenSilently, isAuthenticated]);
+
 
   useEffect(() => {
     const fetchShop = async () => {
@@ -151,13 +155,53 @@ const ProductPage = () => {
     return stars;
   };
 
-  // const navigateImage = (direction: "next" | "prev") => {
-  //   if (direction === "next") {
-  //     setSelectedImage((prev) => (prev + 1) % product.images.length);
-  //   } else {
-  //     setSelectedImage((prev) => (prev - 1 + product.images.length) % product.images.length);
-  //   }
-  // };
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!product || !product.additionalPictures?.length) return;
+
+      if (e.key === "ArrowRight") {
+        navigateImage("next");
+      } else if (e.key === "ArrowLeft") {
+        navigateImage("prev");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [product, selectedImage, modalImage]);
+
+  const navigateImage = (direction: "next" | "prev") => {
+    if (!product || product.additionalPictures.length === 0) return;
+
+    const totalImages = product.additionalPictures.length;
+    let newIndex = selectedImage;
+
+    if (direction === "next") {
+      newIndex = (selectedImage + 1) % totalImages;
+    } else {
+      newIndex = (selectedImage - 1 + totalImages) % totalImages;
+    }
+
+    setSelectedImage(newIndex);
+    setSelectedPicture(product.additionalPictures[newIndex]);
+    if (modalImage) {
+      setModalImage(product.additionalPictures[newIndex]);
+    }
+
+  };
+
+  const shiftThumbnails = (direction: "next" | "prev") => {
+    const total = product.additionalPictures.length;
+    const maxStart = total - 4;
+
+    if (direction === "next" && thumbStartIndex < maxStart) {
+      setThumbStartIndex(thumbStartIndex + 1);
+    } else if (direction === "prev" && thumbStartIndex > 0) {
+      setThumbStartIndex(thumbStartIndex - 1);
+    }
+  };
 
   if (loading) return <Loading />;
   if (error) return <ErrorPage errorCode={error} />;
@@ -170,45 +214,78 @@ const ProductPage = () => {
           {/* Product Images Section */}
           <div className="space-y-4">
             <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-800">
-              {/* {product.images.length > 3 && (
+              {product.additionalPictures.length > 2 && (
                 <>
                   <button
                     onClick={() => navigateImage("prev")}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 p-2 rounded-full"
+                    className="absolute z-10 left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 p-2 rounded-full transition-all duration-200 hover:scale-110"
                   >
-                    <BsChevronLeft size={20} />
+                    <BsChevronLeft size={20} className="text-white" />
                   </button>
                   <button
                     onClick={() => navigateImage("next")}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 p-2 rounded-full"
+                    className="absolute z-10 right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 p-2 rounded-full transition-all duration-200 hover:scale-110"
                   >
-                    <BsChevronRight size={20} />
+                    <BsChevronRight size={20} className="text-white" />
                   </button>
                 </>
-              )} */}
+              )}
 
               <img
-                src={product.imageUrl ? product.imageUrl : "/Default.png"}
+                src={selectedPicture ? selectedPicture : "/Default.png"}
                 alt="Product"
                 className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105 cursor-pointer"
                 onClick={() =>
-                  setModalImage(product.imageUrl || "/Default.png")
+                  setModalImage(selectedPicture || "/Default.png")
                 }
               />
               <div className="absolute top-3 right-3 z-10 scale-150 p-3">
                 <LikeBtn isFavorite={product.favorite} productId={product.id} />
               </div>
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {/* {product.images.map((image, index) => (
+            <div className="relative flex items-center gap-2">
+              {thumbStartIndex > 0 && (
                 <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`aspect-square rounded-md overflow-hidden ${selectedImage === index ? "ring-2 ring-purple-500" : ""}`}
+                  onClick={() => shiftThumbnails("prev")}
+                  className="p-2 bg-gray-700 rounded-full hover:bg-purple-600 text-white"
                 >
-                  <img src={image} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                  <BsChevronLeft />
                 </button>
-              ))} */}
+              )}
+
+              <div className="grid grid-cols-4 gap-2">
+                {product.additionalPictures
+                  .slice(thumbStartIndex, thumbStartIndex + 4)
+                  .map((image, index) => {
+                    const actualIndex = thumbStartIndex + index;
+                    return (
+                      <button
+                        key={actualIndex}
+                        onClick={() => {
+                          setSelectedImage(actualIndex);
+                          setSelectedPicture(image);
+                        }}
+                        className={`aspect-square rounded-md overflow-hidden ${selectedImage === actualIndex ? "ring-2 ring-purple-500" : ""
+                          }`}
+                      >
+                        <img
+                          src={image}
+                          alt={`Thumbnail ${actualIndex + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    );
+                  })}
+              </div>
+
+              {thumbStartIndex + 4 < product.additionalPictures.length && (
+                <button
+                  onClick={() => shiftThumbnails("next")}
+                  className="p-2 bg-gray-700 rounded-full hover:bg-purple-600 text-white"
+                >
+                  <BsChevronRight />
+                </button>
+              )}
             </div>
           </div>
 

@@ -7,6 +7,7 @@ class Product {
     public price: string,
     public categories: string[],
     public imageUrl: string = "logo.svg",
+    public additionalPictures: string[],
     public rating: number,
     public quantity: number,
     public favorite: boolean,

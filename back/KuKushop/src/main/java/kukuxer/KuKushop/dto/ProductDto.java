@@ -11,6 +11,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,6 +31,8 @@ public class ProductDto {
     Set<String> categories = new HashSet<>();
 
     String imageUrl;
+    List<String> additionalPictures;;
+
 
     LocalDateTime creationDate;
 

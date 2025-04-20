@@ -94,6 +94,7 @@ const ShopCreationForm = () => {
         setAgreement(false);
         setImagePreview(null);
       } catch (error) {
+        setErrors(errors => ({ ...errors, shopName: "this name is already taken" }));
         console.error("Error submitting form:", error);
       } finally {
         setLoading(false);

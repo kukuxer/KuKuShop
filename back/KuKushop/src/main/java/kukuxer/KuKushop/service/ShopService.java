@@ -23,7 +23,7 @@ public class ShopService {
 
     public ShopDto createShop(ShopDto shopDto, String authId, MultipartFile image) throws IOException {
         boolean exists = shopRepository.findByUserAuthId(authId).isPresent();
-        boolean theSameName = shopRepository.findByOwnerName(shopDto.getOwnerName()).isPresent();
+        boolean theSameName = shopRepository.findByName(shopDto.getName()).isPresent();
         Profile profile = profileRepository.findByAuthId(authId).orElseThrow();
 
         if (exists) {

@@ -63,7 +63,7 @@ public class ProductService {
     }
 
     public ProductDto getProductDtoById(UUID uuid, Jwt jwt) {
-        Long userId = extractUserId(jwt);
+        Long userId = profileService.extractUserId(jwt);
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new RuntimeException("no product with this id" + uuid));
 
@@ -80,7 +80,7 @@ public class ProductService {
     }
 
     public List<ProductDto> getShopProductsDtoByName(String shopName, Jwt jwt) {
-        Long userId = extractUserId(jwt);
+        Long userId = profileService.extractUserId(jwt);
         Shop shop = shopService.getByName(shopName);
         List<Product> products = getProductsByShopId(shop.getId());
 
@@ -108,12 +108,4 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    private Long extractUserId(Jwt jwt) {
-        if (jwt == null) return null;
-        String authId = jwt.getClaim("sub");
-
-        return profileService.getByAuthId(authId)
-                .map(Profile::getId)
-                .orElse(null);
-    }
 }

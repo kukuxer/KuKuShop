@@ -37,7 +37,7 @@ const Navbar = () => {
       if (!isAuthenticated) return;
 
       const token = await getAccessTokenSilently();
-      const response = await fetch("http://localhost:8080/api/profile/get", {
+      const response = await fetch("http://localhost:8080/api/profile/getOrCreateProfile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -168,11 +168,11 @@ const Navbar = () => {
                     className="flex items-center space-x-2 text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     <img
-                      src={user.picture || "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"}
+                      src={profile?.imageUrl || "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"}
                       alt="User"
                       className="h-6 w-6 rounded-full"
                     />
-                    <span>{user.name}</span>
+                    <span>{profile?.name}</span>
                   </button>
 
                   {isDropdownOpen && (

@@ -552,8 +552,6 @@ const ProductCreationForm = () => {
                   type="text"
                   value={formData.price}
                   onChange={handlePriceChange}
-                  onFocus={() => PriceInputSetIsFocused(true)}
-                  onBlur={() => PriceInputSetIsFocused(false)}
                   className="w-full bg-gray-700 text-purple-400 text-sm py-2 pl-10 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500"
                   placeholder="0.00"
                   aria-label="Price input"

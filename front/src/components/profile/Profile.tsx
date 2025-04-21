@@ -1,4 +1,9 @@
-import React, { useState, ChangeEvent, useEffect } from "react";
+import React, {
+  useState,
+  ChangeEvent,
+  useEffect,
+  ChangeEventHandler,
+} from "react";
 import { FiEdit } from "react-icons/fi";
 import { useAuth0, User } from "@auth0/auth0-react";
 import ProfileEntity from "../../entity/Profile";
@@ -14,32 +19,19 @@ interface FormData {
 
 const Profile: React.FC = () => {
   const { user, getAccessTokenSilently } = useAuth0();
-
   const typedUser = user as User;
 
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<ProfileEntity | null>(null);
-  const [reload, setReload] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    name: typedUser.name || "",
+    name: "",
     surname: "",
     nickname: "",
-    email: typedUser.email || "",
-    image: typedUser.picture || "",
+    email: "",
+    image: "",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  const validateForm = (): { [key: string]: string } => {
-    const newErrors: { [key: string]: string } = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!formData.surname.trim()) newErrors.surname = "Surname is required";
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-    return newErrors;
-  };
+  const [reload, setReload] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -55,14 +47,34 @@ const Profile: React.FC = () => {
 
         const data: ProfileEntity = await response.json();
         setProfile(data);
-        console.log("Profile data:", data);
+
+        // Pre-fill formData when profile is loaded
+        setFormData({
+          name: data.name || "",
+          surname: data.familyName || "",
+          nickname: data.nickname || "",
+          email: typedUser?.email || "",
+          image: data.imageUrl || typedUser?.picture || "",
+        });
       } catch (err) {
         console.error("Error loading profile:", err);
       }
     };
 
     fetchProfile();
-  }, [getAccessTokenSilently,reload]);
+  }, [getAccessTokenSilently, reload, typedUser?.email, typedUser?.picture]);
+
+  const validateForm = (): { [key: string]: string } => {
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.surname.trim()) newErrors.surname = "Surname is required";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+    return newErrors;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,9 +155,9 @@ const Profile: React.FC = () => {
               <div className="flex flex-col items-center gap-4">
                 <div className="relative w-32 h-32">
                   <img
-                    src={profile?.imageUrl || "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"}
+                    src={formData.image}
                     alt="Profile"
-                    className="block w-full h-full rounded-full object-cover border-4 border-purple-600 transition duration-300 hover:brightness-75 tw-cursor-pointer "
+                    className="block w-full h-full rounded-full object-cover border-4 border-purple-600 transition duration-300 hover:brightness-75 cursor-pointer"
                     onClick={() =>
                       document.getElementById("profile-image-upload")?.click()
                     }
@@ -175,58 +187,32 @@ const Profile: React.FC = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="flex-1 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={profile?.name}
-                    onChange={handleChange}
-                    className="mt-1 w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                  />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-                  )}
-                </div>
+                <InputField
+                  label="Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  error={errors.name}
+                />
+                <InputField
+                  label="Surname"
+                  name="surname"
+                  value={formData.surname}
+                  onChange={handleChange}
+                  error={errors.surname}
+                />
+                <InputField
+                  label="Nickname"
+                  name="nickname"
+                  value={formData.nickname}
+                  onChange={handleChange}
+                />
 
                 <div>
                   <label className="block text-sm font-medium text-gray-400">
-                    Surname
+                    Email
                   </label>
-                  <input
-                    type="text"
-                    name="surname"
-                    value={profile?.familyName}
-                    onChange={handleChange}
-                    className="mt-1 w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                  />
-                  {errors.surname && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.surname}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-400">
-                    Nickname
-                  </label>
-                  <input
-                    type="text"
-                    name="nickname"
-                    value={profile?.nickname}
-                    onChange={handleChange}
-                    className="mt-1 w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-400">Email</h3>
-                    <p className="text-white text-lg">{user?.email}</p>
-                  </div>
+                  <p className="text-white text-lg">{formData.email}</p>
                 </div>
 
                 <div className="flex space-x-4">
@@ -253,7 +239,10 @@ const Profile: React.FC = () => {
             <>
               <div className="flex flex-col items-center gap-4">
                 <img
-                  src={profile?.imageUrl || "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"}
+                  src={
+                    profile?.imageUrl ||
+                    "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"
+                  }
                   alt="Profile"
                   className="w-32 h-32 rounded-full object-cover border-4 border-purple-600"
                   onError={(e) => {
@@ -263,29 +252,10 @@ const Profile: React.FC = () => {
                 />
               </div>
               <div className="flex-1 space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-400">Name</h3>
-                  <p className="text-white text-lg">{profile?.name}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-400">Surname</h3>
-                  <p className="text-white text-lg">{profile?.familyName}</p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-400">
-                    Nickname
-                  </h3>
-                  <p className="text-purple-400 text-lg font-medium">
-                    {profile?.nickname}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium text-gray-400">Email</h3>
-                  <p className="text-white text-lg">{typedUser?.email}</p>
-                </div>
+                <DisplayField label="Name" value={profile?.name} />
+                <DisplayField label="Surname" value={profile?.familyName} />
+                <DisplayField label="Nickname" value={profile?.nickname} />
+                <DisplayField label="Email" value={typedUser?.email} />
               </div>
             </>
           )}
@@ -295,5 +265,37 @@ const Profile: React.FC = () => {
   );
 };
 
-export default Profile;
+const InputField = ({
+  label,
+  name,
+  value,
+  onChange,
+  error,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: ChangeEventHandler<HTMLInputElement>;
+  error?: string;
+}) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-400">{label}</label>
+    <input
+      type="text"
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="mt-1 w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+    />
+    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+  </div>
+);
 
+const DisplayField = ({ label, value }: { label: string; value?: string }) => (
+  <div>
+    <h3 className="text-sm font-medium text-gray-400">{label}</h3>
+    <p className="text-white text-lg">{value}</p>
+  </div>
+);
+
+export default Profile;

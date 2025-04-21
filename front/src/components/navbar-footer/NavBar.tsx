@@ -170,7 +170,7 @@ const Navbar = () => {
                     <img
                       src={profile?.imageUrl || "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"}
                       alt="User"
-                      className="h-6 w-6 rounded-full"
+                      className="h-10 w-10 rounded-full border-1 border-purple-600 transition duration-300 hover:brightness-75"
                     />
                     <span>{profile?.name}</span>
                   </button>

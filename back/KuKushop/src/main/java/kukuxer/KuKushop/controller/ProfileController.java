@@ -1,6 +1,7 @@
 package kukuxer.KuKushop.controller;
 
 import kukuxer.KuKushop.dto.Mappers.ProfileMapper;
+import kukuxer.KuKushop.dto.ProductDto;
 import kukuxer.KuKushop.dto.ProfileDto;
 import kukuxer.KuKushop.entity.Profile;
 import kukuxer.KuKushop.service.ProfileService;
@@ -9,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @RestController
@@ -28,8 +31,17 @@ public class ProfileController {
         return ResponseEntity.ok(createdProfileDto);
     }
 
-    @PostMapping("/get")
-    public ResponseEntity<ProfileDto> getOrCreateProfile(@AuthenticationPrincipal Jwt jwt, @RequestBody ProfileDto profileDto) {
+    @GetMapping("/get")
+    public ResponseEntity<?> getProfile(@AuthenticationPrincipal Jwt jwt) {
+        Profile profile = profileService.getByAuthId(jwt.getClaim("sub"))
+                .orElseThrow(() -> new RuntimeException("no user with this authId"));
+
+        return ResponseEntity.ok(profileMapper.toDto(profile));
+    }
+
+    @PostMapping("/getOrCreateProfile")
+    public ResponseEntity<ProfileDto> getOrCreateProfile(@AuthenticationPrincipal Jwt jwt,
+                                                         @RequestBody ProfileDto profileDto) {
         String authId = jwt.getClaim("sub");
 
         Optional<Profile> optionalProfile = profileService.getByAuthId(authId);
@@ -43,4 +55,20 @@ public class ProfileController {
         Profile newProfile = profileService.createProfile(profileDto);
         return ResponseEntity.ok(ProfileMapper.INSTANCE.toDto(newProfile));
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<Boolean> updateProfile(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestPart("profile") ProfileDto profileDto,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        try {
+            profileService.update(profileDto, image, jwt);
+            return ResponseEntity.ok(true);
+        } catch (Exception e) {
+            return ResponseEntity.ok(false);
+        }
+    }
+
+
 }

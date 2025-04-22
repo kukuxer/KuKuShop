@@ -42,8 +42,8 @@ const App = () => {
   return (
     <div id="app" className="d-flex flex-column h-100">
       <TailWindNavBar />
-      <div className="container flex-grow-1">
-        <div className="mt-5">
+      <div className="flex-grow-1 w-full px-0">
+        <div className="justify-center items-center">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/shops/:shopName" element={<Shop />} />

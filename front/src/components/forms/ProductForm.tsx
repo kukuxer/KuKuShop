@@ -1,14 +1,11 @@
 import {
   useState,
-  useRef,
   useEffect,
   ChangeEvent,
-  DragEvent,
   FormEvent,
   useCallback,
 } from "react";
 import { FiPlus, FiTrash2, FiUpload } from "react-icons/fi";
-import { MdClose } from "react-icons/md";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
@@ -66,15 +63,16 @@ const ProductCreationForm = () => {
 
   const [errors, setErrors] = useState<Errors>({});
   const { getAccessTokenSilently } = useAuth0();
-  const [PriceInputIsFocused, PriceInputSetIsFocused] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
 
-  {/*Image*/}
-  const [primaryImage, setPrimaryImage] = useState(null);
-  const [additionalImages, setAdditionalImages] = useState([]);
+  /*Image*/
+  const [primaryImage, setPrimaryImage] = useState<
+    (File & { preview: string }) | null
+  >(null);
+  const [additionalImages, setAdditionalImages] = useState<
+    (File & { preview: string })[]
+  >([]);
 
   const categories = [
     { id: 1, name: "Jewelry", icon: <FaGem /> },
@@ -144,6 +142,13 @@ const ProductCreationForm = () => {
       newErrors.image = "File size must be less than 5MB";
     }
     setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      window.scrollTo({
+        top: 225,
+        behavior: "smooth", 
+      });
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -217,7 +222,7 @@ const ProductCreationForm = () => {
     }
   };
 
-  const validateFile = (file) => {
+  const validateFile = (file: File) => {
     const validTypes = ["image/jpeg", "image/png", "image/webp"];
     const maxSize = 5 * 1024 * 1024; // 5MB
 
@@ -234,46 +239,57 @@ const ProductCreationForm = () => {
     return true;
   };
 
-  const onPrimaryDrop = useCallback((acceptedFiles) => {
+  const onPrimaryDrop = useCallback((acceptedFiles: File[]) => {
     setError("");
     const file = acceptedFiles[0];
     if (validateFile(file)) {
-      setPrimaryImage(Object.assign(file, { preview: URL.createObjectURL(file) }));
+      setPrimaryImage(
+        Object.assign(file, { preview: URL.createObjectURL(file) })
+      );
     }
   }, []);
 
-  const onAdditionalDrop = useCallback((acceptedFiles) => {
-    setError("");
-    if (additionalImages.length + acceptedFiles.length > 7) {
-      setError("Maximum 8 images allowed.");
-      return;
-    }
-    const validFiles = acceptedFiles.filter(validateFile);
-    const newImages = validFiles.map(file =>
-      Object.assign(file, { preview: URL.createObjectURL(file) })
-    );
+  const onAdditionalDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      setError("");
+      if (additionalImages.length + acceptedFiles.length > 7) {
+        setError("Maximum 8 images allowed.");
+        return;
+      }
+      const validFiles = acceptedFiles.filter(validateFile);
+      const newImages = validFiles.map((file) =>
+        Object.assign(file, { preview: URL.createObjectURL(file) })
+      );
 
-    setAdditionalImages(prev => [...prev, ...newImages]);
-  }, [additionalImages]);
+      setAdditionalImages((prev) => [...prev, ...newImages]);
+    },
+    [additionalImages]
+  );
 
-  const { getRootProps: getPrimaryRootProps, getInputProps: getPrimaryInputProps } = useDropzone({
+  const {
+    getRootProps: getPrimaryRootProps,
+    getInputProps: getPrimaryInputProps,
+  } = useDropzone({
     onDrop: onPrimaryDrop,
     accept: {
       "image/jpeg": [],
       "image/png": [],
-      "image/webp": []
+      "image/webp": [],
     },
-    multiple: false
+    multiple: false,
   });
 
-  const { getRootProps: getAdditionalRootProps, getInputProps: getAdditionalInputProps } = useDropzone({
+  const {
+    getRootProps: getAdditionalRootProps,
+    getInputProps: getAdditionalInputProps,
+  } = useDropzone({
     onDrop: onAdditionalDrop,
     accept: {
       "image/jpeg": [],
       "image/png": [],
-      "image/webp": []
+      "image/webp": [],
     },
-    multiple: true
+    multiple: true,
   });
 
   const removePrimaryImage = () => {
@@ -283,44 +299,14 @@ const ProductCreationForm = () => {
     }
   };
 
-  const removeAdditionalImage = (index) => {
-    setAdditionalImages(prev => {
+  const removeAdditionalImage = (index: number) => {
+    setAdditionalImages((prev) => {
       const newImages = [...prev];
       URL.revokeObjectURL(newImages[index].preview);
       newImages.splice(index, 1);
       return newImages;
     });
   };
-
-  // const handleImageDrop = (e: DragEvent<HTMLDivElement>) => {
-  //   e.preventDefault();
-  //   const file = e.dataTransfer.files[0];
-  //   handleImageFile(file);
-  // };
-
-  // const handleImageFile = (file: File | null) => {
-  //   if (file) {
-  //     if (file.size > 5 * 1024 * 1024) {
-  //       setErrors({ ...errors, image: "File size must be less than 5MB" });
-  //       return;
-  //     }
-  //     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-  //       setErrors({
-  //         ...errors,
-  //         image: "Only JPG, PNG, and WebP files are allowed",
-  //       });
-  //       return;
-  //     }
-  //     setFormData({ ...formData, image: file });
-
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setImagePreview(reader.result as string);
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const isValid = validateForm();
@@ -361,10 +347,9 @@ const ProductCreationForm = () => {
         categories: [],
         customCategory: "",
         image: null,
-        additionalImages: []
+        additionalImages: [],
       });
       setSelectedCategories([]);
-      setImagePreview("");
       localStorage.removeItem("productFormDraft");
       navigate("/myshop");
     } catch (error) {
@@ -375,16 +360,17 @@ const ProductCreationForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A15] p-4 md:p-8">
-      <div className="max-w-2xl mx-auto bg-[#12121F] rounded-lg shadow-xl p-6 border border-gray-800">
-        <h1 className="text-3xl font-light text-white mb-8">
-          Create New Product
-        </h1>
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4 py-12">
+      <div className="max-w-4xl mx-auto bg-gray-800 rounded-xl shadow-xl p-8 space-y-8">
+        <h1 className="text-3xl font-bold text-white">Create New Product</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Product Name */}
           <div>
-            <label htmlFor="name" className="block text-white mb-2">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-purple-300"
+            >
               Product Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -393,7 +379,9 @@ const ProductCreationForm = () => {
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className="w-full bg-[#1A1A2E] text-white rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-purple-400 border border-gray-700"
+              className="mt-1 block w-full bg-gray-700 border-2 border-gray-600 rounded-lg
+                       text-white px-4 py-2 focus:outline-none focus:border-purple-500
+                       transition-colors duration-200"
               placeholder="Enter product name"
             />
             {errors.name && (
@@ -401,7 +389,7 @@ const ProductCreationForm = () => {
             )}
           </div>
           <div>
-            <label htmlFor="description" className="block text-white mb-2">
+            <label htmlFor="description" className="block text-gray-300 mb-2">
               Description <span className="text-gray-500">(optional)</span>
             </label>
             <textarea
@@ -411,7 +399,9 @@ const ProductCreationForm = () => {
               onChange={handleInputChange}
               maxLength={500}
               rows={4}
-              className="w-full bg-[#1A1A2E] text-white rounded-md px-4 py-2 focus:outline-none focus:ring-1 focus:ring-purple-400 border border-gray-700"
+              className="mt-1 block w-full bg-gray-700 border-2 border-gray-600 rounded-lg
+                       text-white px-4 py-2 focus:outline-none focus:border-purple-500
+                       transition-colors duration-200"
               placeholder="Optional product description"
             />
           </div>
@@ -421,23 +411,21 @@ const ProductCreationForm = () => {
           <div className="relative">
             <label
               htmlFor="category"
-              className="block text-sm font-medium text-gray-200 mb-2"
+              className="block text-gray-300 mb-2"
               onMouseEnter={() => setShowTooltip(true)}
               onMouseLeave={() => setShowTooltip(false)}
             >
-              Select Category
+              Select Category <span className="text-gray-500">(optional)</span>
             </label>
             {showTooltip && (
-              <div className="absolute -top-10 left-0 bg-gray-700 text-white text-xs rounded py-1 px-2">
+              <div className="absolute -top-7 left-0 bg-gray-700 text-white text-xs rounded py-1 px-2">
                 Choose a product category from the list
               </div>
             )}
             <div className="relative">
               <button
                 type="button"
-                className={`w-full bg-gray-800 border ${
-                  error ? "border-red-500" : "border-purple-500"
-                } rounded-md py-2 pl-3 pr-10 text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm text-gray-200`}
+                className={`w-full flex flex-col items-center justify-center h-10 border-gray-600 border-2 rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors duration-200 py-2 pl-3 pr-10 text-left shadow-sm focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm text-gray-200`}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
@@ -461,7 +449,7 @@ const ProductCreationForm = () => {
                       <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                       <input
                         type="text"
-                        className="w-full pl-10 pr-3 py-2 border border-gray-600 rounded-md leading-5 bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full pl-10 pr-3 py-2 border bg-gray-700 rounded-md leading-5 text-gray-200 placeholder-gray-400 "
                         placeholder="Search categories..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -547,22 +535,16 @@ const ProductCreationForm = () => {
 
           <div className="w-full max-w-xs">
             <div className="relative">
-              <label className="block text-white mb-2">
+              <label className="flex items-center flex-wrap gap-2 mb-2">
                 Price<span className="text-red-500">*</span>
               </label>
               <div
-                className={`relative border ${
-                  errors
-                    ? "border-red-500"
-                    : PriceInputIsFocused
-                    ? "border-purple-500"
-                    : "border-gray-700"
-                } rounded-lg shadow-sm transition-all hover:border-purple-400 bg-[#121212]`}
+                className={`relative border-gray-600 border-2 rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors duration-200`}
               >
                 <div className="absolute left-3 top-1/2 -translate-y-1/2">
                   <FaDollarSign
                     className={`${
-                      errors ? "text-red-500" : "text-purple-400"
+                      errors ? "text-purple-500" : "text-purple-400"
                     } text-sm`}
                   />
                 </div>
@@ -570,9 +552,7 @@ const ProductCreationForm = () => {
                   type="text"
                   value={formData.price}
                   onChange={handlePriceChange}
-                  onFocus={() => PriceInputSetIsFocused(true)}
-                  onBlur={() => PriceInputSetIsFocused(false)}
-                  className="w-full bg-[#121212] text-purple-400 text-sm py-2 px-8 rounded-lg focus:outline-none"
+                  className="w-full bg-gray-700 text-purple-400 text-sm py-2 pl-10 pr-8 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500"
                   placeholder="0.00"
                   aria-label="Price input"
                 />
@@ -604,156 +584,120 @@ const ProductCreationForm = () => {
           </div>
 
           {/* File Upload */}
-          <div className="min-h-screen bg-gray-900 p-6">
-      <div className="max-w-4xl mx-auto bg-gray-800 rounded-xl p-6 space-y-6">
-        <h2 className="text-2xl font-bold text-white mb-6">Image Upload</h2>
 
-        {error && (
-          <div className="bg-red-500 bg-opacity-20 text-red-200 p-4 rounded-lg" role="alert">
-            {error}
-          </div>
-        )}
+          <div className="max-w-4xl mx-auto bg-gray-800 rounded-xl px-0 pt-6 pb-6 space-y-6">
+            <h2 className="text-2xl font-bold text-white mb-6">Image Upload</h2>
 
-        <div className="space-y-6">
-          <div className="primary-upload">
-            <h3 className="text-lg font-semibold text-white mb-3">Primary Image</h3>
-            {!primaryImage ? (
+            {error && (
               <div
-                {...getPrimaryRootProps()}
-                className="border-2 border-dashed border-purple-500 rounded-lg p-8 hover:border-purple-400 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+                className="bg-red-500 bg-opacity-20 text-red-200 p-4 rounded-lg"
+                role="alert"
               >
-                <input {...getPrimaryInputProps()} aria-label="Upload primary image" />
-                <div className="text-center">
-                  <FiUpload className="mx-auto h-12 w-12 text-purple-500" />
-                  <p className="mt-2 text-sm text-gray-300">
-                    Drag & drop your primary image here, or click to select
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="relative">
-                <img
-                  src={primaryImage.preview}
-                  alt="Primary preview"
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-                <button
-                  onClick={removePrimaryImage}
-                  className="absolute top-2 right-2 p-2 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
-                  aria-label="Remove primary image"
-                >
-                  <FiTrash2 className="text-white" />
-                </button>
+                {error}
               </div>
             )}
-          </div>
 
-          <div className="additional-uploads">
-            <h3 className="text-lg font-semibold text-white mb-3">Additional Images</h3>
-            <div className="flex gap-4 overflow-x-auto pb-4">
-              {additionalImages.map((image, index) => (
-                <div key={index} className="relative flex-shrink-0">
-                  <img
-                    src={image.preview}
-                    alt={`Additional preview ${index + 1}`}
-                    className="w-32 h-32 object-cover rounded-lg"
-                  />
-                  <button
-                    onClick={() => removeAdditionalImage(index)}
-                    className="absolute top-1 right-1 p-1.5 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
-                    aria-label={`Remove image ${index + 1}`}
+            <div className="space-y-6">
+              <div className="primary-upload">
+                <h3 className="text-lg font-semibold text-white mb-3">
+                  Primary Image
+                </h3>
+                {!primaryImage ? (
+                  <div
+                    {...getPrimaryRootProps()}
+                    className="border-2 border-dashed border-purple-500 rounded-lg p-8 hover:border-purple-400 focus:outline-none focus:ring-1 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all duration-200 ease-in-out focus:border-purple-600 focus:border-dashed focus:border-4 focus:border-purple-600 focus:dash-width-[4px]"
                   >
-                    <FiTrash2 className="text-white w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-              {additionalImages.length < 7 && (
-                <div
-                  {...getAdditionalRootProps()}
-                  className="w-32 h-32 flex-shrink-0 border-2 border-dashed border-purple-500 rounded-lg flex items-center justify-center hover:border-purple-400 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800"
-                >
-                  <input {...getAdditionalInputProps()} aria-label="Upload additional images" />
-                  <FiPlus className="h-8 w-8 text-purple-500" />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+                    <input
+                      {...getPrimaryInputProps()}
+                      aria-label="Upload primary image"
+                    />
+                    <div className="text-center">
+                      <FiUpload className="mx-auto h-12 w-12 text-purple-500" />
+                      <p className="mt-2 text-sm text-gray-300">
+                        Drag & drop your primary image here, or click to select
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <img
+                      src={primaryImage.preview}
+                      alt="Primary preview"
+                      className="w-full h-64 object-cover rounded-lg"
+                    />
+                    <button
+                      onClick={removePrimaryImage}
+                      className="absolute top-2 right-2 p-2 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+                      aria-label="Remove primary image"
+                    >
+                      <FiTrash2 className="text-white" />
+                    </button>
+                  </div>
+                )}
+              </div>
 
-        <div className="text-sm text-gray-400 mt-4">
-          <p>Supported formats: JPEG, PNG, WebP</p>
-          <p>Maximum file size: 5MB per image</p>
-          <p>Maximum additional images: 7</p>
-        </div>
-      </div>
-    </div>
-
-
-          {/* <div>
-            <label className="block text-white mb-2">
-              Product Image <span className="text-gray-500">(optional)</span>
-            </label>
-            <div
-              onDrop={handleImageDrop}
-              onDragOver={(e) => e.preventDefault()}
-              className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center hover:border-[#6A5ACD] transition-colors"
-            >
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={(e) => {
-                  if (e.target.files) {
-                    handleImageFile(e.target.files[0]);
-                  }
+              <div
+                className="additional-uploads"
+                style={{
+                  overflowX: "auto",
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#6b46c1 #121212",
                 }}
-                accept=".jpg,.jpeg,.png,.webp"
-                className="hidden"
-              />
-              {imagePreview ? (
-                <div className="relative">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="max-h-48 mx-auto rounded"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setImagePreview("");
-                      setFormData({ ...formData, image: null });
-                    }}
-                    className="absolute top-0 right-0 bg-red-500 rounded-full p-1 transform translate-x-1/2 -translate-y-1/2"
-                  >
-                    <MdClose className="text-white" />
-                  </button>
+              >
+                <h3 className="text-lg font-semibold text-white mb-3">
+                  Additional Images
+                </h3>
+                <div className="flex gap-4 overflow-x-auto pb-4">
+                  {additionalImages.map((image, index) => (
+                    <div key={index} className="relative flex-shrink-0">
+                      <img
+                        src={image.preview}
+                        alt={`Additional preview ${index + 1}`}
+                        className="w-32 h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        onClick={() => removeAdditionalImage(index)}
+                        className="absolute top-1 right-1 p-1.5 bg-red-500 rounded-full hover:bg-red-600 transition-colors"
+                        aria-label={`Remove image ${index + 1}`}
+                      >
+                        <FiTrash2 className="text-white w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {additionalImages.length < 7 && (
+                    <div
+                      {...getAdditionalRootProps()}
+                      className="w-32 h-32 flex-shrink-0 border-2 border-dashed border-purple-500 rounded-lg flex items-center justify-center hover:border-purple-400 focus:border-purple-300"
+                    >
+                      <input
+                        {...getAdditionalInputProps()}
+                        aria-label="Upload additional images"
+                      />
+                      <FiPlus className="h-8 w-8 text-purple-500" />
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="cursor-pointer"
-                >
-                  <FiUpload className="mx-auto text-gray-400 mb-2" size={24} />
-                  <p className="text-gray-400">
-                    Drag & drop or click to upload
-                  </p>
-                  <p className="text-gray-500 text-sm">Max size: 5MB</p>
-                </div>
-              )}
+              </div>
             </div>
-            {errors.image && (
-              <p className="text-red-400 text-sm mt-1">{errors.image}</p>
-            )}
-          </div> */}
+
+            <div className="text-sm text-gray-400 mt-2">
+              <p>Supported formats: JPEG, PNG, WebP</p>
+              <p>Maximum file size: 5MB per image</p>
+              <p>Maximum additional images: 7</p>
+            </div>
+          </div>
 
           {/* Submit Button */}
-          
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-6 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700 transition-colors disabled:opacity-50"
-          >
-            {isSubmitting ? "Submitting..." : "Create Product"}
-          </button>
+
+          <div className="flex justify-center mt-8">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-6 py-2 rounded-md bg-purple-600 text-white hover:bg-purple-700 transition-colors disabled:opacity-50"
+            >
+              {isSubmitting ? "Submitting..." : "Create Product"}
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -761,4 +705,3 @@ const ProductCreationForm = () => {
 };
 
 export default ProductCreationForm;
-

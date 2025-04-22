@@ -6,6 +6,7 @@ class Profile {
     public givenName: string,
     public familyName: string,
     public role: string,
+    public imageUrl: string,
   ) {}
 }
 

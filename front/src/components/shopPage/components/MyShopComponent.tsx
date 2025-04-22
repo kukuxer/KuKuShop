@@ -10,6 +10,8 @@ import ShopEntity from "../../../entity/ShopEntity";
 import ErrorPage from "../../utils/ErrorPage";
 import Loading from "../../utils/Loading";
 import ShopDescription from "./ShopDescription";
+import { FiEdit } from "react-icons/fi";
+import MyShopBanner from "./MyShopBanner";
 
 const MyShopComponent = () => {
   const [error, setError] = useState<string | null>(null);
@@ -20,35 +22,6 @@ const MyShopComponent = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { getAccessTokenSilently } = useAuth0();
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedShop, setEditedShop] = useState<ShopEntity>({ ...shop });
-  const [newImage, setNewImage] = useState<File | null>(null);
-
-
-  const fetchShopImage = async () => {
-    const token = await getAccessTokenSilently();
-
-    const response = await fetch(
-      "http://localhost:8080/api/shop/myShopImage",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (response.ok) {
-      const imageUrl = await response.text();
-      setShopImage(imageUrl);
-    } else {
-      setShopImage("/ShopBanner.png");
-    }
-  };
-
-  useEffect(() => {
-    fetchShopImage();
-  }, [getAccessTokenSilently]);
 
   useEffect(() => {
     const fetchShopProducts = async () => {
@@ -104,42 +77,6 @@ const MyShopComponent = () => {
     fetchShop();
   }, [getAccessTokenSilently]);
 
-  const handleSaveShop = async () => {
-    try {
-      const token = await getAccessTokenSilently();
-  
-      await axios.put("http://localhost:8080/api/shop/update", editedShop, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (newImage) {
-        const formData = new FormData();
-        formData.append("image", newImage);
-  
-        await axios.post(
-          "http://localhost:8080/api/shop/uploadImage",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-      }
-  
-      setShop(editedShop);
-      setIsEditing(false);
-      setNewImage(null);
-      fetchShopImage();
-    } catch (err) {
-      console.error("Error saving shop info:", err);
-      setError("Error saving shop info");
-    }
-  };
-  
 
 
   const filteredProducts = products.filter((product) =>
@@ -180,10 +117,13 @@ const MyShopComponent = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <ShopBanner imageUrl={shopImage} title={shop.name} />
-      <div className="container mx-auto px-4 mt-4">
-        <ShopDescription description={shop.description} />
+      <div className="relative z-50">
+        <MyShopBanner shop={shop} />
       </div>
+
+      {/* <div className="container mx-auto px-4 mt-4">
+        <ShopDescription description={shop.description} />
+      </div> */}
 
       <nav className="bg-gray-900 p-4 sticky top-0 z-50 border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">

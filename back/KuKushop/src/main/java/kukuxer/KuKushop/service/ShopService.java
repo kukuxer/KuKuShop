@@ -7,6 +7,7 @@ import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.repository.ProfileRepository;
 import kukuxer.KuKushop.repository.ShopRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,6 +49,19 @@ public class ShopService {
         return ShopMapper.INSTANCE.toDto(shop);
     }
 
+    public void update(ShopDto shopDto, MultipartFile image, Jwt jwt) throws IOException {
+        Shop shop = shopRepository.findByUserAuthId(jwt.getClaim("sub")).orElseThrow(
+                ()->new RuntimeException("Shop with user with auth id "+jwt.getClaim("sub")+" wasn't found.")
+        );
+        if (image != null && !image.isEmpty()) {
+            String fileKey = s3Service.uploadFile(image);
+            shop.setImageUrl(fileKey);
+        }
+        shop.setName(shopDto.getName());
+        shop.setDescription(shopDto.getDescription());
+        shopRepository.save(shop);
+    }
+
     public Shop getByUserAuthId(String userAuth) {
         return shopRepository.findByUserAuthId(userAuth)
                 .orElseThrow(() -> new RuntimeException("Shop not found for userAuth: " + userAuth));
@@ -60,4 +74,6 @@ public class ShopService {
     public Shop getById(Long id) {
        return shopRepository.findById(id).orElseThrow(() -> new RuntimeException("Shop not found with id: " + id));
     }
+
+
 }

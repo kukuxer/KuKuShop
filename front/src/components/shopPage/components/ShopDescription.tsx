@@ -29,7 +29,7 @@ const ShopDescription: React.FC<ShopDescriptionProps> = ({
     });
 
   return (
-    <div className="w-full flex justify-center mt-6">
+    <div className="w-full flex justify-center mt-1">
       <div className="px-6 py-4 max-w-2xl text-center">
         <p className="text-sm text-gray-300 leading-relaxed">
           {highlightLetters(visibleText)}

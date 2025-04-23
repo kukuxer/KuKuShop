@@ -125,7 +125,7 @@ const MyShopComponent = () => {
         <ShopDescription description={shop.description} />
       </div> */}
 
-      <nav className="bg-gray-900 p-4 sticky top-0 z-50 border-b border-gray-800">
+      <nav className="bg-gray-900 p-4 sticky top-0 border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <div className="relative w-full max-w-2xl">
             <input

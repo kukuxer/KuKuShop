@@ -6,6 +6,7 @@ import ShopDescription from "./ShopDescription";
 import { useAuth0 } from "@auth0/auth0-react";
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../utils/cropImage';
+import ImageCropModal from "./ImageCropModal";
 
 interface MyShopBannerProps {
     shop?: ShopEntity;
@@ -89,9 +90,10 @@ const MyShopBanner: React.FC<MyShopBannerProps> = ({ shop }) => {
                 new Blob([JSON.stringify(shopPayload)], { type: "application/json" })
             );
 
-            if (imageUrl.startsWith("data:image")) {
+            if (imageUrl.startsWith("data:image") || imageUrl.startsWith("blob:")) {
                 const blob = await (await fetch(imageUrl)).blob();
-                const filename = `banner_${Date.now()}.png`; // or .jpg based on mime
+                const extension = blob.type.split("/")[1]; // e.g., "jpeg" or "png"
+                const filename = `banner_${Date.now()}.${extension}`;
                 const file = new File([blob], filename, { type: blob.type });
                 payload.append("image", file);
             }
@@ -147,7 +149,7 @@ const MyShopBanner: React.FC<MyShopBannerProps> = ({ shop }) => {
                 className="absolute inset-0 w-full h-full object-cover"
             />
 
-            <div className="relative h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 bg-black/40 backdrop-blur-sm">
+            <div className="relative h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 bg-black/40">
                 {isEditing ? (
                     <div className="w-full max-w-3xl space-y-6 text-white text-center">
                         <input
@@ -247,40 +249,18 @@ const MyShopBanner: React.FC<MyShopBannerProps> = ({ shop }) => {
                 )}
             </div>
             {cropModalOpen && selectedImageFile && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-4 w-full max-w-3xl h-[500px] relative shadow-xl">
-                        <Cropper
-                            image={URL.createObjectURL(selectedImageFile)}
-                            crop={crop}
-                            zoom={zoom}
-                            aspect={3 / 1} // You can change the ratio for your banner layout
-                            onCropChange={setCrop}
-                            onZoomChange={setZoom}
-                            onCropComplete={(_, croppedPixels) => setCroppedAreaPixels(croppedPixels)}
-                        />
-                        <div className="absolute bottom-4 left-4 flex gap-4">
-                            <button
-                                onClick={async () => {
-                                    const croppedImage = await getCroppedImg(URL.createObjectURL(selectedImageFile), croppedAreaPixels);
-                                    setImageUrl(croppedImage);
-                                    setCropModalOpen(false);
-                                }}
-                                className="px-4 py-2 bg-green-600 text-white rounded"
-                            >
-                                Save Crop
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setCropModalOpen(false);
-                                    setSelectedImageFile(null);
-                                }}
-                                className="px-4 py-2 bg-red-600 text-white rounded"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <ImageCropModal
+                    image={URL.createObjectURL(selectedImageFile)}
+                    onClose={() => {
+                        setCropModalOpen(false);
+                        setSelectedImageFile(null);
+                    }}
+                    onSave={(croppedImage: string) => {
+                        setImageUrl(croppedImage);
+                        setCropModalOpen(false);
+                        setSelectedImageFile(null);
+                    }}
+                />
             )}
         </div>
     );

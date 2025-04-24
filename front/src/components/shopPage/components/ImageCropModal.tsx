@@ -2,7 +2,8 @@ import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import { FiX, FiCheck, FiRotateCcw } from "react-icons/fi";
 
-const ImageCropModal = ({ image, onClose, onSave }) => {
+
+const ImageCropModal = ({ image, onClose, onSave, cropShape = "rect" }) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
@@ -83,15 +84,17 @@ const ImageCropModal = ({ image, onClose, onSave }) => {
             crop={crop}
             zoom={zoom}
             rotation={rotation}
-            aspect={3 / 1}
+            aspect={cropShape === "round" ? 1 : 3 / 1}
             onCropChange={setCrop}
             onZoomChange={(val) => setZoom(Number(val))}
             onCropComplete={onCropComplete}
             showGrid={true}
-            cropShape="rect"
+            cropShape={cropShape}
             classes={{
               containerClassName: "rounded-lg bg-gray-800 h-full",
-              cropAreaClassName: "border-4 border-purple-500 shadow-lg shadow-purple-400/30",
+              cropAreaClassName: cropShape === "round"
+                ? "border-4 border-purple-500 shadow-lg shadow-purple-400/30 rounded-full"
+                : "border-4 border-purple-500 shadow-lg shadow-purple-400/30",
             }}
           />
         </div>

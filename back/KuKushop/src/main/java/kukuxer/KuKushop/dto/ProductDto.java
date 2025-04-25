@@ -40,4 +40,5 @@ public class ProductDto {
     double rating;
     boolean favorite;
     boolean inBasket;
+    boolean isOwner;
 }

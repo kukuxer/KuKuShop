@@ -6,6 +6,7 @@ import kukuxer.KuKushop.dto.BasketProductDto;
 import kukuxer.KuKushop.entity.*;
 import kukuxer.KuKushop.repository.CategoryRepository;
 import kukuxer.KuKushop.repository.ProductRepository;
+import kukuxer.KuKushop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class ProductService {
     private final ShopService shopService;
     private final FavoriteService favoriteService;
     private final BasketService basketService;
+    private final ShopRepository shopRepository;
 
 
     public List<Product> getProductsByShopId(Long id) {
@@ -67,6 +69,7 @@ public class ProductService {
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new RuntimeException("no product with this id" + uuid));
 
+
         ProductDto productDto = productMapper.toDto(product);
 
         if(userId == null){
@@ -75,7 +78,10 @@ public class ProductService {
 
         productDto.setInBasket(basketService.isInBasket(product.getId(),userId));
         productDto.setFavorite(favoriteService.isFavorite(product.getId(),userId));
-
+        Shop shop = shopService.getById(product.getShopId());
+        if(jwt.getClaim("sub").equals(shop.getUserAuthId())){
+            productDto.setOwner(true);
+        }
         return productDto;
     }
 

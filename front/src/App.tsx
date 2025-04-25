@@ -41,7 +41,7 @@ const ProtectedShopForm = withAuthenticationRequired(ShopForm, {
 const App = () => {
   return (
     <div id="app" className="d-flex flex-column h-100">
-      <TailWindNavBar />
+        <TailWindNavBar />
       <div className="flex-grow-1 w-full px-0">
         <div className="justify-center items-center">
           <Routes>

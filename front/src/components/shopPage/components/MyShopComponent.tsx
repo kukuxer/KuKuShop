@@ -2,20 +2,16 @@ import { useState, useEffect } from "react";
 import { FaShoppingCart, FaSearch, FaPlus } from "react-icons/fa";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
-import ShopBanner from "./ShopBanner";
 import { Link } from "react-router-dom";
 import Product from "../../../entity/Product";
 import ProductCard from "./ProductCard";
 import ShopEntity from "../../../entity/ShopEntity";
 import ErrorPage from "../../utils/ErrorPage";
 import Loading from "../../utils/Loading";
-import ShopDescription from "./ShopDescription";
-import { FiEdit } from "react-icons/fi";
 import MyShopBanner from "./MyShopBanner";
 
 const MyShopComponent = () => {
   const [error, setError] = useState<string | null>(null);
-  const [shopImage, setShopImage] = useState("/Default.png");
   const [shop, setShop] = useState<ShopEntity>({} as ShopEntity);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -117,7 +113,7 @@ const MyShopComponent = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <div className="relative z-50">
+      <div className="relative ">
         <MyShopBanner shop={shop} />
       </div>
 

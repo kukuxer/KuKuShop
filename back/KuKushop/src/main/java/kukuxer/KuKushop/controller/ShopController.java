@@ -2,6 +2,7 @@ package kukuxer.KuKushop.controller;
 
 
 import kukuxer.KuKushop.dto.Mappers.ShopMapper;
+import kukuxer.KuKushop.dto.ProfileDto;
 import kukuxer.KuKushop.dto.ShopDto;
 import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.service.ProfileService;
@@ -83,6 +84,20 @@ public class ShopController {
         if (ownAShop) {
             return ResponseEntity.ok(true);
         } else {
+            return ResponseEntity.ok(false);
+        }
+    }
+
+    @PutMapping("/private/update")
+    public ResponseEntity<Boolean> updateShop(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestPart("shopPayload") ShopDto shopDto,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ){
+        try {
+            shopService.update(shopDto, image, jwt);
+            return ResponseEntity.ok(true);
+        } catch (Exception e) {
             return ResponseEntity.ok(false);
         }
     }

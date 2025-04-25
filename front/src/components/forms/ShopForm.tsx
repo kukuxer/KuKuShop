@@ -190,6 +190,7 @@ const ShopCreationForm = () => {
               placeholder="Enter shop description"
               value={formData.description}
               onChange={handleInputChange}
+              maxLength={750}
             />
           </div>
 

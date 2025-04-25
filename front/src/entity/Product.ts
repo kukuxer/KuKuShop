@@ -13,6 +13,7 @@ class Product {
     public favorite: boolean,
     public inBasket: boolean,
     public reviews: number,
+    public isOwner: boolean
   ) {}
 }
 

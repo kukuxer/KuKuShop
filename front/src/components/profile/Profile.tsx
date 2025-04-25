@@ -7,6 +7,9 @@ import React, {
 import { FiEdit } from "react-icons/fi";
 import { useAuth0, User } from "@auth0/auth0-react";
 import ProfileEntity from "../../entity/Profile";
+import ImageCropModal from "../shopPage/components/ImageCropModal";
+import { useRef, useCallback } from "react";
+
 
 interface FormData {
   name: string;
@@ -18,6 +21,10 @@ interface FormData {
 }
 
 const Profile: React.FC = () => {
+
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+
   const { user, getAccessTokenSilently } = useAuth0();
   const typedUser = user as User;
 
@@ -174,12 +181,8 @@ const Profile: React.FC = () => {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const preview = URL.createObjectURL(file);
-                        setFormData((prev) => ({
-                          ...prev,
-                          image: preview,
-                          imageFile: file,
-                        }));
+                        setSelectedImageFile(file);
+                        setCropModalOpen(true);
                       }
                     }}
                   />
@@ -261,6 +264,40 @@ const Profile: React.FC = () => {
           )}
         </div>
       </div>
+      {cropModalOpen && selectedImageFile && (
+        <ImageCropModal
+          image={URL.createObjectURL(selectedImageFile)}
+          cropShape="round"
+          onClose={() => {
+            URL.revokeObjectURL(URL.createObjectURL(selectedImageFile));
+            setCropModalOpen(false);
+            setSelectedImageFile(null);
+          }}
+          onSave={(croppedImage: string) => {
+            // Convert base64 to Blob -> File
+            const byteString = atob(croppedImage.split(',')[1]);
+            const mimeString = croppedImage.split(',')[0].split(':')[1].split(';')[0];
+          
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+              ia[i] = byteString.charCodeAt(i);
+            }
+          
+            const blob = new Blob([ab], { type: mimeString });
+            const croppedFile = new File([blob], selectedImageFile?.name ?? 'cropped.jpg', { type: mimeString });
+          
+            setFormData((prev) => ({
+              ...prev,
+              image: croppedImage,
+              imageFile: croppedFile,
+            }));
+            setCropModalOpen(false);
+            setSelectedImageFile(null);
+          }}
+        />
+      )}
+
     </div>
   );
 };

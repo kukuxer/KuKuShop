@@ -25,6 +25,7 @@ const ShopBanner: React.FC<ShopBannerProps> = ({
         <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
           {title}
         </h1>
+        
         <div className="flex items-center space-x-2">
           <span className="text-yellow-400 text-xl">★ {rating}</span>
           <span className="text-white">({reviews} reviews)</span>

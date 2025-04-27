@@ -43,7 +43,7 @@ public class ProductService {
             fileKeys.add(fileKey);
             productDto.setImageUrl(fileKey);
         }
-        if(additionalImages !=null){
+        if (additionalImages != null) {
             for (MultipartFile additionalImage : additionalImages) {
                 fileKeys.add(s3Service.uploadFile(additionalImage));
             }
@@ -72,14 +72,14 @@ public class ProductService {
 
         ProductDto productDto = productMapper.toDto(product);
 
-        if(userId == null){
+        if (userId == null) {
             return productDto;
         }
 
-        productDto.setInBasket(basketService.isInBasket(product.getId(),userId));
-        productDto.setFavorite(favoriteService.isFavorite(product.getId(),userId));
+        productDto.setInBasket(basketService.isInBasket(product.getId(), userId));
+        productDto.setFavorite(favoriteService.isFavorite(product.getId(), userId));
         Shop shop = shopService.getById(product.getShopId());
-        if(jwt.getClaim("sub").equals(shop.getUserAuthId())){
+        if (jwt.getClaim("sub").equals(shop.getUserAuthId())) {
             productDto.setOwner(true);
         }
         return productDto;
@@ -114,4 +114,42 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    public void update(ProductDto productDto, UUID productId, MultipartFile image, MultipartFile[] additionalImages, Jwt jwt) throws IOException {
+        Profile profile = profileService.getByAuthId(jwt.getClaim("sub")).orElseThrow(
+                () -> new RuntimeException("user not found " + jwt.getClaim("sub")));
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new RuntimeException("product not found " + productId)
+        );
+        Shop shop = shopRepository.findById(product.getShopId()).orElseThrow(
+                () -> new RuntimeException("shop not found" + product.getShopId()));
+
+        if (!shop.getUserAuthId().equals(profile.getAuthId()))
+            throw new RuntimeException("User doesn't own this product to change");
+
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+        product.setQuantity(productDto.getQuantity());
+
+        Set<Category> categoryEntities = productDto.getCategories().stream()
+                .map(name -> categoryRepository.findByName(name.toLowerCase().trim())
+                        .orElseGet(() -> Category.builder()
+                                .name(name.toLowerCase().trim())
+                                .build()))
+                .collect(Collectors.toSet());
+        product.setCategories(categoryEntities);
+
+        List<String> fileKeys = new ArrayList<>();
+        if (image != null && !image.isEmpty()) {
+            String fileKey = s3Service.uploadFile(image);
+            fileKeys.add(fileKey);
+            product.setImageUrl(fileKey);
+        }
+        if (additionalImages != null) {
+            for (MultipartFile additionalImage : additionalImages) {
+                fileKeys.add(s3Service.uploadFile(additionalImage));
+            }
+            product.setAdditionalPictures(fileKeys);
+        }
+    }
 }

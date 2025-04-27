@@ -71,6 +71,21 @@ public class ProductController {
        ProductDto productDto = productService.getProductDtoById(productId,jwt);
         return ResponseEntity.ok(productDto);
     }
+    @PutMapping("/private/update/{productId}")
+    public ResponseEntity<?> updateProduct(
+            @AuthenticationPrincipal Jwt jwt,
+            @ModelAttribute ProductDto productDto,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestPart(value = "additionalImages", required = false) MultipartFile[] additionalImages,
+            @PathVariable UUID productId) {
+
+        try {
+            productService.update(productDto,productId, image,additionalImages, jwt);
+            return ResponseEntity.ok(true);
+        } catch (Exception e) {
+            return ResponseEntity.ok(false);
+        }
+    }
 
 
 

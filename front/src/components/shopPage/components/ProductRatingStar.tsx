@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { FaStar } from "react-icons/fa";
 
 const ProductRatingStar = ({ rating }: { rating: number }) => {

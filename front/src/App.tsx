@@ -13,6 +13,7 @@ import ShopForm from "./components/forms/ShopForm";
 import MyShopComponent from "./components/shopPage/components/MyShopComponent";
 import Shop from "./components/shopPage/Shop";
 import ProductPage from "./components/ProductPage/ProductPage";
+import EditProduct from "./components/ProductPage/components/EditProduct";
 
 const ProtectedShop = withAuthenticationRequired(MyShop, {
   onRedirecting: () => <Loading />,
@@ -50,6 +51,7 @@ const App = () => {
             <Route path="/products/:productId" element={<ProductPage />} />
             {/* Secure Route */}
             <Route path="/myshop" element={<ProtectedShop />} />
+            <Route path="/editProduct/:productId" element={<EditProduct />} />
             <Route
               path="/myshopComponent"
               element={<ProtectedShopComponent />}

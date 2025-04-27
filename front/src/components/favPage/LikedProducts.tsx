@@ -44,12 +44,12 @@ const LikedProducts: React.FC = () => {
       case "price-desc":
         sortedProducts.sort((a, b) => Number(b.price) - Number(a.price));
         break;
-      // case "date":
-      //   sortedProducts.sort(
-      //     (a, b) =>
-      //       new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
-      //   );
-      //   break;
+      case "date":
+        sortedProducts.sort(
+          (a, b) =>
+            new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime()
+        );
+        break;
     }
     setLikedProducts(sortedProducts);
   };

@@ -77,6 +77,7 @@ const FavProductCard: React.FC<ProductCardProps> = ({
         <AddToBasketButton
           productId={product.id}
           isProductAlreadyInCart={product.inBasket}
+          isOwner={product.owner} 
         />
       </div>
     </div>

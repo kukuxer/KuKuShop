@@ -29,12 +29,10 @@ const ProductPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { productId } = useParams();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [modalImage, setModalImage] = useState<string | null>(null);
   const [selectedPicture, setSelectedPicture] = useState<string | null>(null);
   const [thumbStartIndex, setThumbStartIndex] = useState(0);
-
-
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -66,7 +64,6 @@ const ProductPage = () => {
 
     fetchProduct();
   }, [productId, getAccessTokenSilently, isAuthenticated]);
-
 
   useEffect(() => {
     const fetchShop = async () => {
@@ -134,7 +131,6 @@ const ProductPage = () => {
         rating - Math.floor(rating) >= 0.4 &&
         rating - Math.floor(rating) < 1
       ) {
-        // Half star: left purple, right gray
         stars.push(
           <span key={i} className="relative inline-block w-11 h-5">
             <FaStar className="text-gray-400 absolute top-0 left-0 w-full h-full" />
@@ -147,7 +143,6 @@ const ProductPage = () => {
           </span>
         );
       } else {
-        // Empty gray star
         stars.push(<FaStar key={i} className="text-gray-400 w-5 h-5" />);
       }
     }
@@ -189,11 +184,10 @@ const ProductPage = () => {
     if (modalImage) {
       setModalImage(product.additionalPictures[newIndex]);
     }
-
   };
 
   const shiftThumbnails = (direction: "next" | "prev") => {
-    const total = product.additionalPictures.length;
+    const total = product?.additionalPictures?.length || 0;
     const maxStart = total - 4;
 
     if (direction === "next" && thumbStartIndex < maxStart) {
@@ -211,7 +205,6 @@ const ProductPage = () => {
     <div className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Product Images Section */}
           <div className="space-y-4">
             <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-800">
               {product.additionalPictures.length > 2 && (
@@ -235,9 +228,7 @@ const ProductPage = () => {
                 src={selectedPicture ? selectedPicture : "/Default.png"}
                 alt="Product"
                 className="w-full h-full object-cover transform transition-transform duration-300 hover:scale-105 cursor-pointer"
-                onClick={() =>
-                  setModalImage(selectedPicture || "/Default.png")
-                }
+                onClick={() => setModalImage(selectedPicture || "/Default.png")}
               />
               <div className="absolute top-3 right-3 z-10 scale-150 p-3">
                 <LikeBtn isFavorite={product.favorite} productId={product.id} />
@@ -265,8 +256,11 @@ const ProductPage = () => {
                           setSelectedImage(actualIndex);
                           setSelectedPicture(image);
                         }}
-                        className={`aspect-square rounded-md overflow-hidden ${selectedImage === actualIndex ? "ring-2 ring-purple-500" : ""
-                          }`}
+                        className={`aspect-square rounded-md overflow-hidden ${
+                          selectedImage === actualIndex
+                            ? "ring-2 ring-purple-500"
+                            : ""
+                        }`}
                       >
                         <img
                           src={image}
@@ -317,18 +311,20 @@ const ProductPage = () => {
             {/* Add to Cart and Like Buttons */}
             <div className="space-y-4">
               <p
-                className={`text-lg ${product.quantity < 20 ? "text-red-400" : "text-green-400"
-                  }`}
+                className={`text-lg ${
+                  product.quantity < 20 ? "text-red-400" : "text-green-400"
+                }`}
               >
                 {product.quantity} units in stock
               </p>
 
               <div className="flex space-x-4">
                 <div className="w-full">
-                  <AddToBasketButton
-                    productId={product.id}
-                    isProductAlreadyInCart={product.inBasket}
-                  />
+                    <AddToBasketButton
+                      productId={product.id}
+                      isProductAlreadyInCart={product.inBasket}
+                      isOwner={product.owner}
+                    />
                 </div>
               </div>
             </div>
@@ -341,7 +337,10 @@ const ProductPage = () => {
           {/* Shop Details Section */}
           <div className="col-span-1 md:col-span-2">
             {shop ? (
-              <ShopCard shop={shop} onImageClick={(img) => setModalImage(img)} />
+              <ShopCard
+                shop={shop}
+                onImageClick={(img) => setModalImage(img)}
+              />
             ) : (
               <p className="text-red-500">Shop not loaded</p>
             )}

@@ -92,10 +92,8 @@ const Shop = () => {
   return (
     <div className="min-h-screen bg-gray-900">
       <ShopBanner
-        title={shop?.name}
-        imageUrl={shopImage || "/ShopBanner.png"}
+       shop={shop || undefined}
       />
-      <ShopDescription description={shop?.description} />
       <nav className="bg-gray-900 p-4 sticky top-0 z-50 border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <div className="relative w-full max-w-2xl">

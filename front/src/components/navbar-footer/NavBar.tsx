@@ -37,21 +37,24 @@ const Navbar = () => {
       if (!isAuthenticated) return;
 
       const token = await getAccessTokenSilently();
-      const response = await fetch("http://localhost:8080/api/profile/getOrCreateProfile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: user?.name || "",
-          email: user?.email || "",
-          familyName: user?.family_name || "",
-          givenName: user?.given_name || "",
-          nickname: user?.nickname || "",
-          imageUrl: user?.picture || "",
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:8080/api/profile/getOrCreateProfile",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: user?.name || "",
+            email: user?.email || "",
+            familyName: user?.family_name || "",
+            givenName: user?.given_name || "",
+            nickname: user?.nickname || "",
+            imageUrl: user?.picture || "",
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch or create profile");
@@ -68,12 +71,15 @@ const Navbar = () => {
     try {
       const token = await getAccessTokenSilently();
 
-      const response = await fetch("http://localhost:8080/api/shop/myShopImage", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "http://localhost:8080/api/shop/myShopImage",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const imageUrl = await response.text();
@@ -87,20 +93,20 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-  let isMounted = true;
+    let isMounted = true;
 
-  const fetchData = async () => {
-    if (!isAuthenticated) return;
-    await fetchOrCreateProfile();
-    await fetchShopImage();
-  };
+    const fetchData = async () => {
+      if (!isAuthenticated) return;
+      await fetchOrCreateProfile();
+      await fetchShopImage();
+    };
 
-  if (isMounted) fetchData();
+    if (isMounted) fetchData();
 
-  return () => {
-    isMounted = false;
-  };
-}, [isAuthenticated]);
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated]);
 
   return (
     <nav className="relative z-50 bg-gray-950 text-white shadow-lg">
@@ -108,8 +114,12 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 md:block">
-            <Link to={"/"}>
-              <img className="h-8 w-8" src={shopImage || "/Shop.png"} alt="Logo" />
+              <Link to={"/"}>
+                <img
+                  className="h-8 w-8"
+                  src={shopImage || "/Shop.png"}
+                  alt="Logo"
+                />
               </Link>
             </div>
             <Link to={"/"}>
@@ -140,26 +150,23 @@ const Navbar = () => {
 
           <div className="hidden md:block">
             <div className="ml-4 flex items-center space-x-4">
-            <Link
-                  to="/favorites"
-                  className="text-white hover:text-purple-400 transition-colors duration-300"
-                >
-                  <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                  <FiHeart className="mr-1" />
+              <Link to="/favorites">
+                <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1">
+                  <span className="inline-flex w-5 h-5 items-center justify-center">
+                    <FiHeart className="transition-transform duration-300 transform hover:scale-125 hover:text-pink-400" />
+                  </span>
                   Favourites
-                  </button>
-                </Link>
-                
-                <Link
-                  to="/basket"
-                  className="text-white hover:text-purple-400 transition-colors duration-300"
-                >
-              <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center">
-                <FiShoppingBag className="mr-1" />
-                Basket
-              </button>
+                </button>
               </Link>
 
+              <Link to="/basket">
+                <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1">
+                  <span className="inline-flex w-5 h-5 items-center justify-center">
+                    <FiShoppingBag className="transition-transform duration-300 transform hover:rotate-12 hover:scale-110 hover:text-emerald-400" />
+                  </span>
+                  Basket
+                </button>
+              </Link>
 
               {isAuthenticated && user ? (
                 <div className="relative">
@@ -168,7 +175,10 @@ const Navbar = () => {
                     className="flex items-center space-x-2 text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     <img
-                      src={profile?.imageUrl || "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"}
+                      src={
+                        profile?.imageUrl ||
+                        "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"
+                      }
                       alt="User"
                       className="h-10 w-10 rounded-full border-1 border-purple-600 transition duration-300 hover:brightness-75"
                     />
@@ -224,26 +234,26 @@ const Navbar = () => {
       {isOpen && (
         <div className="md:hidden z-50">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <Link to={"/favorites"}>
-            <button className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
-              <FiHeart className="inline mr-2" />
-              Favourites
-            </button>
+            <Link to={"/favorites"}>
+              <button className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+                <FiHeart className="inline mr-2" />
+                Favourites
+              </button>
             </Link>
             <Link to={"/basket"}>
-            <button className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
-              <FiShoppingBag className="inline mr-2" />
-              Basket
-            </button>
+              <button className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+                <FiShoppingBag className="inline mr-2" />
+                Basket
+              </button>
             </Link>
 
             {isAuthenticated && user ? (
               <>
-              <Link to={"/profile"}>
-                <button className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
-                  <FiUser className="inline mr-2" />
-                  Profile
-                </button>
+                <Link to={"/profile"}>
+                  <button className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+                    <FiUser className="inline mr-2" />
+                    Profile
+                  </button>
                 </Link>
                 <button
                   className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left"

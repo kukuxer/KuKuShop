@@ -33,7 +33,11 @@ const MyShopComponent = () => {
           }
         );
         const productsData = Array.isArray(response.data) ? response.data : [];
-        setProducts(productsData);
+        const productsWithOwner = productsData.map((product) => ({
+          ...product,
+          owner: true,
+        }));
+        setProducts(productsWithOwner);
       } catch (err) {
         setError("Error fetching products");
         console.error("Error fetching products:", err);
@@ -80,14 +84,14 @@ const MyShopComponent = () => {
   );
 
   const AddMoreCard = () => (
-    <div className="bg-gray-800 rounded-lg overflow-hidden h-full flex items-center justify-center cursor-pointer hover:bg-gray-700 transition-colors duration-300">
-      <Link to={"/productForm"}>
-        <div className="text-center p-8">
-          <FaPlus className="w-12 h-12 text-purple-500 mx-auto mb-4" />
+    <Link to="/productForm">
+      <div className="bg-gray-800 rounded-lg overflow-hidden h-full flex items-center justify-center cursor-pointer hover:bg-gray-700 transition-colors duration-300">
+        <div className="text-center p-8 ">
+          <FaPlus className="w-12 h-12 text-purple-500 mx-auto mb-4 transition-transform duration-300 hover:scale-125" />
           <p className="text-white font-semibold">Add More Items</p>
         </div>
-      </Link>
-    </div>
+      </div>
+    </Link>
   );
 
   const EmptyState = () => (
@@ -116,11 +120,6 @@ const MyShopComponent = () => {
       <div className="relative ">
         <MyShopBanner shop={shop} />
       </div>
-
-      {/* <div className="container mx-auto px-4 mt-4">
-        <ShopDescription description={shop.description} />
-      </div> */}
-
       <nav className="bg-gray-900 p-4 sticky top-0 border-b border-gray-800">
         <div className="container mx-auto flex items-center justify-center">
           <div className="relative w-full max-w-2xl">

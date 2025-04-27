@@ -1,12 +1,11 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useRef, useState } from "react";
 import { FiEdit, FiImage, FiSave, FiX } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
 import ShopEntity from "../../../entity/ShopEntity";
 import ShopDescription from "./ShopDescription";
 import { useAuth0 } from "@auth0/auth0-react";
-import Cropper from 'react-easy-crop';
-import getCroppedImg from '../../utils/cropImage';
-import ImageCropModal from "./ImageCropModal";
+
+import ImageCropModal from "../../utils/ImageCropModal";
 
 interface MyShopBannerProps {
     shop?: ShopEntity;
@@ -23,12 +22,9 @@ const MyShopBanner: React.FC<MyShopBannerProps> = ({ shop }) => {
 
     const [cropModalOpen, setCropModalOpen] = useState(false);
     const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
 
-    const { user, getAccessTokenSilently } = useAuth0();
+    const {getAccessTokenSilently } = useAuth0();
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState(initialTitle);
     const [description, setDescription] = useState(initialDescription);
@@ -37,22 +33,9 @@ const MyShopBanner: React.FC<MyShopBannerProps> = ({ shop }) => {
     const [imageUrl, setImageUrl] = useState(initialImageUrl);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-    const [reload, setReload] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
 
-    // const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    //     const file = e.target.files?.[0];
-    //     if (file && file.type.startsWith("image/")) {
-    //         const reader = new FileReader();
-    //         reader.onload = (event) => {
-    //             if (event.target?.result) {
-    //                 setImageUrl(event.target.result as string);
-    //             }
-    //         };
-    //         reader.readAsDataURL(file);
-    //     }
-    // };
 
     const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -64,7 +47,9 @@ const MyShopBanner: React.FC<MyShopBannerProps> = ({ shop }) => {
 
     const validateForm = (): { [key: string]: string } => {
         const newErrors: { [key: string]: string } = {};
-        if (!shop?.name.trim()) newErrors.name = "Shop name is required";
+        if (!shop?.name.trim()) { newErrors.name = "Shop name is required"
+            console.log(errors)
+        };
         return newErrors;
     };
 
@@ -109,7 +94,6 @@ const MyShopBanner: React.FC<MyShopBannerProps> = ({ shop }) => {
             const success = await response.json();
             if (success) {
                 setIsEditing(false);
-                setReload((prev) => !prev);
                 setErrors({});
                 setInitialTitle(title);
                 setInitialDescription(description);
@@ -142,7 +126,7 @@ const MyShopBanner: React.FC<MyShopBannerProps> = ({ shop }) => {
 
 
     return (
-        <div className="relative h-96 overflow-hidden rounded-xl shadow-lg">
+        <div className="relative h-96 overflow-hidden  shadow-lg">
             <img
                 src={imageUrl || "/placeholder.jpg"}
                 alt="Shop Banner"

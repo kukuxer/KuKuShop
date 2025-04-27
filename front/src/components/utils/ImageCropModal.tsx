@@ -1,24 +1,40 @@
 import { useState, useCallback } from "react";
-import Cropper from "react-easy-crop";
+import Cropper, { Area } from "react-easy-crop";
 import { FiX, FiCheck, FiRotateCcw } from "react-icons/fi";
 
+interface ImageCropModalProps {
+  image: string;
+  onClose: () => void;
+  onSave: (croppedImage: string) => void;
+  cropShape?: "rect" | "round";
+}
 
-const ImageCropModal = ({ image, onClose, onSave, cropShape = "rect" }) => {
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [rotation, setRotation] = useState(0);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+const ImageCropModal = ({
+  image,
+  onClose,
+  onSave,
+  cropShape = "rect",
+}: ImageCropModalProps) => {
+  const [crop, setCrop] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState<number>(1);
+  const [rotation, setRotation] = useState<number>(0);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const onCropComplete = useCallback((_, croppedPixels) => {
-    setCroppedAreaPixels(croppedPixels);
-  }, []);
+  const onCropComplete = useCallback(
+    (_: Area, croppedPixels: Area) => {
+      setCroppedAreaPixels(croppedPixels);
+    },
+    []
+  );
 
   const handleSave = async () => {
     try {
       setIsLoading(true);
-      const croppedImage = await getCroppedImg(image, croppedAreaPixels, rotation);
-      onSave(croppedImage);
+      if (croppedAreaPixels) {
+        const croppedImage = await getCroppedImg(image, croppedAreaPixels, rotation);
+        onSave(croppedImage);
+      }
     } catch (error) {
       console.error("Error cropping image:", error);
     } finally {
@@ -26,54 +42,56 @@ const ImageCropModal = ({ image, onClose, onSave, cropShape = "rect" }) => {
     }
   };
 
-  const getCroppedImg = (imageSrc, pixelCrop, rotation = 0) => {
-    const image = new Image();
-    image.src = imageSrc;
-    image.crossOrigin = "anonymous";
-  
+  const getCroppedImg = (
+    imageSrc: string,
+    pixelCrop: Area,
+    rotation: number = 0
+  ): Promise<string> => {
     return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.src = imageSrc;
+      image.crossOrigin = "anonymous";
+
       image.onload = () => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         if (!ctx) return reject("No 2D context");
-  
+
         const radians = (rotation * Math.PI) / 180;
-  
-        // Create a temporary canvas to hold the rotated image
+
         const tempCanvas = document.createElement("canvas");
         const tempCtx = tempCanvas.getContext("2d");
-  
+        if (!tempCtx) return reject("No 2D context");
+
         const sin = Math.abs(Math.sin(radians));
         const cos = Math.abs(Math.cos(radians));
         const rotatedWidth = image.width * cos + image.height * sin;
         const rotatedHeight = image.width * sin + image.height * cos;
-  
+
         tempCanvas.width = rotatedWidth;
         tempCanvas.height = rotatedHeight;
-  
+
         tempCtx.translate(rotatedWidth / 2, rotatedHeight / 2);
         tempCtx.rotate(radians);
         tempCtx.drawImage(image, -image.width / 2, -image.height / 2);
-  
+
         const imageData = tempCtx.getImageData(
           pixelCrop.x,
           pixelCrop.y,
           pixelCrop.width,
           pixelCrop.height
         );
-  
-        // Final canvas with cropped size
+
         canvas.width = pixelCrop.width;
         canvas.height = pixelCrop.height;
         ctx.putImageData(imageData, 0, 0);
-  
+
         resolve(canvas.toDataURL("image/jpeg"));
       };
-  
+
       image.onerror = () => reject("Failed to load image");
     });
   };
-  
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm">
@@ -92,9 +110,10 @@ const ImageCropModal = ({ image, onClose, onSave, cropShape = "rect" }) => {
             cropShape={cropShape}
             classes={{
               containerClassName: "rounded-lg bg-gray-800 h-full",
-              cropAreaClassName: cropShape === "round"
-                ? "border-4 border-purple-500 shadow-lg shadow-purple-400/30 rounded-full"
-                : "border-4 border-purple-500 shadow-lg shadow-purple-400/30",
+              cropAreaClassName:
+                cropShape === "round"
+                  ? "border-4 border-purple-500 shadow-lg shadow-purple-400/30 rounded-full"
+                  : "border-4 border-purple-500 shadow-lg shadow-purple-400/30",
             }}
           />
         </div>

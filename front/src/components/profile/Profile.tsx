@@ -7,8 +7,7 @@ import React, {
 import { FiEdit } from "react-icons/fi";
 import { useAuth0, User } from "@auth0/auth0-react";
 import ProfileEntity from "../../entity/Profile";
-import ImageCropModal from "../shopPage/components/ImageCropModal";
-import { useRef, useCallback } from "react";
+import ImageCropModal from "../utils/ImageCropModal";
 
 
 interface FormData {
@@ -55,7 +54,6 @@ const Profile: React.FC = () => {
         const data: ProfileEntity = await response.json();
         setProfile(data);
 
-        // Pre-fill formData when profile is loaded
         setFormData({
           name: data.name || "",
           surname: data.familyName || "",

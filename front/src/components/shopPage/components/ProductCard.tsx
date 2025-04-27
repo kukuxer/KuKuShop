@@ -51,6 +51,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <AddToBasketButton
           productId={product.id}
           isProductAlreadyInCart={product.inBasket}
+          isOwner={product.owner}
         />
       </div>
     </div>

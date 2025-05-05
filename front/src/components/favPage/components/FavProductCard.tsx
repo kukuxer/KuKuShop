@@ -3,7 +3,7 @@ import { FaTrash } from "react-icons/fa";
 import Product from "../../../entity/Product";
 import { useAuth0 } from "@auth0/auth0-react";
 import RatingStars from "../../shopPage/components/RatingStars";
-import AddToBasketButton from "../../buttons/AddToCartBtn";
+import AddToBasketButton from "../../buttons/AddToBasketButton";
 import { Link } from "react-router-dom";
 
 

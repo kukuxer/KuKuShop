@@ -14,5 +14,50 @@ body {
   opacity: 1;
 }
 
+/* Global scrollbar styling for a futuristic look */
+::-webkit-scrollbar {
+  width: 10px; /* Adjust width to your preference */
+  height: 10px; /* For horizontal scrollbar */
+}
+
+/* Scrollbar thumb (the part that moves) */
+::-webkit-scrollbar-thumb {
+  background-color: rgba(106, 13, 173, 0.8); /* Dark purple with transparency */
+  border-radius: 10px;
+  border: 2px solid #2A2A2A; /* Border around the thumb */
+  background-image: radial-gradient(circle, #6A0DAD 10%, transparent 10%); /* Dot effect */
+  background-size: 5px 5px; /* Adjust the size of the dots */
+  transition: background-color 0.3s, transform 0.2s ease-in-out;
+}
+
+/* Hover effect on scrollbar thumb */
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(106, 13, 173, 1); /* Full opacity on hover */
+  transform: scale(1.2); /* Slightly enlarge on hover */
+}
+
+/* Scrollbar track (the background behind the thumb) */
+::-webkit-scrollbar-track {
+  background-color: rgba(42, 42, 42, 0.8); /* Dark transparent background */
+  border-radius: 10px;
+}
+
+/* Corner where both scrollbars meet */
+::-webkit-scrollbar-corner {
+  background-color: #2A2A2A; /* Dark corner color */
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(106, 13, 173, 0.8) rgba(42, 42, 42, 0.8); /* Thumb color and track color */
+}
+
+
 
 

@@ -1,32 +1,37 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useNavigate } from "react-router-dom"; 
+import Product from "../../entity/Product";
+import ProductEditionPage from "../ProductPage/components/EditProduct";
+import { useNavigate } from "react-router-dom";
 
 interface AddToBasketButtonProps {
-  productId: string;
-  isProductAlreadyInCart: boolean;
-  isOwner?: boolean;
+  product: Product;
+  isRedirectingToEdit?: boolean; 
+  isEditing?: boolean;
+  setIsEditing?: React.Dispatch<React.SetStateAction<boolean>>; 
 }
 
-const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({
-  productId,
-  isProductAlreadyInCart,
-  isOwner = false,
+const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({ 
+  product, 
+  isRedirectingToEdit = false, 
+  isEditing = false, 
+  setIsEditing 
 }) => {
   const { getAccessTokenSilently } = useAuth0();
   const [loading, setLoading] = useState(false);
   const [clicked, setClicked] = useState(false);
-  const navigate = useNavigate(); 
+  const [editing, setEditing] = useState(false); 
+  const navigate = useNavigate();
 
   const handleClick = async () => {
     setClicked(true);
-    if (isProductAlreadyInCart) return;
+    if (product.inBasket) return;
 
     try {
       const token = await getAccessTokenSilently();
       await axios.post(
-        `http://localhost:8080/api/public/basket/add/${productId}`,
+        `http://localhost:8080/api/public/basket/add/${product.id}`, 
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -40,12 +45,28 @@ const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({
   };
 
   const handleEditProduct = () => {
-    navigate(`/editProduct/${productId}`);
+    if (isRedirectingToEdit) {
+      navigate(`/products/${product.id}?isEditing=true`); 
+    } else {
+      setEditing(true);
+    }
   };
+
+  if (editing || isEditing) {
+    return (
+      <ProductEditionPage 
+        product={product}
+        onClose={() => { 
+          setEditing(false); 
+          if (setIsEditing) setIsEditing(false); 
+        }} 
+      />
+    );
+  }
 
   return (
     <div className="space-y-3">
-      {isOwner ? (
+      {product.owner ? (
         <button
           onClick={handleEditProduct}
           className="w-full font-semibold py-2 px-4 rounded-lg border-2 border-purple-700 text-purple-400 bg-black hover:bg-purple-700 hover:text-white transition-colors duration-300 shadow-md hover:shadow-purple-700/50"
@@ -55,14 +76,14 @@ const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({
       ) : (
         <button
           onClick={handleClick}
-          disabled={loading || isProductAlreadyInCart}
+          disabled={loading || product.inBasket}
           className={`w-full font-semibold py-2 px-4 rounded-lg transition-colors duration-300 ${
-            isProductAlreadyInCart || clicked
+            product.inBasket || clicked
               ? "bg-transparent text-purple-500 border-1 border-purple-500 cursor-not-allowed"
               : "bg-purple-600 hover:bg-purple-700 text-white"
           }`}
         >
-          {isProductAlreadyInCart || clicked
+          {product.inBasket || clicked
             ? "This product is in your cart"
             : "Add to Cart"}
         </button>

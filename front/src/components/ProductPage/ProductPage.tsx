@@ -7,16 +7,17 @@ import Product from "../../entity/Product";
 import Comment from "../../entity/Comment";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Loading from "../utils/Loading";
 import ErrorPage from "../utils/ErrorPage";
 import ShopEntity from "../../entity/ShopEntity";
-import AddToBasketButton from "../buttons/AddToCartBtn";
+import AddToBasketButton from "../buttons/AddToBasketButton";
 import LikeBtn from "../buttons/LikeBtn";
 import ProductCommentSection from "./components/ProductCommentSection";
 import ProductReview from "./components/ProductReview";
 import ProductRatingStar from "../shopPage/components/ProductRatingStar";
 import ImageEnlargementModal from "./components/ImageEnlargementModal";
+
 
 const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
@@ -33,6 +34,15 @@ const ProductPage = () => {
   const [modalImage, setModalImage] = useState<string | null>(null);
   const [selectedPicture, setSelectedPicture] = useState<string | null>(null);
   const [thumbStartIndex, setThumbStartIndex] = useState(0);
+
+  const { search } = useLocation();
+
+  const [isEditing,setIsEditing] = useState(false);
+
+  useEffect(() => {
+    setIsEditing(new URLSearchParams(search).get("isEditing") === "true");
+  }, [search]); // This will only run when the search URL query changes
+  
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -200,6 +210,7 @@ const ProductPage = () => {
   if (loading) return <Loading />;
   if (error) return <ErrorPage errorCode={error} />;
   if (!product || loading) return <ErrorPage errorCode="ИДИИ НАХУУЙ" />;
+  
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
@@ -321,9 +332,10 @@ const ProductPage = () => {
               <div className="flex space-x-4">
                 <div className="w-full">
                     <AddToBasketButton
-                      productId={product.id}
-                      isProductAlreadyInCart={product.inBasket}
-                      isOwner={product.owner}
+                      product={product}
+                      isRedirectingToEdit={false}
+                      isEditing={isEditing}
+                      setIsEditing={setIsEditing}
                     />
                 </div>
               </div>

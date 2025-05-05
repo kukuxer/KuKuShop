@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Product from "../../../entity/Product";
 import RatingStars from "./RatingStars";
-import AddToBasketButton from "../../buttons/AddToCartBtn";
+import AddToBasketButton from "../../buttons/AddToBasketButton";
 import { Link } from "react-router-dom";
 import LikeBtn from "../../buttons/LikeBtn";
 
@@ -14,12 +14,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div
-      className={`bg-gray-800 rounded-lg overflow-hidden transform transition-all duration-300 ${
-        isHovered ? "scale-105 shadow-purple-500/50 shadow-lg" : ""
-      }`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    className={`bg-gray-800 rounded-lg overflow-hidden transform transition-all duration-300 ${
+      isHovered
+        ? "scale-105 shadow-lg shadow-[#6A0DAD] ring-4 ring-[#6A0DAD]/30"
+        : "shadow-[#404040] ring-0"
+    }`}
+    onMouseEnter={() => setIsHovered(true)}
+    onMouseLeave={() => setIsHovered(false)}
+  >
       <div className="aspect-w-16 aspect-h-9 justify-end items-start">
         <Link to={`/products/${product.id}`} className="no-underline">
           <img
@@ -49,9 +51,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </p>
 
         <AddToBasketButton
-          productId={product.id}
-          isProductAlreadyInCart={product.inBasket}
-          isOwner={product.owner}
+          product={product}
+          isRedirectingToEdit={true} // Assuming you want to pass false here, adjust as needed
+
         />
       </div>
     </div>

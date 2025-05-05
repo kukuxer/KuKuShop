@@ -26,6 +26,8 @@ const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [shopImage, setShopImage] = useState<string | null>(null);
+  const [favHave, setFavHave] = useState(false);
+  const [basketHave, setBasketHave] = useState(false);
 
   const logoutWithRedirect = () =>
     logout({
@@ -151,18 +153,34 @@ const Navbar = () => {
           <div className="hidden md:block">
             <div className="ml-4 flex items-center space-x-4">
               <Link to="/favorites">
-                <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1">
+                <button
+                  className=" text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
+                  onMouseEnter={() => setFavHave(true)}
+                  onMouseLeave={() => setFavHave(false)}
+                >
                   <span className="inline-flex w-5 h-5 items-center justify-center">
-                    <FiHeart className="transition-transform duration-300 transform hover:scale-125 hover:text-pink-400" />
+                    <FiHeart
+                      className={`transition-transform duration-300 transform ${
+                        favHave ? "scale-125 text-pink-400" : ""
+                      }`}
+                    />
                   </span>
                   Favourites
                 </button>
               </Link>
 
               <Link to="/basket">
-                <button className="text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1">
+                <button
+                  className=" text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
+                  onMouseEnter={() => setBasketHave(true)}
+                  onMouseLeave={() => setBasketHave(false)}
+                >
                   <span className="inline-flex w-5 h-5 items-center justify-center">
-                    <FiShoppingBag className="transition-transform duration-300 transform hover:rotate-12 hover:scale-110 hover:text-emerald-400" />
+                    <FiShoppingBag
+                      className={`transition-transform duration-300 transform ${
+                        basketHave ? "rotate-12 scale-110 text-emerald-400" : ""
+                      }`}
+                    />
                   </span>
                   Basket
                 </button>

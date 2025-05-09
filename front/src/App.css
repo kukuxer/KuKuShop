@@ -1,3 +1,4 @@
+
 body {
   background-color: #212529; /* Bootstrap's bg-dark color */
   color: #fff; /* Ensure text is visible on dark background */
@@ -57,6 +58,8 @@ html {
   scrollbar-width: thin;
   scrollbar-color: rgba(106, 13, 173, 0.8) rgba(42, 42, 42, 0.8); /* Thumb color and track color */
 }
+
+
 
 
 

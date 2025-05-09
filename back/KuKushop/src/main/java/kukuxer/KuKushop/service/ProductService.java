@@ -40,7 +40,6 @@ public class ProductService {
         List<String> fileKeys = new ArrayList<>();
         if (image != null && !image.isEmpty()) {
             String fileKey = s3Service.uploadFile(image);
-            fileKeys.add(fileKey);
             productDto.setImageUrl(fileKey);
         }
         if (additionalImages != null) {
@@ -114,42 +113,59 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    public void update(ProductDto productDto, UUID productId, MultipartFile image, MultipartFile[] additionalImages, Jwt jwt) throws IOException {
-        Profile profile = profileService.getByAuthId(jwt.getClaim("sub")).orElseThrow(
-                () -> new RuntimeException("user not found " + jwt.getClaim("sub")));
-        Product product = productRepository.findById(productId).orElseThrow(
-                () -> new RuntimeException("product not found " + productId)
-        );
-        Shop shop = shopRepository.findById(product.getShopId()).orElseThrow(
-                () -> new RuntimeException("shop not found" + product.getShopId()));
+    @Transactional
+    public void update(ProductDto productDto, UUID productId, MultipartFile image,
+                       MultipartFile[] additionalImages, Jwt jwt) throws IOException {
 
-        if (!shop.getUserAuthId().equals(profile.getAuthId()))
+        Profile profile = profileService.getByAuthId(jwt.getClaim("sub"))
+                .orElseThrow(() -> new RuntimeException("User not found: " + jwt.getClaim("sub")));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+
+        Shop shop = shopRepository.findById(product.getShopId())
+                .orElseThrow(() -> new RuntimeException("Shop not found: " + product.getShopId()));
+
+        if (!shop.getUserAuthId().equals(profile.getAuthId())) {
             throw new RuntimeException("User doesn't own this product to change");
+        }
 
         product.setName(productDto.getName());
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
         product.setQuantity(productDto.getQuantity());
+        product.setAdditionalPictures(productDto.getAdditionalPictures());
+
+        if(productDto.getImageUrl().isEmpty()) product.setImageUrl(null);
+
+        if (image != null && !image.isEmpty()) {
+            product.setImageUrl(s3Service.uploadFile(image));
+        } else {
+            product.setImageUrl(productDto.getImageUrl());
+        }
+
+        if (additionalImages != null && additionalImages.length > 0) {
+            List<String> uploadedFiles = new ArrayList<>();
+            for (MultipartFile additionalImage : additionalImages) {
+                if (additionalImage != null && !additionalImage.isEmpty()) {
+                    uploadedFiles.add(s3Service.uploadFile(additionalImage));
+                }
+            }
+            product.setAdditionalPictures(uploadedFiles);
+        }
 
         Set<Category> categoryEntities = productDto.getCategories().stream()
-                .map(name -> categoryRepository.findByName(name.toLowerCase().trim())
-                        .orElseGet(() -> Category.builder()
-                                .name(name.toLowerCase().trim())
-                                .build()))
+                .map(name -> {
+                    String cleanName = name.toLowerCase().trim();
+                    return categoryRepository.findByName(cleanName)
+                            .orElseGet(() -> categoryRepository.save(Category.builder()
+                                    .name(cleanName)
+                                    .build()));
+                })
                 .collect(Collectors.toSet());
         product.setCategories(categoryEntities);
 
-        List<String> fileKeys = new ArrayList<>();
-        if (image != null && !image.isEmpty()) {
-            String fileKey = s3Service.uploadFile(image);
-            fileKeys.add(fileKey);
-            product.setImageUrl(fileKey);
-        }
-        if (additionalImages != null) {
-            for (MultipartFile additionalImage : additionalImages) {
-                fileKeys.add(s3Service.uploadFile(additionalImage));
-            }
-            product.setAdditionalPictures(fileKeys);
-        }
+        productRepository.save(product);
     }
+
 }

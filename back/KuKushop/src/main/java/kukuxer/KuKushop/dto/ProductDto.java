@@ -31,7 +31,7 @@ public class ProductDto {
     Set<String> categories = new HashSet<>();
 
     String imageUrl;
-    List<String> additionalPictures;;
+    List<String> additionalPictures;
 
 
     LocalDateTime creationDate;

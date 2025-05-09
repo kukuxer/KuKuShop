@@ -18,7 +18,6 @@ import ProductReview from "./components/ProductReview";
 import ProductRatingStar from "../shopPage/components/ProductRatingStar";
 import ImageEnlargementModal from "./components/ImageEnlargementModal";
 
-
 const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [shop, setShop] = useState<ShopEntity | null>(null);
@@ -37,12 +36,11 @@ const ProductPage = () => {
 
   const { search } = useLocation();
 
-  const [isEditing,setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     setIsEditing(new URLSearchParams(search).get("isEditing") === "true");
   }, [search]); // This will only run when the search URL query changes
-  
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -61,6 +59,16 @@ const ProductPage = () => {
         );
 
         const data = response.data;
+        if (
+          data.imageUrl &&
+          (!data.additionalPictures ||
+            !data.additionalPictures.includes(data.imageUrl))
+        ) {
+          data.additionalPictures = [
+            data.imageUrl,
+            ...(data.additionalPictures || []),
+          ];
+        }
         setProduct(data);
         setSelectedPicture(data.imageUrl);
         console.log("Product data:", data);
@@ -210,7 +218,6 @@ const ProductPage = () => {
   if (loading) return <Loading />;
   if (error) return <ErrorPage errorCode={error} />;
   if (!product || loading) return <ErrorPage errorCode="ИДИИ НАХУУЙ" />;
-  
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-4 md:p-8">
@@ -331,12 +338,12 @@ const ProductPage = () => {
 
               <div className="flex space-x-4">
                 <div className="w-full">
-                    <AddToBasketButton
-                      product={product}
-                      isRedirectingToEdit={false}
-                      isEditing={isEditing}
-                      setIsEditing={setIsEditing}
-                    />
+                  <AddToBasketButton
+                    product={product}
+                    isRedirectingToEdit={false}
+                    isEditing={isEditing}
+                    setIsEditing={setIsEditing}
+                  />
                 </div>
               </div>
             </div>

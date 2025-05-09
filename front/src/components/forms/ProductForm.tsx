@@ -80,7 +80,7 @@ const ProductCreationForm = () => {
     { id: 3, name: "Electronics", icon: <FaMobileAlt /> },
     { id: 4, name: "Accessories", icon: <FaAccessibleIcon /> },
     { id: 5, name: "Home Goods", icon: <FaHome /> },
-    { id: 6, name: "Sports & Outdoors", icon: <FaRunning /> },
+    { id: 6, name: "sports & outdoors", icon: <FaRunning /> },
   ];
 
   const handleCategorySelect = (category: string) => {
@@ -145,7 +145,7 @@ const ProductCreationForm = () => {
     if (Object.keys(newErrors).length > 0) {
       window.scrollTo({
         top: 225,
-        behavior: "smooth", 
+        behavior: "smooth",
       });
     }
 
@@ -172,18 +172,13 @@ const ProductCreationForm = () => {
     );
   };
 
-  const formatPrice = (price: string) => {
-    const numericValue = price.replace(/[^0-9.]/g, "");
-    const parts = numericValue.split(".");
-    if (parts.length > 2) return price;
-    if (parts[1]?.length > 2) parts[1] = parts[1].slice(0, 2);
-    return parts.join(".");
-  };
+
 
   const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
     const formattedPrice = formatPrice(e.target.value);
     setFormData((prev) => ({ ...prev, price: formattedPrice }));
 
+  
     if (!formattedPrice) {
       setErrors((prevErrors) => ({
         ...prevErrors,
@@ -203,6 +198,22 @@ const ProductCreationForm = () => {
       setErrors((prevErrors) => ({ ...prevErrors, price: undefined }));
     }
   };
+
+ const formatPrice = (value: string) => {
+  // Allow only digits and dots
+  const cleaned = value.replace(/[^\d.]/g, "");
+
+  // Match valid price pattern: optional digits, optional dot, optional 2 digits after dot
+  const match = cleaned.match(/^(\d*)(\.?)(\d{0,2})/);
+  if (!match) return "";
+
+  const [, intPart, dot, decPart] = match;
+  return `${intPart}${dot}${decPart}`;
+};
+
+
+
+  
 
   const incrementPrice = () => {
     const currentPrice = parseFloat(formData.price) || 0;

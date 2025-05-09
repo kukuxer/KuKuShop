@@ -71,6 +71,7 @@ public class ProductController {
        ProductDto productDto = productService.getProductDtoById(productId,jwt);
         return ResponseEntity.ok(productDto);
     }
+
     @PutMapping("/private/update/{productId}")
     public ResponseEntity<?> updateProduct(
             @AuthenticationPrincipal Jwt jwt,
@@ -80,7 +81,7 @@ public class ProductController {
             @PathVariable UUID productId) {
 
         try {
-            productService.update(productDto,productId, image,additionalImages, jwt);
+            productService.update(productDto, productId, image, additionalImages, jwt);
             return ResponseEntity.ok(true);
         } catch (Exception e) {
             return ResponseEntity.ok(false);

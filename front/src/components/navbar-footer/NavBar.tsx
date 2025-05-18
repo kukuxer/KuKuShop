@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Profile from "../../entity/Profile";
+import SearchField from "./components/SearchField";
 
 const Navbar = () => {
   const {
@@ -131,23 +132,19 @@ const Navbar = () => {
             </Link>
             <div className="md:block hidden ml-4">
               <Link to="/myshop">
-                <button className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2 transform hover:scale-105">
-                  <FiPackage className="animate-bounce" />
-                  <span>MyShop</span>
+                <button
+                  aria-label="Navigate to Shop"
+                  className="hidden md:flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-lg shadow-lg hover:from-purple-800 hover:to-purple-950 transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 "
+                >
+                  <FiPackage className="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-12" />
+                  <span className="font-medium">My Shop</span>
                 </button>
               </Link>
             </div>
           </div>
 
-          <div className="hidden md:block flex-1 mx-8">
-            <div className="relative flex-1">
-              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-full bg-gray-800 text-white pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
+          <div className="md:flex flex-1 mx-8 items-center">
+            <SearchField />
           </div>
 
           <div className="hidden md:block">

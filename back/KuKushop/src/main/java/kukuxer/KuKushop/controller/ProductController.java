@@ -1,8 +1,9 @@
 package kukuxer.KuKushop.controller;
+
 import kukuxer.KuKushop.dto.ProductDto;
-import kukuxer.KuKushop.entity.Product;
 import kukuxer.KuKushop.entity.Shop;
-import kukuxer.KuKushop.service.*;
+import kukuxer.KuKushop.service.ProductService;
+import kukuxer.KuKushop.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-
 import java.util.UUID;
 
 
-
-@Controller
+@RestController
 @RequestMapping("/api/product")
 @RequiredArgsConstructor
 public class ProductController {
@@ -37,6 +36,7 @@ public class ProductController {
         }
         return ResponseEntity.ok(productDtos);
     }
+
     @GetMapping("/getShopProducts/{shopName}")
     public ResponseEntity<?> getShopProducts(
             @AuthenticationPrincipal Jwt jwt,
@@ -56,7 +56,7 @@ public class ProductController {
                                            @ModelAttribute ProductDto productDto,
                                            @RequestPart(value = "image", required = false) MultipartFile image,
                                            @RequestPart(value = "additionalImages", required = false) MultipartFile[] additionalImages
-                                           ) throws IOException {
+    ) throws IOException {
 
         Shop shop = shopService.getByUserAuthId(jwt.getClaim("sub"));
         ProductDto productDtoResponse = productService.createProduct(productDto, image, additionalImages, shop.getId());
@@ -68,7 +68,7 @@ public class ProductController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID productId) {
 
-       ProductDto productDto = productService.getProductDtoById(productId,jwt);
+        ProductDto productDto = productService.getProductDtoById(productId, jwt);
         return ResponseEntity.ok(productDto);
     }
 
@@ -88,6 +88,16 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/getTopProducts")
+    public ResponseEntity<?> getTopProducts() {
+        List<ProductDto> topProducts = productService.findTopProducts();
+        return ResponseEntity.ok(topProducts);
+    }
+
+    @GetMapping("/getProducts/{name}")
+    public ResponseEntity<?> getProductsByName(@PathVariable String name){
+        return ResponseEntity.ok(productService.findProductsByName(name));
+    }
 
 
 }

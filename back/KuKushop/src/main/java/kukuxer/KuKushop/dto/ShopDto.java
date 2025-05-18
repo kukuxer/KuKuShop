@@ -11,5 +11,8 @@ public class ShopDto {
      String ownerName;
      String description;
      String imageUrl;
+     double rating;
+     boolean isTrusted;
+
 
 }

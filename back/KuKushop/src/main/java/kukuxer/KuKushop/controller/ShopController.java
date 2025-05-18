@@ -2,7 +2,6 @@ package kukuxer.KuKushop.controller;
 
 
 import kukuxer.KuKushop.dto.Mappers.ShopMapper;
-import kukuxer.KuKushop.dto.ProfileDto;
 import kukuxer.KuKushop.dto.ShopDto;
 import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.service.ProfileService;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/shop")
@@ -67,6 +66,7 @@ public class ShopController {
         }
         return ResponseEntity.ok(ShopMapper.INSTANCE.toDto(shop));
     }
+
     @GetMapping("/getById/{id}")
     public ResponseEntity<ShopDto> getById(@PathVariable Long id) {
         Shop shop = shopService.getById(id);
@@ -75,7 +75,6 @@ public class ShopController {
         }
         return ResponseEntity.ok(ShopMapper.INSTANCE.toDto(shop));
     }
-
 
 
     @GetMapping("/doUserOwnAShop")
@@ -93,7 +92,7 @@ public class ShopController {
             @AuthenticationPrincipal Jwt jwt,
             @RequestPart("shopPayload") ShopDto shopDto,
             @RequestPart(value = "image", required = false) MultipartFile image
-    ){
+    ) {
         try {
             shopService.update(shopDto, image, jwt);
             return ResponseEntity.ok(true);
@@ -101,4 +100,16 @@ public class ShopController {
             return ResponseEntity.ok(false);
         }
     }
+
+    @GetMapping("/getTopShops")
+    public ResponseEntity<?> getTopShops() {
+        List<ShopDto> topShops = shopService.findTopShops();
+        return ResponseEntity.ok(topShops);
+    }
+
+    @GetMapping("/getShops/{name}")
+    public ResponseEntity<?> getShopsByName(@PathVariable String name){
+        return ResponseEntity.ok(shopService.findShopsByName(name));
+    }
+
 }

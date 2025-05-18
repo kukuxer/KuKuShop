@@ -15,7 +15,7 @@ public interface ShopMapper {
 
     Shop toEntity(ShopDto shopDto);
 
-
+    @Mapping(source = "rating", target = "rating")
     ShopDto toDto(Shop shop);
 
 

@@ -1,18 +1,22 @@
 package kukuxer.KuKushop.service;
 
 import kukuxer.KuKushop.dto.Mappers.ShopMapper;
+import kukuxer.KuKushop.dto.ProductDto;
 import kukuxer.KuKushop.dto.ShopDto;
+import kukuxer.KuKushop.entity.Product;
 import kukuxer.KuKushop.entity.Profile;
 import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.repository.ProfileRepository;
 import kukuxer.KuKushop.repository.ShopRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -20,7 +24,7 @@ public class ShopService {
     private final ShopRepository shopRepository;
     private final ProfileRepository profileRepository;
     private final S3Service s3Service;
-
+    private final ShopMapper shopMapper;
 
     public ShopDto createShop(ShopDto shopDto, String authId, MultipartFile image) throws IOException {
         boolean exists = shopRepository.findByUserAuthId(authId).isPresent();
@@ -76,4 +80,24 @@ public class ShopService {
     }
 
 
+    public List<ShopDto> findTopShops() {
+        List<Shop> top3ByRating = shopRepository.findTop3ByRating(PageRequest.of(0, 3));
+        List<ShopDto> top3ByRatingDto = new ArrayList<>();
+        top3ByRating.forEach(
+                s -> {
+                    top3ByRatingDto.add(shopMapper.toDto(s));
+                }
+        );
+
+        return top3ByRatingDto;
+    }
+
+    public List<ShopDto> findShopsByName(String name){
+        List<Shop> shops = shopRepository.searchTop6ShopsByName(name, PageRequest.of(0, 6));
+        List<ShopDto> shopsDto = new ArrayList<>();
+        shops.forEach(s -> shopsDto.add(
+                shopMapper.toDto(s)
+        ));
+        return shopsDto;
+    }
 }

@@ -71,7 +71,7 @@ const AboutSection: React.FC = () => {
   return (
     <div className="min-h-screen bg-black">
       <section
-        className={`${theme.bgColor} py-20 px-4 sm:px-6 lg:px-8 transition-all duration-500`}
+        className={`${theme.bgColor} pt-1 px-4 sm:px-6 lg:px-8 transition-all duration-500`}
         role="region"
         aria-label="About KuKuShop"
       >

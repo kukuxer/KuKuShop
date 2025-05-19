@@ -6,10 +6,10 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 interface ProductCommentSectionProps {
   productId: any;
-  refreshComments: () => void;
+  refreshFetchTrigger: any;
 }
 
-const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({ productId, refreshComments }) => {
+const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({ productId, refreshFetchTrigger}) => {
   const [formData, setFormData] = useState({
     comment: "",
     rating: 0,
@@ -66,7 +66,7 @@ const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({ productId
       setFormData({ comment: "", rating: 0 });
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
-      refreshComments();
+      refreshFetchTrigger();
     } catch (err) {
       console.error("Failed to submit comment:", err);
       setErrors({ global: "Failed to submit comment. Please try again." });

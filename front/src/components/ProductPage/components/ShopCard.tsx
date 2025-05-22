@@ -44,6 +44,7 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop, onImageClick }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      
       <div className="p-6">
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-3 flex items-center space-x-4">
@@ -64,7 +65,8 @@ const ShopCard: React.FC<ShopCardProps> = ({ shop, onImageClick }) => {
             <div>
               <h2 className="text-xl font-bold text-white">{shop.name}</h2>
               <div className="flex items-center mt-1">
-                {shop.isTrusted ? (
+                <>{console.log(shop)}</>
+                {shop.trusted ? (
                   <span className="flex items-center text-green-400 text-sm">
                     <FaCheck className="w-3 h-3 mr-1" /> Trusted
                   </span>

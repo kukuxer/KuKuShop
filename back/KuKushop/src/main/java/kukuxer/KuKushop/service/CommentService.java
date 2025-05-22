@@ -5,9 +5,11 @@ import kukuxer.KuKushop.dto.Mappers.CommentMapper;
 import kukuxer.KuKushop.entity.Comment;
 import kukuxer.KuKushop.entity.Product;
 import kukuxer.KuKushop.entity.Profile;
+import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.repository.CommentRepository;
 import kukuxer.KuKushop.repository.ProductRepository;
 import kukuxer.KuKushop.repository.ProfileRepository;
+import kukuxer.KuKushop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,12 +26,13 @@ public class CommentService {
     private final ProductRepository productRepository;
     private final ProfileRepository profileRepository;
     private final CommentRepository commentRepository;
+    private final ShopRepository shopRepository;
     private final CommentMapper commentMapper;
 
-    public void createComment(CommentDto commentDto, Jwt jwt){
+    public void createComment(CommentDto commentDto, Jwt jwt) {
         String userAuthId = jwt.getClaim("sub");
         Profile profile = profileRepository.findByAuthId(userAuthId).orElseThrow(
-                () -> new RuntimeException("user with auth id"+ userAuthId+" not found.")
+                () -> new RuntimeException("user with auth id" + userAuthId + " not found.")
         );
         Product product = productRepository.findById(commentDto.getProductId()).orElseThrow(
                 () -> new RuntimeException("product with  id" + commentDto.getProductId() + " not found.")
@@ -45,18 +46,20 @@ public class CommentService {
 
         product.getComments().add(savedComment);
         updateProductRating(product);
+        updateShopRating(product);
         productRepository.save(product);
     }
+
+
+
     @Transactional(readOnly = true)
     public List<CommentDto> getProductCommentsDtoByProductId(UUID uuid) {
         Product product = productRepository.findById(uuid)
                 .orElseThrow(() -> new RuntimeException("No product with this id " + uuid));
 
-        List<CommentDto> commentDtos = product.getComments().stream()
+        return product.getComments().stream()
                 .map(this::toCommentDto)
                 .collect(Collectors.toList());
-
-        return commentDtos;
     }
 
 
@@ -73,13 +76,27 @@ public class CommentService {
         return commentDto;
     }
 
-    private void updateProductRating(Product product){
+    private void updateProductRating(Product product) {
         float sumRating = 0;
         int productComments = product.getComments().size();
-        for(int i=0;i<productComments;i++){
-            sumRating+= product.getComments().get(i).getRating();
+        for (int i = 0; i < productComments; i++) {
+            sumRating += product.getComments().get(i).getRating();
         }
         product.setRating(Math.round((sumRating / productComments) * 100.0) / 100.0);
     }
-
+    private void updateShopRating(Product product) {
+        Long shopId = product.getShopId();
+        Shop shop = shopRepository.findById(shopId).orElseThrow(RuntimeException::new);
+        List<Product> products = productRepository.findAllByShopId(shopId)
+                .stream()
+                .filter(p->p.getRating()!=0)
+                .toList();
+        double sum = 0;
+        for (Product value : products) {
+            sum += value.getRating();
+        }
+        double rating = Math.round((sum/products.size())*100.0)/100.0;
+        shop.setRating(rating);
+        shopRepository.save(shop);
+    }
 }

@@ -37,13 +37,18 @@ const ProductPage = () => {
   const { search } = useLocation();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
 
   useEffect(() => {
     setIsEditing(new URLSearchParams(search).get("isEditing") === "true");
   }, [search]); // This will only run when the search URL query changes
 
+
+
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchAll = async () => {
+      setIsEditing(new URLSearchParams(search).get("isEditing") === "true");
+      setLoading(true);
       try {
         let headers = {};
         if (isAuthenticated) {
@@ -53,12 +58,12 @@ const ProductPage = () => {
           };
         }
 
-        const response = await axios.get(
+        const productRes = await axios.get(
           `http://localhost:8080/api/product/getProduct/${productId}`,
           { headers }
         );
+        const data = productRes.data;
 
-        const data = response.data;
         if (
           data.imageUrl &&
           (!data.additionalPictures ||
@@ -69,9 +74,38 @@ const ProductPage = () => {
             ...(data.additionalPictures || []),
           ];
         }
+
         setProduct(data);
         setSelectedPicture(data.imageUrl);
         console.log("Product data:", data);
+
+        if (data.shopId) {
+          try {
+            const shopRes = await axios.get(
+              `http://localhost:8080/api/shop/getById/${data.shopId}`
+            );
+            if (shopRes.data) {
+              setShop(shopRes.data);
+              console.log("Shop data:", shopRes.data);
+            } else {
+              setError("Shop not found");
+            }
+          } catch (err) {
+            setError("No shop found with this ID");
+            console.error("Error fetching shop:", err);
+          }
+        }
+
+        try {
+          const commentRes = await axios.get(
+            `http://localhost:8080/api/comment/getProductComments/${productId}`
+          );
+          setComments(commentRes.data);
+          console.log("Comments:", commentRes.data);
+        } catch (err) {
+          console.error("Failed to fetch comments:", err);
+        }
+
       } catch (err) {
         setError("Failed to fetch product");
         console.error("Fetch error:", err);
@@ -80,62 +114,16 @@ const ProductPage = () => {
       }
     };
 
-    fetchProduct();
-  }, [productId, getAccessTokenSilently, isAuthenticated]);
-
-  useEffect(() => {
-    const fetchShop = async () => {
-      try {
-        console.log("Fetching shop for ID:", product?.shopId);
-        const response = await axios.get(
-          `http://localhost:8080/api/shop/getById/${product?.shopId}`
-        );
-        if (response.data) {
-          setShop(response.data);
-          console.log("Shop data:", response.data);
-        } else {
-          setError("Shop not found");
-        }
-      } catch (err) {
-        setError("No shop found with this ID");
-        console.error("Error fetching shop:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (product?.shopId) {
-      fetchShop();
+    if (productId) {
+      fetchAll();
     }
-  }, [product?.shopId]);
+  }, [productId, search, isAuthenticated, getAccessTokenSilently, refreshTrigger]);
 
-  const fetchComments = async () => {
-    if (!productId) return;
 
-    try {
-      let headers = {};
-      if (isAuthenticated) {
-        const token = await getAccessTokenSilently();
-        headers = {
-          Authorization: `Bearer ${token}`,
-        };
-      }
+  const refreshFetchTrigger = async () => {
+      setRefreshTrigger(!refreshTrigger);
+  }
 
-      const response = await axios.get(
-        `http://localhost:8080/api/comment/getProductComments/${productId}`,
-        { headers }
-      );
-
-      setComments(response.data);
-      console.log("Comments:", response.data);
-    } catch (err) {
-      console.error("Failed to fetch comments:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchComments();
-  }, [productId, getAccessTokenSilently, isAuthenticated]);
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -274,11 +262,10 @@ const ProductPage = () => {
                           setSelectedImage(actualIndex);
                           setSelectedPicture(image);
                         }}
-                        className={`aspect-square rounded-md overflow-hidden ${
-                          selectedImage === actualIndex
+                        className={`aspect-square rounded-md overflow-hidden ${selectedImage === actualIndex
                             ? "ring-2 ring-purple-500"
                             : ""
-                        }`}
+                          }`}
                       >
                         <img
                           src={image}
@@ -329,9 +316,8 @@ const ProductPage = () => {
             {/* Add to Cart and Like Buttons */}
             <div className="space-y-4">
               <p
-                className={`text-lg ${
-                  product.quantity < 20 ? "text-red-400" : "text-green-400"
-                }`}
+                className={`text-lg ${product.quantity < 20 ? "text-red-400" : "text-green-400"
+                  }`}
               >
                 {product.quantity} units in stock
               </p>
@@ -385,7 +371,7 @@ const ProductPage = () => {
               <ProductReview comment={comment} renderStars={renderStars} />
             ))}
             <ProductCommentSection
-              refreshComments={fetchComments}
+              refreshFetchTrigger={refreshFetchTrigger}
               productId={productId}
             />
           </div>

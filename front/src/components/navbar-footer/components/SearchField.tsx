@@ -1,7 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FiSearch, FiX } from "react-icons/fi";
 import { AiFillStar } from "react-icons/ai";
 import { debounce } from "lodash";
+import { useAuth0 } from "@auth0/auth0-react";
+import axios from "axios";
+import Loading from "../../utils/Loading";
+import ErrorPage from "../../utils/ErrorPage";
+import Product from "../../../entity/Product";
+import ShopEntity from "../../../entity/ShopEntity";
+import { useNavigate } from "react-router-dom";
+
+
 
 const SearchField = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -10,54 +19,99 @@ const SearchField = () => {
   const dropdownRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [flatResults, setFlatResults] = useState([]);
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [popularProducts, setPopularProducts] = useState<Product[]>([]);
+  const [topShops, setTopShops] = useState<ShopEntity[]>([]);
+  const navigate = useNavigate();
 
-  const popularProducts = [
-    {
-      id: 1,
-      name: "Premium Wireless Headphones",
-      description: "High-quality sound with noise cancellation",
-      price: "$299.99",
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e"
-    },
-    {
-      id: 2,
-      name: "Smart Fitness Watch",
-      description: "Track your health with precision",
-      price: "$199.99",
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30"
-    },
-    {
-      id: 3,
-      name: "Ergonomic Gaming Chair",
-      description: "Ultimate comfort for long gaming sessions",
-      price: "$399.99",
-      image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace"
-    }
-  ];
 
-  const topShops = [
-    {
-      id: 1,
-      name: "TechHub Plus",
-      rating: 4.8,
-      reviews: 1234,
-      logo: "https://images.unsplash.com/photo-1560472355-536de3962603"
-    },
-    {
-      id: 2,
-      name: "Gaming Galaxy",
-      rating: 4.7,
-      reviews: 982,
-      logo: "https://images.unsplash.com/photo-1516321497487-e288fb19713f"
-    },
-    {
-      id: 3,
-      name: "Electronics Empire",
-      rating: 4.6,
-      reviews: 756,
-      logo: "https://images.unsplash.com/photo-1478860409698-8707f313ee8b"
-    }
-  ];
+
+  // const popularProducts = [
+  //   {
+  //     id: 1,
+  //     name: "Premium Wireless Headphones",
+  //     description: "High-quality sound with noise cancellation",
+  //     price: "$299.99",
+  //     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e"
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Smart Fitness Watch",
+  //     description: "Track your health with precision",
+  //     price: "$199.99",
+  //     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30"
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Ergonomic Gaming Chair",
+  //     description: "Ultimate comfort for long gaming sessions",
+  //     price: "$399.99",
+  //     image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace"
+  //   }
+  // ];
+
+  // const topShops = [
+  //   {
+  //     id: 1,
+  //     name: "TechHub Plus",
+  //     rating: 4.8,
+  //     reviews: 1234,
+  //     logo: "https://images.unsplash.com/photo-1560472355-536de3962603"
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Gaming Galaxy",
+  //     rating: 4.7,
+  //     reviews: 982,
+  //     logo: "https://images.unsplash.com/photo-1516321497487-e288fb19713f"
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Electronics Empire",
+  //     rating: 4.6,
+  //     reviews: 756,
+  //     logo: "https://images.unsplash.com/photo-1478860409698-8707f313ee8b"
+  //   }
+  // ];
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        let headers = {};
+        if (isAuthenticated) {
+          const token = await getAccessTokenSilently();
+          headers = {
+            Authorization: `Bearer ${token}`,
+          };
+        }
+
+        const response = await axios.get(
+          `http://localhost:8080/api/product/getTopProducts`,
+          { headers }
+        );
+
+        const responseShop = await axios.get(
+          `http://localhost:8080/api/shop/getTopShops`,
+          { headers }
+        );
+
+        const data = response.data;
+        const shopData = responseShop.data;
+        setPopularProducts(data);
+        setTopShops(shopData);
+        console.log(shopData);
+      } catch (err) {
+        setError("Failed to fetch product");
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [getAccessTokenSilently, isAuthenticated]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -71,26 +125,43 @@ const SearchField = () => {
   }, []);
 
   useEffect(() => {
-    const products = searchResults?.products || popularProducts;
-    const shops = searchResults?.shops || topShops;
+    const products = searchResults?.products || [];
+    const shops = searchResults?.shops || [];
     setFlatResults([...products, ...shops]);
   }, [searchResults]);
 
-  const handleSearch = debounce((term) => {
-    if (term) {
-      const filteredProducts = popularProducts.filter(product =>
-        product.name.toLowerCase().includes(term.toLowerCase())
-      );
-      const filteredShops = topShops.filter(shop =>
-        shop.name.toLowerCase().includes(term.toLowerCase())
-      );
-      setSearchResults({ products: filteredProducts, shops: filteredShops });
-    } else {
-      setSearchResults(null);
-    }
-  }, 300);
+  const handleSearch = useCallback(
+    debounce(async (term: string) => {
+      if (!term.trim()) {
+        setSearchResults(null);
+        return;
+      }
 
-  const handleInputChange = (e) => {
+      try {
+        let headers = {};
+        if (isAuthenticated) {
+          const token = await getAccessTokenSilently();
+          headers = { Authorization: `Bearer ${token}` };
+        }
+
+        const [productsRes, shopsRes] = await Promise.all([
+          axios.get(`http://localhost:8080/api/product/getProducts/${encodeURIComponent(term)}`, { headers }),
+          axios.get(`http://localhost:8080/api/shop/getShops/${encodeURIComponent(term)}`, { headers }),
+        ]);
+
+        setSearchResults({
+          products: productsRes.data || [],
+          shops: shopsRes.data || [],
+        });
+      } catch (err) {
+        console.error("Search error:", err);
+        setSearchResults({ products: [], shops: [] });
+      }
+    }, 500),
+    [isAuthenticated, getAccessTokenSilently]
+  );
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
     handleSearch(value);
@@ -98,7 +169,7 @@ const SearchField = () => {
 
   const handleKeyDown = (e) => {
     if (!isDropdownOpen) return;
-    
+
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setSelectedIndex(prev => (prev + 1) % flatResults.length);
@@ -111,7 +182,8 @@ const SearchField = () => {
       console.log("Selected item:", selected);
     }
   };
-
+  if (loading) return <Loading />;
+  if (error) return <ErrorPage errorCode={error} />;
   return (
     <div className="relative w-full max-w-2xl mx-auto px-2 sm:px-4" ref={dropdownRef}>
       <div className="relative">
@@ -155,11 +227,17 @@ const SearchField = () => {
                     {popularProducts.map((product, index) => (
                       <div
                         key={product.id}
+                        onClick={
+                          () => {
+                            navigate(`/products/${product.id}`);
+                            setIsDropdownOpen(false);
+                          }
+                        }
                         className={`flex items-center p-2 ${selectedIndex === index ? 'bg-purple-900/30' : 'hover:bg-gray-800'}
                                   rounded-lg transition-all duration-200 cursor-pointer`}
                       >
                         <img
-                          src={product.image}
+                          src={product.imageUrl}
                           alt={product.name}
                           className="w-12 h-12 object-cover rounded-md"
                           onError={(e) => {
@@ -168,7 +246,12 @@ const SearchField = () => {
                         />
                         <div className="ml-3 flex-1 min-w-0">
                           <h4 className="text-gray-200 font-medium text-sm truncate">{product.name}</h4>
-                          <p className="text-gray-400 text-xs truncate">{product.price}</p>
+                          <div className="flex items-center">
+                            <AiFillStar className="text-yellow-400 text-xs" />
+                            <span className="text-gray-400 text-xs ml-1">
+                              {product.rating}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -180,12 +263,18 @@ const SearchField = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {topShops.map((shop, index) => (
                       <div
+                        onClick={
+                          () => {
+                            navigate(`/shops/${shop.name}`);
+                            setIsDropdownOpen(false);
+                          }
+                        }
                         key={shop.id}
                         className={`flex items-center p-2 ${selectedIndex === index + popularProducts.length ? 'bg-purple-900/30' : 'hover:bg-gray-800'}
                                   rounded-lg transition-all duration-200 cursor-pointer`}
                       >
                         <img
-                          src={shop.logo}
+                          src={shop.imageUrl}
                           alt={shop.name}
                           className="w-10 h-10 object-cover rounded-full"
                           onError={(e) => {
@@ -220,12 +309,18 @@ const SearchField = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {searchResults.products.map((product, index) => (
                             <div
+                              onClick={
+                                () => {
+                                  navigate(`/products/${product.id}`);
+                                  setIsDropdownOpen(false);
+                                }
+                              }
                               key={product.id}
                               className={`flex items-center p-2 ${selectedIndex === index ? 'bg-purple-900/30' : 'hover:bg-gray-800'}
                                         rounded-lg transition-all duration-200 cursor-pointer`}
                             >
                               <img
-                                src={product.image}
+                                src={product.imageUrl}
                                 alt={product.name}
                                 className="w-12 h-12 object-cover rounded-md"
                                 onError={(e) => {
@@ -234,7 +329,10 @@ const SearchField = () => {
                               />
                               <div className="ml-3 flex-1 min-w-0">
                                 <h4 className="text-gray-200 font-medium text-sm truncate">{product.name}</h4>
-                                <p className="text-gray-400 text-xs truncate">{product.price}</p>
+                                <div className="flex items-center">
+                                  <AiFillStar className="text-yellow-400 text-xs" />
+                                  <span className="text-gray-400 text-xs ml-1">{product.rating}</span>
+                                </div>
                               </div>
                             </div>
                           ))}
@@ -248,12 +346,18 @@ const SearchField = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {searchResults.shops.map((shop, index) => (
                             <div
+                              onClick={
+                                () => {
+                                  navigate(`/shops/${shop.name}`);
+                                  setIsDropdownOpen(false);
+                                }
+                              }
                               key={shop.id}
                               className={`flex items-center p-2 ${selectedIndex === index + searchResults.products.length ? 'bg-purple-900/30' : 'hover:bg-gray-800'}
                                         rounded-lg transition-all duration-200 cursor-pointer`}
                             >
                               <img
-                                src={shop.logo}
+                                src={shop.imageUrl}
                                 alt={shop.name}
                                 className="w-10 h-10 object-cover rounded-full"
                                 onError={(e) => {

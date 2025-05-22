@@ -1,13 +1,17 @@
 package kukuxer.KuKushop.service;
 
+import kukuxer.KuKushop.dto.BasketProductDto;
 import kukuxer.KuKushop.dto.Mappers.ProductMapper;
 import kukuxer.KuKushop.dto.ProductDto;
-import kukuxer.KuKushop.dto.BasketProductDto;
-import kukuxer.KuKushop.entity.*;
+import kukuxer.KuKushop.entity.Category;
+import kukuxer.KuKushop.entity.Product;
+import kukuxer.KuKushop.entity.Profile;
+import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.repository.CategoryRepository;
 import kukuxer.KuKushop.repository.ProductRepository;
 import kukuxer.KuKushop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -136,7 +140,7 @@ public class ProductService {
         product.setQuantity(productDto.getQuantity());
         product.setAdditionalPictures(productDto.getAdditionalPictures());
 
-        if(productDto.getImageUrl().isEmpty()) product.setImageUrl(null);
+        if (productDto.getImageUrl().isEmpty()) product.setImageUrl(null);
 
         if (image != null && !image.isEmpty()) {
             product.setImageUrl(s3Service.uploadFile(image));
@@ -168,4 +172,21 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    public List<ProductDto> findTopProducts() {
+        List<Product> top3ByRating = productRepository.findTop3ByRating(PageRequest.of(0, 3));
+        List<ProductDto> top3ByRatingDto = new ArrayList<>();
+        top3ByRating.forEach(p -> top3ByRatingDto.add(
+                productMapper.toDto(p))
+        );
+        return top3ByRatingDto;
+    }
+
+    public List<ProductDto> findProductsByName(String name) {
+        List<Product> top6ByRatingAndName = productRepository.findTop6ByNameContainingOrderByRatingDesc(name, PageRequest.of(0, 6));
+        List<ProductDto> productsDto = new ArrayList<>();
+        top6ByRatingAndName.forEach(p -> productsDto.add(
+                productMapper.toDto(p)
+        ));
+        return productsDto;
+    }
 }

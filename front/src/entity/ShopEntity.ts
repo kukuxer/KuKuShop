@@ -5,7 +5,7 @@ class ShopEntity {
     public description: string,
     public imageUrl: string,
     public rating: number,
-    public isTrusted: boolean
+    public trusted: boolean
   ) { }
 }
 

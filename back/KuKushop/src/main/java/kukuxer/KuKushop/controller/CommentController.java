@@ -5,9 +5,9 @@ import kukuxer.KuKushop.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.UUID;
 
@@ -23,14 +23,13 @@ public class CommentController {
     public ResponseEntity<?> createComment(
             @RequestBody CommentDto commentDto,
             @AuthenticationPrincipal Jwt jwt
-    ){
+    ) {
         commentService.createComment(commentDto, jwt);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("getProductComments/{productId}")
     public ResponseEntity<?> getProductComments(
-            @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID productId) {
 
         return ResponseEntity.ok(commentService.getProductCommentsDtoByProductId(productId));

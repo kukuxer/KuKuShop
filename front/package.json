@@ -35,7 +35,9 @@
     "react-icons": "^5.4.0",
     "react-responsive": "^10.0.0",
     "react-router-dom": "^7.1.1",
-    "reactstrap": "^9.2.3"
+    "react-slick": "^0.30.3",
+    "reactstrap": "^9.2.3",
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -47,6 +49,7 @@
     "@types/react-dom": "^18.3.5",
     "@types/react-fontawesome": "^1.6.8",
     "@types/react-router-dom": "^5.3.3",
+    "@types/react-slick": "^0.23.13",
     "@types/reactstrap": "^8.7.2",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",

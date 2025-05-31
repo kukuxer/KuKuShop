@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { FiShoppingBag } from "react-icons/fi";
-import Product from "../../entity/Product";
+import Product from "../../entity/Product.ts";
 import { useAuth0 } from "@auth0/auth0-react";
-import Loading from "../utils/Loading";
-import ProductBasketCard from "./components/ProductBasketCard";
+import Loading from "../../components/utils/Loading.tsx";
+import ProductBasketCard from "./components/ProductBasketCard.tsx";
 import { useNavigate } from "react-router-dom";
-import ErrorPage from "../utils/ErrorPage";
+import ErrorPage from "../../components/utils/ErrorPage.tsx";
 
 const BasketPage = () => {
   const [cartItems, setCartItems] = useState<Product[]>([]);

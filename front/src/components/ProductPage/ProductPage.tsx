@@ -41,7 +41,7 @@ const ProductPage = () => {
 
   useEffect(() => {
     setIsEditing(new URLSearchParams(search).get("isEditing") === "true");
-  }, [search]); // This will only run when the search URL query changes
+  }, [search]); 
 
 
 
@@ -130,7 +130,7 @@ const ProductPage = () => {
 
     for (let i = 1; i <= 5; i++) {
       if (i <= Math.floor(rating)) {
-        // Full purple star
+  
         stars.push(<FaStar key={i} className="text-purple-400 w-5 h-5" />);
       } else if (
         i === Math.ceil(rating) &&

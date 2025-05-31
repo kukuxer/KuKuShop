@@ -34,11 +34,6 @@ interface Category {
   name: string;
   icon: React.ElementType;
 }
-
-interface ImageFile extends File {
-  preview: string;
-}
-
 const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
   product,
   onClose,

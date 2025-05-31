@@ -1,4 +1,5 @@
 class ShopEntity {
+  id: Key | null | undefined;
   constructor(
     public name: string,
     public ownerName: string,

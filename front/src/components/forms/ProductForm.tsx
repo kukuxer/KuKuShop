@@ -349,7 +349,7 @@ const ProductCreationForm = () => {
         }
       );
 
-      console.log("Server response:", response.data); // Debugging log
+      console.log("Server response:", response.data); 
 
       setFormData({
         name: "",

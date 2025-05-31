@@ -4,77 +4,26 @@ import { AiFillStar } from "react-icons/ai";
 import { debounce } from "lodash";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
-import Loading from "../../utils/Loading";
-import ErrorPage from "../../utils/ErrorPage";
 import Product from "../../../entity/Product";
 import ShopEntity from "../../../entity/ShopEntity";
 import { useNavigate } from "react-router-dom";
 
 
 
-const SearchField = () => {
+export const SearchField = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [searchResults, setSearchResults] = useState(null);
-  const dropdownRef = useRef(null);
+  const [searchResults, setSearchResults] = useState<{ products: Product[]; shops: ShopEntity[] } | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [flatResults, setFlatResults] = useState([]);
+  const [flatResults, setFlatResults] = useState<(Product | ShopEntity)[]>([]);
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+ 
   const [popularProducts, setPopularProducts] = useState<Product[]>([]);
   const [topShops, setTopShops] = useState<ShopEntity[]>([]);
   const navigate = useNavigate();
 
 
-
-  // const popularProducts = [
-  //   {
-  //     id: 1,
-  //     name: "Premium Wireless Headphones",
-  //     description: "High-quality sound with noise cancellation",
-  //     price: "$299.99",
-  //     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e"
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Smart Fitness Watch",
-  //     description: "Track your health with precision",
-  //     price: "$199.99",
-  //     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30"
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Ergonomic Gaming Chair",
-  //     description: "Ultimate comfort for long gaming sessions",
-  //     price: "$399.99",
-  //     image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace"
-  //   }
-  // ];
-
-  // const topShops = [
-  //   {
-  //     id: 1,
-  //     name: "TechHub Plus",
-  //     rating: 4.8,
-  //     reviews: 1234,
-  //     logo: "https://images.unsplash.com/photo-1560472355-536de3962603"
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Gaming Galaxy",
-  //     rating: 4.7,
-  //     reviews: 982,
-  //     logo: "https://images.unsplash.com/photo-1516321497487-e288fb19713f"
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Electronics Empire",
-  //     rating: 4.6,
-  //     reviews: 756,
-  //     logo: "https://images.unsplash.com/photo-1478860409698-8707f313ee8b"
-  //   }
-  // ];
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -103,19 +52,16 @@ const SearchField = () => {
         setTopShops(shopData);
         console.log(shopData);
       } catch (err) {
-        setError("Failed to fetch product");
         console.error("Fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
 
     fetchProduct();
   }, [getAccessTokenSilently, isAuthenticated]);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
     };
@@ -167,7 +113,7 @@ const SearchField = () => {
     handleSearch(value);
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: { key: string; preventDefault: () => void; }) => {
     if (!isDropdownOpen) return;
 
     if (e.key === "ArrowDown") {
@@ -182,8 +128,7 @@ const SearchField = () => {
       console.log("Selected item:", selected);
     }
   };
-  if (loading) return <Loading />;
-  if (error) return <ErrorPage errorCode={error} />;
+
   return (
     <div className="relative w-full max-w-2xl mx-auto px-2 sm:px-4" ref={dropdownRef}>
       <div className="relative">
@@ -237,11 +182,11 @@ const SearchField = () => {
                                   rounded-lg transition-all duration-200 cursor-pointer`}
                       >
                         <img
-                          src={product.imageUrl}
+                          src={product.imageUrl || "/Default.png"}
                           alt={product.name}
                           className="w-12 h-12 object-cover rounded-md"
                           onError={(e) => {
-                            e.target.src = "https://images.unsplash.com/photo-1560472355-536de3962603";
+                            (e.target as HTMLImageElement).src = "/Default.png";
                           }}
                         />
                         <div className="ml-3 flex-1 min-w-0">
@@ -274,11 +219,11 @@ const SearchField = () => {
                                   rounded-lg transition-all duration-200 cursor-pointer`}
                       >
                         <img
-                          src={shop.imageUrl}
+                          src={shop.imageUrl || "/Shop.png"}
                           alt={shop.name}
                           className="w-10 h-10 object-cover rounded-full"
                           onError={(e) => {
-                            e.target.src = "https://images.unsplash.com/photo-1560472355-536de3962603";
+                            (e.target as HTMLImageElement).src = "/Default.png";
                           }}
                         />
                         <div className="ml-3 flex-1 min-w-0">
@@ -324,7 +269,7 @@ const SearchField = () => {
                                 alt={product.name}
                                 className="w-12 h-12 object-cover rounded-md"
                                 onError={(e) => {
-                                  e.target.src = "https://images.unsplash.com/photo-1560472355-536de3962603";
+                                  (e.target as HTMLImageElement).src = "/Default.png";
                                 }}
                               />
                               <div className="ml-3 flex-1 min-w-0">
@@ -361,7 +306,7 @@ const SearchField = () => {
                                 alt={shop.name}
                                 className="w-10 h-10 object-cover rounded-full"
                                 onError={(e) => {
-                                  e.target.src = "https://images.unsplash.com/photo-1560472355-536de3962603";
+                                  (e.target as HTMLImageElement).src = "/Default.png";
                                 }}
                               />
                               <div className="ml-3 flex-1 min-w-0">
@@ -387,4 +332,3 @@ const SearchField = () => {
   );
 };
 
-export default SearchField;

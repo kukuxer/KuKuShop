@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
-import App from "./App";
+import App from "./app/App.tsx";
 import { Auth0Provider } from "@auth0/auth0-react";
 
 const rootElement = document.getElementById("root") as HTMLElement;

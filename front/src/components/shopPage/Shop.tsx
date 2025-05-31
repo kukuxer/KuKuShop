@@ -9,7 +9,6 @@ import ShopBanner from "./components/ShopBanner";
 import ProductCard from "./components/ProductCard";
 import ErrorPage from "../utils/ErrorPage";
 import Loading from "../utils/Loading";
-import ShopDescription from "./components/ShopDescription";
 
 const Shop = () => {
   const [error, setError] = useState<string | null>(null);

@@ -1,19 +1,19 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "./components/mainPage/Home";
-import "./App.css";
-import LikedProducts from "./components/favPage/LikedProducts";
-import BasketPage from "./components/basketPage/BasketPage";
-import Profile from "./components/profile/Profile";
-import ProductForm from "./components/forms/ProductForm";
-import MyShop from "./components/shopPage/MyShop";
+import Home from "../components/mainPage/Home.tsx";
+import "../App.css";
+import LikedProducts from "../components/favPage/LikedProducts.tsx";
+import BasketPage from "../pages/basket/BasketPage.tsx";
+import Profile from "../components/profile/Profile.tsx";
+import ProductForm from "../components/forms/ProductForm.tsx";
+import MyShop from "../components/shopPage/MyShop.tsx";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
-import Loading from "./components/utils/Loading";
-import TailWindNavBar from "./components/navbar-footer/NavBar";
-import ShopForm from "./components/forms/ShopForm";
-import MyShopComponent from "./components/shopPage/components/MyShopComponent";
-import Shop from "./components/shopPage/Shop";
-import ProductPage from "./components/ProductPage/ProductPage";
-import EditProduct from "./components/ProductPage/components/EditProduct";
+import Loading from "../components/utils/Loading.tsx";
+import TailWindNavBar from "../components/navbar-footer/NavBar.tsx";
+import ShopForm from "../components/forms/ShopForm.tsx";
+import MyShopComponent from "../components/shopPage/components/MyShopComponent.tsx";
+import Shop from "../components/shopPage/Shop.tsx";
+import ProductPage from "../components/ProductPage/ProductPage.tsx";
+import EditProduct from "../components/ProductPage/components/EditProduct.tsx";
 
 const ProtectedShop = withAuthenticationRequired(MyShop, {
   onRedirecting: () => <Loading />,
@@ -51,7 +51,6 @@ const App = () => {
             <Route path="/products/:productId" element={<ProductPage />} />
             {/* Secure Route */}
             <Route path="/myshop" element={<ProtectedShop />} />
-            <Route path="/editProduct/:productId" element={<EditProduct />} />
             <Route
               path="/myshopComponent"
               element={<ProtectedShopComponent />}

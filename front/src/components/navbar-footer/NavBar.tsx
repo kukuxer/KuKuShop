@@ -6,13 +6,12 @@ import {
   FiShoppingBag,
   FiHeart,
   FiUser,
-  FiSearch,
   FiLogOut,
   FiPackage,
 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Profile from "../../entity/Profile";
-import SearchField from "./components/SearchField";
+import {SearchField} from "./components/SearchField";
 
 const Navbar = () => {
   const {

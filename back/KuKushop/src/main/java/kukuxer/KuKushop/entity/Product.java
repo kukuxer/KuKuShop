@@ -24,7 +24,7 @@ public class Product {
     @Id
     @GeneratedValue
     @UuidGenerator
-    UUID id;
+    UUID id;                                                                                                                                                                                                                                                                                          
 
     @Column(nullable = false)
     Long shopId;

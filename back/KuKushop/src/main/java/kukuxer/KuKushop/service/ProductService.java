@@ -180,7 +180,7 @@ public class ProductService {
         );
         return top3ByRatingDto;
     }
-
+//
     public List<ProductDto> findProductsByName(String name) {
         List<Product> top6ByRatingAndName = productRepository.findTop6ByNameContainingOrderByRatingDesc(name, PageRequest.of(0, 6));
         List<ProductDto> productsDto = new ArrayList<>();

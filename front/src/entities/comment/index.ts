@@ -1,0 +1,1 @@
+export { Comment } from './model/types';

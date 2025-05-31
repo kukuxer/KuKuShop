@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { FaTrash } from "react-icons/fa";
-import Product from "../../../entity/Product";
+import Product from "../../../entity/Product.ts";
 import { useAuth0 } from "@auth0/auth0-react";
-import RatingStars from "../../shopPage/components/RatingStars";
-import AddToBasketButton from "../../buttons/AddToBasketButton";
+import RatingStars from "../../shop/components/RatingStars.tsx";
+import AddToBasketButton from "../../../components/buttons/AddToBasketButton.tsx";
 import { Link } from "react-router-dom";
 
 

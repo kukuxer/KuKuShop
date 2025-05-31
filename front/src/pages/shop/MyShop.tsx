@@ -1,10 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import ShopForm from "../forms/ShopForm";
-import MyShopComponent from "./components/MyShopComponent";
-import Loading from "../utils/Loading";
-import ErrorPage from "../utils/ErrorPage";
+import ShopForm from "../../components/forms/ShopForm.tsx";
+import MyShopComponent from "./components/MyShopComponent.tsx";
+import Loading from "../../components/utils/Loading.tsx";
+import ErrorPage from "../../components/utils/ErrorPage.tsx";
 
 const Home: React.FC = () => {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();

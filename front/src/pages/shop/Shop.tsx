@@ -3,12 +3,12 @@ import { FaSearch } from "react-icons/fa";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useParams } from "react-router-dom";
-import Product from "../../entity/Product";
-import ShopEntity from "../../entity/ShopEntity";
-import ShopBanner from "./components/ShopBanner";
-import ProductCard from "./components/ProductCard";
-import ErrorPage from "../utils/ErrorPage";
-import Loading from "../utils/Loading";
+import Product from "../../entity/Product.ts";
+import ShopEntity from "../../entity/ShopEntity.ts";
+import ShopBanner from "./components/ShopBanner.tsx";
+import ProductCard from "./components/ProductCard.tsx";
+import ErrorPage from "../../components/utils/ErrorPage.tsx";
+import Loading from "../../components/utils/Loading.tsx";
 
 const Shop = () => {
   const [error, setError] = useState<string | null>(null);

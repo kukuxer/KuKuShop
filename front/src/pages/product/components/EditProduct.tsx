@@ -20,7 +20,7 @@ import {
   FaDollarSign,
   FaHashtag,
 } from "react-icons/fa";
-import Product from "../../../entity/Product";
+import Product from "../../../entity/Product.ts";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BsChevronDown, BsChevronUp } from "react-icons/bs";
 

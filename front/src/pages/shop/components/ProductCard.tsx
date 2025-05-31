@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import Product from "../../../entity/Product";
-import RatingStars from "./RatingStars";
-import AddToBasketButton from "../../buttons/AddToBasketButton";
+import Product from "../../../entity/Product.ts";
+import RatingStars from "./RatingStars.tsx";
+import AddToBasketButton from "../../../components/buttons/AddToBasketButton.tsx";
 import { Link } from "react-router-dom";
-import LikeBtn from "../../buttons/LikeBtn";
+import LikeBtn from "../../../components/buttons/LikeBtn.tsx";
 
 interface ProductCardProps {
   product: Product;

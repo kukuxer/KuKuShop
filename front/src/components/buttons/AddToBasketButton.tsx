@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 import Product from "../../entity/Product";
-import ProductEditionPage from "../ProductPage/components/EditProduct";
+import ProductEditionPage from "../../pages/product/components/EditProduct";
 import { useNavigate } from "react-router-dom";
 
 interface AddToBasketButtonProps {

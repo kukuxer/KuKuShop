@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react";
 import { FaStar, FaStarHalf } from "react-icons/fa";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
-import ShopCard from "./components/ShopCard";
-import SecurityInfo from "./components/SecurityInfo";
-import Product from "../../entity/Product";
-import Comment from "../../entity/Comment";
+import ShopCard from "./components/ShopCard.tsx";
+import SecurityInfo from "./components/SecurityInfo.tsx";
+import Product from "../../entity/Product.ts";
+import Comment from "../../entity/Comment.ts";
 import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useLocation, useParams } from "react-router-dom";
-import Loading from "../utils/Loading";
-import ErrorPage from "../utils/ErrorPage";
-import ShopEntity from "../../entity/ShopEntity";
-import AddToBasketButton from "../buttons/AddToBasketButton";
-import LikeBtn from "../buttons/LikeBtn";
-import ProductCommentSection from "./components/ProductCommentSection";
-import ProductReview from "./components/ProductReview";
-import ProductRatingStar from "../shopPage/components/ProductRatingStar";
-import ImageEnlargementModal from "./components/ImageEnlargementModal";
+import Loading from "../../components/utils/Loading.tsx";
+import ErrorPage from "../../components/utils/ErrorPage.tsx";
+import ShopEntity from "../../entity/ShopEntity.ts";
+import AddToBasketButton from "../../components/buttons/AddToBasketButton.tsx";
+import LikeBtn from "../../components/buttons/LikeBtn.tsx";
+import ProductCommentSection from "./components/ProductCommentSection.tsx";
+import ProductReview from "./components/ProductReview.tsx";
+import ProductRatingStar from "../shop/components/ProductRatingStar.tsx";
+import ImageEnlargementModal from "./components/ImageEnlargementModal.tsx";
 
-const ProductPage = () => {
+export const ProductPage = () => {
   const [product, setProduct] = useState<Product | null>(null);
   const [shop, setShop] = useState<ShopEntity | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -406,5 +406,3 @@ const ProductPage = () => {
     </div>
   );
 };
-
-export default ProductPage;

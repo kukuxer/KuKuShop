@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaHeart, FaSearch } from "react-icons/fa";
 import { useAuth0 } from "@auth0/auth0-react";
-import FavProductCard from "./components/FavProductCard";
-import Product from "../../entity/Product";
+import FavProductCard from "./components/FavProductCard.tsx";
+import Product from "../../entity/Product.ts";
 import axios from "axios";
 
 const LikedProducts: React.FC = () => {

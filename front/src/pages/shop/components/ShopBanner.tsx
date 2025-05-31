@@ -1,11 +1,11 @@
 import React, { ChangeEvent, useRef, useState } from "react";
 import { FiEdit, FiImage, FiSave, FiX } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
-import ShopEntity from "../../../entity/ShopEntity";
-import ShopDescription from "./ShopDescription";
+import ShopEntity from "../../../entity/ShopEntity.ts";
+import ShopDescription from "./ShopDescription.tsx";
 import { useAuth0 } from "@auth0/auth0-react";
 
-import ImageCropModal from "../../utils/ImageCropModal";
+import ImageCropModal from "../../../components/utils/ImageCropModal.tsx";
 
 interface MyShopBannerProps {
   shop?: ShopEntity;

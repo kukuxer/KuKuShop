@@ -1,19 +1,18 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "../components/mainPage/Home.tsx";
+import Home from "../pages/main/Home.tsx";
 import "../App.css";
-import LikedProducts from "../components/favPage/LikedProducts.tsx";
+import LikedProducts from "../pages/favorite/LikedProducts.tsx";
 import BasketPage from "../pages/basket/BasketPage.tsx";
 import Profile from "../components/profile/Profile.tsx";
 import ProductForm from "../components/forms/ProductForm.tsx";
-import MyShop from "../components/shopPage/MyShop.tsx";
+import MyShop from "../pages/shop/MyShop.tsx";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 import Loading from "../components/utils/Loading.tsx";
 import TailWindNavBar from "../components/navbar-footer/NavBar.tsx";
 import ShopForm from "../components/forms/ShopForm.tsx";
-import MyShopComponent from "../components/shopPage/components/MyShopComponent.tsx";
-import Shop from "../components/shopPage/Shop.tsx";
-import ProductPage from "../components/ProductPage/ProductPage.tsx";
-import EditProduct from "../components/ProductPage/components/EditProduct.tsx";
+import MyShopComponent from "../pages/shop/components/MyShopComponent.tsx";
+import Shop from "../pages/shop/Shop.tsx";
+import {ProductPage} from "../pages/product/ProductPage.tsx";
 
 const ProtectedShop = withAuthenticationRequired(MyShop, {
   onRedirecting: () => <Loading />,

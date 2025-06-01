@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import ShopEntity from "../../../entity/ShopEntity";
+import ShopEntity from "../../../entity/ShopEntity.ts";
 import { Link } from "react-router-dom";
 
 interface ShopCardProps {

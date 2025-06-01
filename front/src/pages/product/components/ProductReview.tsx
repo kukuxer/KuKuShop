@@ -1,6 +1,6 @@
 import React from "react";
 import { FaStar } from "react-icons/fa";
-import Comment from "../../../entity/Comment";
+import Comment from "../../../entity/Comment.ts";
 
 interface ProductReviewProps {
   comment: Comment;

@@ -1,4 +1,4 @@
-export interface Profile {
+export interface ProfileEntity {
   email: string;
   name: string;
   nickname: string;

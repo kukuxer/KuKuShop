@@ -1,1 +1,1 @@
-export { ErrorPage } from './ui';
+export { ErrorPage } from './ui/ErrorPage.tsx';

@@ -1,1 +1,1 @@
-export { Shop } from './model/types';
+export type { Shop } from './model/types';

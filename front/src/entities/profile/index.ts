@@ -1,1 +1,1 @@
-export { Profile } from './model/types';
+export type { ProfileEntity } from './model/types';

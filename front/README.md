@@ -16,7 +16,7 @@ KuKushop is a modern e-commerce marketplace platform that allows users to both s
 - **User Profiles**: Manage personal information and order history
 
 ### For Sellers
-- **Shop Management**: Create and manage your own shop
+- **PublicShopPage Management**: Create and manage your own shop
 - **Product Management**: Add, edit, and remove products
 - **Image Upload**: Upload multiple product images with AWS S3 integration
 - **Inventory Management**: Track product quantities and availability

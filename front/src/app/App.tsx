@@ -1,20 +1,14 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "../pages/main/Home.tsx";
-import "../App.css";
-import LikedProducts from "../pages/favorite/LikedProducts.tsx";
-import BasketPage from "../pages/basket/BasketPage.tsx";
-import Profile from "../components/profile/Profile.tsx";
-import ProductForm from "../components/forms/ProductForm.tsx";
-import MyShop from "../pages/shop/MyShop.tsx";
+import "./styles/App.css";
+import FavProductsPage from "../pages/favorite/ui/FavProductsPage.tsx";
 import { withAuthenticationRequired } from "@auth0/auth0-react";
-import Loading from "../components/utils/Loading.tsx";
-import TailWindNavBar from "../components/navbar-footer/NavBar.tsx";
-import ShopForm from "../components/forms/ShopForm.tsx";
-import MyShopComponent from "../pages/shop/components/MyShopComponent.tsx";
-import Shop from "../pages/shop/Shop.tsx";
-import {ProductPage} from "../pages/product/ProductPage.tsx";
+import {Navbar} from "../widgets/navbar";
+import {MyShopComponent} from "../pages/shop/MyShopPage/ui/MyShopComponent.tsx";
+import {MyShopPage,PublicShopPage, Profile, ProductPage, Home, BasketPage,} from "../pages";
+import {ProductCreationForm, ShopCreationForm} from "../features";
+import {Loading} from "../shared/ui/loading";
 
-const ProtectedShop = withAuthenticationRequired(MyShop, {
+const ProtectedShop = withAuthenticationRequired(MyShopPage, {
   onRedirecting: () => <Loading />,
 });
 const ProtectedShopComponent = withAuthenticationRequired(MyShopComponent, {
@@ -23,30 +17,30 @@ const ProtectedShopComponent = withAuthenticationRequired(MyShopComponent, {
 const ProtectedProfile = withAuthenticationRequired(Profile, {
   onRedirecting: () => <Loading />,
 });
-const ProtectedProductForm = withAuthenticationRequired(ProductForm, {
+const ProtectedProductForm = withAuthenticationRequired(ProductCreationForm, {
   onRedirecting: () => <Loading />,
 });
 
-const ProtectedLikedProducts = withAuthenticationRequired(LikedProducts, {
+const ProtectedLikedProducts = withAuthenticationRequired(FavProductsPage, {
   onRedirecting: () => <Loading />,
 });
 
 const ProtectedBasket = withAuthenticationRequired(BasketPage, {
   onRedirecting: () => <Loading />,
 });
-const ProtectedShopForm = withAuthenticationRequired(ShopForm, {
+const ProtectedShopForm = withAuthenticationRequired(ShopCreationForm, {
   onRedirecting: () => <Loading />,
 });
 
-const App = () => {
+export  const App = () => {
   return (
     <div id="app" className="d-flex flex-column h-100">
-        <TailWindNavBar />
+        <Navbar />
       <div className="flex-grow-1 w-full px-0">
         <div className="justify-center items-center">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/shops/:shopName" element={<Shop />} />
+            <Route path="/shops/:shopName" element={<PublicShopPage />} />
             <Route path="/products/:productId" element={<ProductPage />} />
             {/* Secure Route */}
             <Route path="/myshop" element={<ProtectedShop />} />
@@ -66,4 +60,4 @@ const App = () => {
   );
 };
 
-export default App;
+

@@ -1,1 +1,1 @@
-export { Loading } from './ui';
+export { Loading } from './ui/Loading.tsx';

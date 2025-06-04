@@ -88,17 +88,11 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/getTopProducts")
-    public ResponseEntity<?> getTopProducts() {
-        List<ProductDto> topProducts = productService.findTopProducts();
+    @GetMapping("/public/top/{number}")
+    public ResponseEntity<?> getTopProducts(@PathVariable int number) {
+        int limit = Math.min(Math.max(number, 1), 100);
+        List<ProductDto> topProducts = productService.findTopProducts(number);
         return ResponseEntity.ok(topProducts);
     }
-
-    @GetMapping("/getProducts/{name}")
-    public ResponseEntity<?> getProductsByName(@PathVariable String name){
-        return ResponseEntity.ok(productService.findProductsByName(name));
-    }
-
-
 }
 

@@ -3,17 +3,17 @@ import {FaStar} from "react-icons/fa";
 import {Shop} from "../../../../entities";
 import {ShopDescription} from "../../ui/ShopDescription.tsx";
 
-interface MyShopBannerProps {
+interface ShopBannerProps {
     shop?: Shop;
 }
 
-export const MyPublicShopBanner: React.FC<MyShopBannerProps> = ({shop}) => {
+export const PublicShopBanner: React.FC<ShopBannerProps> = ({shop}) => {
     const [initialTitle] = useState(shop?.name || "Elegant Fashion Boutique");
     const [initialDescription] = useState(
         shop?.description?.toString().trim() ||
         "Discover our curated collection of luxury fashion pieces, where style meets sophistication. Experience premium quality and trendsetting designs."
     );
-    const [initialImageUrl] = useState(shop?.imageUrl || "");
+    const [initialImageUrl] = useState(shop?.imageUrl || "/ShopBanner.png");
 
     const [title] = useState(initialTitle);
     const [description] = useState(initialDescription);

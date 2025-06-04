@@ -6,67 +6,36 @@ import {
 } from "react-icons/fa";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import {useEffect, useState} from "react";
+import {Product} from "../../../entities";
+import {ErrorPage} from "../../../shared/ui/error-page";
+import axios from "axios";
 
-const ProductCarousel = () => {
-    interface Product {
-        id: number;
-        name: string;
-        price: number;
-        rating: number;
-        image: string;
-        description: string;
-    }
+interface ProductCarouselProps {
+    onLoaded?: () => void;
+}
 
-    const products: Product[] = [
-        {
-            id: 1,
-            name: "Purple Gaming Headset",
-            price: 199.99,
-            rating: 4.5,
-            image: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb",
-            description: "Premium gaming headset with surround sound and RGB lighting",
-        },
-        {
-            id: 2,
-            name: "Mechanical Keyboard",
-            price: 159.99,
-            rating: 5,
-            image: "https://images.unsplash.com/photo-1595225476474-055e6378c8e0",
-            description: "RGB mechanical keyboard with Cherry MX switches",
-        },
-        {
-            id: 3,
-            name: "Gaming Mouse",
-            price: 79.99,
-            rating: 4,
-            image: "https://images.unsplash.com/photo-1527814050087-3793815479db",
-            description: "High-precision gaming mouse with customizable buttons",
-        },
-        {
-            id: 4,
-            name: "Gaming Monitor",
-            price: 399.99,
-            rating: 4.5,
-            image: "https://images.unsplash.com/photo-1527219525722-f9767a7f2884",
-            description: "27-inch 4K gaming monitor with 144Hz refresh rate",
-        },
-        {
-            id: 5,
-            name: "Gaming Chair",
-            price: 299.99,
-            rating: 4,
-            image: "https://images.unsplash.com/photo-1622372738946-62e02505feb3",
-            description: "Ergonomic gaming chair with lumbar support",
-        },
-        {
-            id: 6,
-            name: "RGB Mouse Pad",
-            price: 29.99,
-            rating: 4.5,
-            image: "https://images.unsplash.com/photo-1625723044792-89623f51b809",
-            description: "Extended RGB mouse pad with multiple lighting modes",
-        },
-    ];
+const ProductCarousel: React.FC<ProductCarouselProps> = ({ onLoaded }) => {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await axios.get("http://localhost:8080/api/product/public/top/12");
+                setProducts(response.data);
+            } catch (err) {
+                console.error("Failed to fetch products:", err);
+                setError("Failed to load products.");
+            } finally {
+                if (onLoaded) onLoaded();
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+    if (error) return <ErrorPage errorCode={error}/>;
 
     interface StarRatingProps {
         rating: number;
@@ -154,7 +123,7 @@ const ProductCarousel = () => {
                                 <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg group relative h-full">
                                     <div className="relative h-48 w-full overflow-hidden">
                                         <img
-                                            src={product.image}
+                                            src={product.imageUrl}
                                             alt={product.name}
                                             className="w-full h-full object-cover object-center"
                                             loading="lazy"

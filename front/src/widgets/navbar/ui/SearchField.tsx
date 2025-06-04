@@ -34,7 +34,7 @@ export const SearchField = () => {
                 }
 
                 const response = await axios.get(
-                    `http://localhost:8080/api/product/getTopProducts`,
+                    "http://localhost:8080/api/product/public/top/3",
                     {headers}
                 );
 

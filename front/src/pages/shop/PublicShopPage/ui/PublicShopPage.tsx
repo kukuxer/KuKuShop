@@ -6,8 +6,8 @@ import {ErrorPage} from "../../../../shared/ui/error-page";
 import {Product, type Shop} from "../../../../entities";
 import {Loading} from "../../../../shared/ui/loading";
 import {ProductCard} from "../../../../entities/product/ui/ProductCard.tsx";
-import {MyPublicShopBanner} from "./ShopBanner.tsx";
 import axios from "axios";
+import {PublicShopBanner} from "./PublicShopBanner.tsx";
 
 export const PublicShopPage = () => {
     const [error, setError] = useState<string | null>(null);
@@ -20,6 +20,8 @@ export const PublicShopPage = () => {
 
     useEffect(() => {
         const fetchShop = async () => {
+            setShop(null);
+            setLoading(true);
             try {
                 const response = await axios.get(
                     `http://localhost:8080/api/shop/getByName/${shopName}`,
@@ -27,6 +29,7 @@ export const PublicShopPage = () => {
                 );
                 if (response.data) {
                     setShop(response.data);
+                    console.log("PublicShopPage data:", response.data);
                 } else {
                     setError("PublicShopPage not found");
                 }
@@ -87,7 +90,7 @@ export const PublicShopPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-900">
-            <MyPublicShopBanner
+            <PublicShopBanner
                 shop={shop || undefined}
             />
             <nav className="bg-gray-900 p-4 sticky top-0 z-50 border-b border-gray-800">

@@ -172,21 +172,12 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    public List<ProductDto> findTopProducts() {
-        List<Product> top3ByRating = productRepository.findTop3ByRating(PageRequest.of(0, 3));
+    public List<ProductDto> findTopProducts(int number) {
+        List<Product> top3ByRating = productRepository.findTop3ByRating(PageRequest.of(0, number));
         List<ProductDto> top3ByRatingDto = new ArrayList<>();
         top3ByRating.forEach(p -> top3ByRatingDto.add(
                 productMapper.toDto(p))
         );
         return top3ByRatingDto;
-    }
-//
-    public List<ProductDto> findProductsByName(String name) {
-        List<Product> top6ByRatingAndName = productRepository.findTop6ByNameContainingOrderByRatingDesc(name, PageRequest.of(0, 6));
-        List<ProductDto> productsDto = new ArrayList<>();
-        top6ByRatingAndName.forEach(p -> productsDto.add(
-                productMapper.toDto(p)
-        ));
-        return productsDto;
     }
 }

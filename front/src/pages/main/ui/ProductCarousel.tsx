@@ -10,6 +10,8 @@ import {useEffect, useState} from "react";
 import {Product} from "../../../entities";
 import {ErrorPage} from "../../../shared/ui/error-page";
 import axios from "axios";
+import {Loading} from "../../../shared/ui/loading";
+import {Link} from "react-router-dom";
 
 interface ProductCarouselProps {
     onLoaded?: () => void;
@@ -24,18 +26,18 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ onLoaded }) => {
             try {
                 const response = await axios.get("http://localhost:8080/api/product/public/top/12");
                 setProducts(response.data);
+                onLoaded?.();
             } catch (err) {
                 console.error("Failed to fetch products:", err);
                 setError("Failed to load products.");
-            } finally {
-                if (onLoaded) onLoaded();
             }
         };
 
         fetchProducts();
-    }, []);
+    }, [onLoaded]);
 
     if (error) return <ErrorPage errorCode={error}/>;
+    if (products.length === 0) return <Loading/>;
 
     interface StarRatingProps {
         rating: number;
@@ -113,23 +115,24 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ onLoaded }) => {
     };
 
     return (
-        <div className="bg-gray-900 min-h-screen pt-12 pb-4 px-4 sm:px-6 lg:px-8 ">
+        <div className="bg-gray-900 pt-12 pb-60 px-4 sm:px-6 lg:px-8 ">
             <div className="max-w-7xl mx-auto">
                 <h2 className="text-3xl font-bold text-white mb-8">Featured Products</h2>
                 <div className="relative px-12">
                     <Slider {...settings}>
                         {products.map((product) => (
+                            <Link to={`/products/${product.id}`} key={product.id}>
                             <div key={product.id} className="px-2">
                                 <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg group relative h-full">
                                     <div className="relative h-48 w-full overflow-hidden">
                                         <img
-                                            src={product.imageUrl}
+                                            src={product.imageUrl?product.imageUrl:"/Default.png"}
                                             alt={product.name}
                                             className="w-full h-full object-cover object-center"
                                             loading="lazy"
                                             onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                                                 (e.target as HTMLImageElement).src =
-                                                    "https://images.unsplash.com/photo-1590845947670-c009801ffa74";
+                                                    "/Default.png";
                                             }}
                                         />
                                         <div
@@ -148,6 +151,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({ onLoaded }) => {
                                     </div>
                                 </div>
                             </div>
+                            </Link>
                         ))}
                     </Slider>
                 </div>

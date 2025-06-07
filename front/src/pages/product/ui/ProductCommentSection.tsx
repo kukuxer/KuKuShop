@@ -2,7 +2,7 @@ import {useState} from "react";
 import {FaStar} from "react-icons/fa";
 import {IoMdClose} from "react-icons/io";
 import {useAuth0} from "@auth0/auth0-react";
-import axios from "axios";
+import {createProductComment} from "../../../entities/comment/api/comments.ts";
 interface ProductCommentSectionProps {
     productId: any;
     refreshFetchTrigger: any;
@@ -51,16 +51,7 @@ const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({productId,
                 productId: productId
             };
 
-            await axios.post(
-                `http://localhost:8080/api/comment/create`,
-                commentDto,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+           await createProductComment(commentDto, token);
 
             setFormData({comment: "", rating: 0});
             setShowSuccess(true);

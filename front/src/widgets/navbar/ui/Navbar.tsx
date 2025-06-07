@@ -1,9 +1,20 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useAuth0} from "@auth0/auth0-react";
-import {FiMenu, FiX, FiShoppingBag, FiHeart, FiUser, FiLogOut, FiPackage,} from "react-icons/fi";
+import {
+    FiMenu,
+    FiX,
+    FiShoppingBag,
+    FiHeart,
+    FiUser,
+    FiLogOut,
+    FiPackage,
+    FiShoppingCart,
+    FiDollarSign, FiOctagon,
+} from "react-icons/fi";
 import {Link} from "react-router-dom";
 import {SearchField} from "./SearchField.tsx";
 import {ProfileEntity} from "../../../entities";
+import NavButton from "./NavButton.tsx";
 
 export const Navbar = () => {
     const {
@@ -18,8 +29,10 @@ export const Navbar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [profile, setProfile] = useState<ProfileEntity | null>(null);
     const [shopImage, setShopImage] = useState<string | null>(null);
+    const [buyHave, setBuyHave] = useState(false);
     const [favHave, setFavHave] = useState(false);
     const [basketHave, setBasketHave] = useState(false);
+    const [sellHave, setSellHave] = useState(false);
 
     const logoutWithRedirect = () =>
         logout({
@@ -107,73 +120,90 @@ export const Navbar = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center">
-                        <div className="flex-shrink-0 md:block">
-                            <Link to={"/"}>
-                                <img
-                                    className="h-8 w-8"
-                                    src={shopImage || "/PublicShopPage.png"}
-                                    alt="Logo"
-                                />
-                            </Link>
+                        <div className="flex-shrink-0 md:block text-purple-500">
+                            <FiOctagon
+                                className="block h-8 w-8"
+                                aria-hidden="true"
+                            />
                         </div>
                         <Link to={"/"}>
-                            <div className="md:block  ml-2 font-bold text-xl text-purple-500">
-                                KuKuShop {profile?.role}
+                            <div className="md:block ml-2 font-bold text-xl text-purple-500">
+                                KuKuShop
                             </div>
                         </Link>
-                        <div className="md:block hidden ml-4">
-                            <Link to="/myshop">
-                                <button
-                                    aria-label="Navigate to PublicShopPage"
-                                    className="hidden md:flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-lg shadow-lg hover:from-purple-800 hover:to-purple-950 transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 "
-                                >
-                                    <FiPackage
-                                        className="w-5 h-5 mr-2 transition-transform duration-300 group-hover:rotate-12"/>
-                                    <span className="font-medium">My PublicShopPage</span>
-                                </button>
-                            </Link>
+
+                        <div className="hidden md:block">
+                            <div className="ml-4 flex items-center space-x-4">
+                                <div className="ml-6 flex space-x-2">
+
+                                    <NavButton
+                                        to="/buy"
+                                        label="Buy"
+                                        icon={
+                                            <FiShoppingCart
+                                                className={`transition-transform duration-300 transform ${
+                                                    favHave ? "rotate-12 scale-125 tw-text-blue-600" : ""
+                                                }`}
+                                            />
+                                        }
+                                        onMouseEnter={() => setFavHave(true)}
+                                        onMouseLeave={() => setFavHave(false)}
+                                    />
+
+                                    <NavButton
+                                        to="/myshop"
+                                        label="Sell"
+                                        icon={
+                                            <FiDollarSign
+                                                className={`transition-transform duration-300 transform ${
+                                                    sellHave ? "scale-125 tw-text-green-500" : ""
+                                                }`}
+                                            />
+                                        }
+                                        onMouseEnter={() => setSellHave(true)}
+                                        onMouseLeave={() => setSellHave(false)}
+                                    />
+                                </div>
+                            </div>
                         </div>
+
                     </div>
 
-                    <div className="md:flex flex-1 mx-8 items-center">
+                    <div className="md:block hidden flex-1 ml-4 mr-auto items-center">
                         <SearchField/>
                     </div>
 
+
                     <div className="hidden md:block">
                         <div className="ml-4 flex items-center space-x-4">
-                            <Link to="/favorites">
-                                <button
-                                    className=" text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
-                                    onMouseEnter={() => setFavHave(true)}
-                                    onMouseLeave={() => setFavHave(false)}
-                                >
-                  <span className="inline-flex w-5 h-5 items-center justify-center">
-                    <FiHeart
-                        className={`transition-transform duration-300 transform ${
-                            favHave ? "scale-125 text-pink-400" : ""
-                        }`}
-                    />
-                  </span>
-                                    Favourites
-                                </button>
-                            </Link>
 
-                            <Link to="/basket">
-                                <button
-                                    className=" text-gray-300 hover:text-purple-500 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1"
-                                    onMouseEnter={() => setBasketHave(true)}
-                                    onMouseLeave={() => setBasketHave(false)}
-                                >
-                  <span className="inline-flex w-5 h-5 items-center justify-center">
-                    <FiShoppingBag
-                        className={`transition-transform duration-300 transform ${
-                            basketHave ? "rotate-12 scale-110 text-emerald-400" : ""
-                        }`}
-                    />
-                  </span>
-                                    Basket
-                                </button>
-                            </Link>
+                            <NavButton
+                                to="/favorites"
+                                label="Saved"
+                                icon={
+                                    <FiHeart
+                                        className={`transition-transform duration-300 transform ${
+                                            buyHave ? "scale-125 text-pink-400" : ""
+                                        }`}
+                                    />
+                                }
+                                onMouseEnter={() => setBuyHave(true)}
+                                onMouseLeave={() => setBuyHave(false)}
+                            />
+
+                            <NavButton
+                                to="/basket"
+                                label="Basket"
+                                icon={
+                                    <FiShoppingBag
+                                        className={`transition-transform duration-300 transform ${
+                                            basketHave ? "rotate-12 scale-110 text-emerald-400" : ""
+                                        }`}
+                                    />
+                                }
+                                onMouseEnter={() => setBasketHave(true)}
+                                onMouseLeave={() => setBasketHave(false)}
+                            />
 
                             {isAuthenticated && user ? (
                                 <div className="relative">
@@ -228,6 +258,8 @@ export const Navbar = () => {
                         </div>
                     </div>
 
+
+
                     <div className="md:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
@@ -238,17 +270,36 @@ export const Navbar = () => {
                     </div>
                 </div>
             </div>
+            <div className="block md:hidden pb-3">
+                <SearchField/>
+            </div>
 
             {isOpen && (
                 <div className="md:hidden z-50">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+
+                        <Link to={"/buy"}>
+                            <button
+                                className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+                                <FiShoppingCart className="inline mr-2"/> Buy
+                            </button>
+                        </Link>
+
+                        <Link to={"/myshop"}>
+                            <button
+                                className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+                                <FiDollarSign className="inline mr-2"/> Sell
+                            </button>
+                        </Link>
+
                         <Link to={"/favorites"}>
                             <button
                                 className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
                                 <FiHeart className="inline mr-2"/>
-                                Favourites
+                                Saved
                             </button>
                         </Link>
+
                         <Link to={"/basket"}>
                             <button
                                 className="text-gray-300 hover:text-purple-500 block px-3 py-2 rounded-md text-base font-medium w-full text-left">

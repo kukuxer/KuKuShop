@@ -6,8 +6,9 @@ import {ErrorPage} from "../../../../shared/ui/error-page";
 import {Product, type Shop} from "../../../../entities";
 import {Loading} from "../../../../shared/ui/loading";
 import {ProductCard} from "../../../../entities/product/ui/ProductCard.tsx";
-import axios from "axios";
 import {PublicShopBanner} from "./PublicShopBanner.tsx";
+import {getShopByName} from "../../../../entities/shop/api/shops.ts";
+import {getProductsByShopName} from "../../../../entities/product/api/products.ts";
 
 export const PublicShopPage = () => {
     const [error, setError] = useState<string | null>(null);
@@ -23,17 +24,14 @@ export const PublicShopPage = () => {
             setShop(null);
             setLoading(true);
             try {
-                const response = await axios.get(
-                    `http://localhost:8080/api/shop/getByName/${shopName}`,
-                    {}
-                );
-                if (response.data) {
-                    setShop(response.data);
-                    console.log("PublicShopPage data:", response.data);
+                const shop = await getShopByName(shopName as string);
+                if (shop) {
+                    setShop(shop);
+                    console.log("PublicShopPage data:", shop);
                 } else {
                     setError("PublicShopPage not found");
                 }
-                console.log("PublicShopPage data:", response.data);
+                console.log("PublicShopPage data:", shop);
             } catch (err) {
                 setError("no shop found with this name");
                 console.error("Error fetching shop:", err);
@@ -50,20 +48,12 @@ export const PublicShopPage = () => {
     useEffect(() => {
         const fetchShopProducts = async () => {
             try {
-                let headers = {};
-                if (isAuthenticated) {
-                    const token = await getAccessTokenSilently();
-                    headers = {
-                        Authorization: `Bearer ${token}`,
-                    };
-                }
+                    let token: string | undefined;
+                    if(isAuthenticated){
+                        token = await getAccessTokenSilently();
+                    }
 
-                const response = await axios.get(
-                    `http://localhost:8080/api/product/getShopProducts/${shopName}`,
-                    {headers}
-                );
-
-                const productsData = Array.isArray(response.data) ? response.data : [];
+                const productsData = await getProductsByShopName(token as string, shopName as string)
                 setProducts(productsData);
             } catch (err) {
                 setError("Error fetching products");

@@ -77,7 +77,7 @@ public class ShopController {
     }
 
 
-    @GetMapping("/doUserOwnAShop")
+    @GetMapping("/doesTheUserOwnAShop")
     public ResponseEntity<Boolean> checkIfUserOwnAShop(@AuthenticationPrincipal Jwt jwt) {
         boolean ownAShop = profileService.checkIfUserOwnAShop(jwt.getClaim("sub"));
         if (ownAShop) {

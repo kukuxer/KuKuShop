@@ -2,7 +2,6 @@ import {useEffect, useState} from "react";
 import {FaStar, FaStarHalf} from "react-icons/fa";
 import {BsChevronLeft, BsChevronRight} from "react-icons/bs";
 import SecurityInfo from "./SecurityInfo.tsx";
-import axios from "axios";
 import {useAuth0} from "@auth0/auth0-react";
 import {useLocation, useParams} from "react-router-dom";
 import ProductCommentSection from "./ProductCommentSection.tsx";
@@ -14,6 +13,9 @@ import {Loading} from "../../../shared/ui/loading";
 import {AddToBasketButton, LikeBtn} from "../../../shared/ui/buttons";
 import {ProductRatingStar} from "../../shop/ui/ProductRatingStar.tsx";
 import {ShopCard} from "../../../entities/shop/ui/ShopCard.tsx";
+import {getProductById} from "../../../entities/product/api/products.ts";
+import {getShopById} from "../../../entities/shop/api/shops.ts";
+import {getProductComments} from "../../../entities/comment/api/comments.ts";
 
 export const ProductPage = () => {
     const [product, setProduct] = useState<Product | null>(null);
@@ -45,59 +47,32 @@ export const ProductPage = () => {
         const fetchAll = async () => {
             setIsEditing(new URLSearchParams(search).get("isEditing") === "true");
             setLoading(true);
+
             try {
-                let headers = {};
+                let token: string | undefined = undefined;
                 if (isAuthenticated) {
-                    const token = await getAccessTokenSilently();
-                    headers = {
-                        Authorization: `Bearer ${token}`,
-                    };
+                    token = await getAccessTokenSilently();
                 }
 
-                const productRes = await axios.get(
-                    `http://localhost:8080/api/product/getProduct/${productId}`,
-                    {headers}
-                );
-                const data = productRes.data;
+                const product = await getProductById(productId as string, token);
+                setProduct(product);
+                setSelectedPicture(product.imageUrl);
+                console.log("Product data:", product);
 
-                if (
-                    data.imageUrl &&
-                    (!data.additionalPictures ||
-                        !data.additionalPictures.includes(data.imageUrl))
-                ) {
-                    data.additionalPictures = [
-                        data.imageUrl,
-                        ...(data.additionalPictures || []),
-                    ];
-                }
-
-                setProduct(data);
-                setSelectedPicture(data.imageUrl);
-                console.log("Product data:", data);
-
-                if (data.shopId) {
+                if (product.shopId) {
                     try {
-                        const shopRes = await axios.get(
-                            `http://localhost:8080/api/shop/getById/${data.shopId}`
-                        );
-                        if (shopRes.data) {
-                            setShop(shopRes.data);
-                            console.log("PublicShopPage data:", shopRes.data);
-                        } else {
-                            setError("PublicShopPage not found");
-                        }
+                        const shop = await getShopById(product.shopId);
+                        setShop(shop);
+                        console.log("Shop data:", shop);
                     } catch (err) {
                         setError("No shop found with this ID");
-                        console.error("Error fetching shop:", err);
                     }
                 }
 
                 try {
-                    const commentRes = await axios.get(
-                        `http://localhost:8080/api/comment/getProductComments/${productId}`
-                    );
-                    setComments(commentRes.data);
-                    console.log("Comments:", commentRes.data);
+                    const comments = await getProductComments(productId as string);
+                    setComments(comments);
+                    console.log("Comments:", comments);
                 } catch (err) {
                     console.error("Failed to fetch comments:", err);
                 }

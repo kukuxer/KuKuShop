@@ -1,8 +1,8 @@
 import {useState, ChangeEvent, FormEvent} from "react";
 import {FiUpload} from "react-icons/fi";
-import axios from "axios";
 import {useAuth0} from "@auth0/auth0-react";
 import {useNavigate} from "react-router-dom";
+import {createShop} from "../../../entities/shop/api/shops.ts";
 
 interface ShopDto {
     shopName: string;
@@ -76,16 +76,7 @@ export const ShopCreationForm = () => {
                 }
                 console.log("Image type:", formData.image);
 
-                const response = await axios.post(
-                    "http://localhost:8080/api/shop/create",
-                    data,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "multipart/form-data",
-                        },
-                    }
-                );
+                const response = await createShop(token, data);
 
                 console.log("navigating..");
                 navigate("/myshopComponent");

@@ -4,7 +4,7 @@ import {MyShopComponent} from "./MyShopComponent.tsx";
 import {ErrorPage} from "../../../../shared/ui/error-page";
 import {Loading} from "../../../../shared/ui/loading";
 import {ShopCreationForm} from "../../../../features";
-import axios from "axios";
+import {doesTheUserOwnAShop} from "../../../../entities/shop/api/shops.ts";
 
 export const MyShopPage: React.FC = () => {
     const {isAuthenticated, getAccessTokenSilently} = useAuth0();
@@ -18,14 +18,7 @@ export const MyShopPage: React.FC = () => {
 
             try {
                 const token = await getAccessTokenSilently();
-                const response = await axios.get(
-                    "http://localhost:8080/api/shop/doUserOwnAShop",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
+                const response = await doesTheUserOwnAShop(token);
 
                 setHasShop(response.data);
             } catch (err) {

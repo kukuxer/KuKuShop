@@ -47,7 +47,6 @@ export const SearchField = () => {
                 const shopData = responseShop.data;
                 setPopularProducts(data);
                 setTopShops(shopData);
-                console.log(shopData);
             } catch (err) {
                 console.error("Fetch error:", err);
             }

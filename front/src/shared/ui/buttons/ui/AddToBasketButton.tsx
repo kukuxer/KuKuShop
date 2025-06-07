@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import axios from "axios";
 import {useAuth0} from "@auth0/auth0-react";
-import ProductEditionPage from "../../../../pages/product/ui/EditProduct.tsx";
+import {ProductEditionPage} from "../../../../pages/product/ui/ProductEditionPage.tsx";
 import {useNavigate} from "react-router-dom";
 import {Product} from "../../../../entities";
 

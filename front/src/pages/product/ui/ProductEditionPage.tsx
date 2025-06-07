@@ -23,22 +23,19 @@ import {
 import {useAuth0} from "@auth0/auth0-react";
 import {BsChevronDown, BsChevronUp} from "react-icons/bs";
 import {Product} from "../../../entities";
+import {editProduct} from "../../../entities/product/api/products.ts";
+import {categories} from "../../../shared/constants";
 
 interface ProductEditionPageProps {
     product: Product;
     onClose: () => void;
 }
 
-interface Category {
-    id: string;
-    name: string;
-    icon: React.ElementType;
-}
 
-const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
-                                                                   product,
-                                                                   onClose,
-                                                               }) => {
+export const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
+                                                                          product,
+                                                                          onClose,
+                                                                      }) => {
     type ImageValue = {
         preview: string;
         file?: File | undefined;
@@ -135,20 +132,9 @@ const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
                 }
             });
 
-            const response = await fetch(
-                `http://localhost:8080/api/product/private/update/${product.id}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: formDataPayload,
-                }
-            );
+            const result = await editProduct(product.id, token, formDataPayload);
 
-            const success = await response.json();
-            console.log("API Response:", success);
-            if (success) {
+            if (result) {
                 alert("Product updated successfully.");
                 onClose();
             } else {
@@ -159,15 +145,6 @@ const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
             alert("An error occurred while updating the product.");
         }
     };
-
-    const categories: Category[] = [
-        {id: "jewelry", name: "Jewelry", icon: FaGem},
-        {id: "clothing", name: "Clothing", icon: FaTshirt},
-        {id: "electronics", name: "Electronics", icon: FaMobileAlt},
-        {id: "accessories", name: "Accessories", icon: FaAccessibleIcon},
-        {id: "homeGoods", name: "Home Goods", icon: FaHome},
-        {id: "sports & outdoors", name: "sports & outdoors", icon: FaRunning},
-    ];
 
     const generateDeleteCode = () => {
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -762,4 +739,3 @@ const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
     );
 };
 
-export default ProductEditionPage;

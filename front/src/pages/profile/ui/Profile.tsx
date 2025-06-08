@@ -8,6 +8,7 @@ import {FiEdit} from "react-icons/fi";
 import {useAuth0, User} from "@auth0/auth0-react";
 import {ProfileEntity} from "../../../entities";
 import {ImageCropModal} from "../../../shared/lib/crop-image-modal/ImageCropModal.tsx";
+import {getProfile, updateProfile} from "../../../entities/profile/api/profiles.ts";
 
 
 interface FormData {
@@ -43,15 +44,7 @@ export const Profile: React.FC = () => {
         const fetchProfile = async () => {
             try {
                 const token = await getAccessTokenSilently();
-                const response = await fetch("http://localhost:8080/api/profile/get", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                if (!response.ok) throw new Error("Failed to fetch profile");
-
-                const data: ProfileEntity = await response.json();
+                const data = await getProfile(token);
                 setProfile(data);
 
                 setFormData({
@@ -109,15 +102,18 @@ export const Profile: React.FC = () => {
                 payload.append("image", formData.imageFile);
             }
 
-            const response = await fetch(`http://localhost:8080/api/profile/update`, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${await getAccessTokenSilently()}`,
-                },
-                body: payload,
-            });
+            // const response = await fetch(`http://localhost:8080/api/profile/update`, {
+            //     method: "PUT",
+            //     headers: {
+            //         Authorization: `Bearer ${await getAccessTokenSilently()}`,
+            //     },
+            //     body: payload,
+            // });
+            //
+            // const success = await response.json();
 
-            const success = await response.json();
+            const success = await updateProfile(await getAccessTokenSilently(), payload);
+
             if (success) {
                 setIsEditing(false);
                 setReload((prev) => !prev);

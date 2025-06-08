@@ -5,6 +5,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {Shop} from "../../../../entities";
 import {ShopDescription} from "../../ui/ShopDescription.tsx";
 import {ImageCropModal} from "../../../../shared/lib/crop-image-modal/ImageCropModal.tsx";
+import {updateShop} from "../../../../entities/shop/api/shops.ts";
 
 interface MyShopBannerProps {
     shop?: Shop;
@@ -84,15 +85,10 @@ export const MyShopBanner: React.FC<MyShopBannerProps> = ({shop}) => {
                 payload.append("image", file);
             }
 
-            const response = await fetch(`http://localhost:8080/api/shop/private/update`, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${await getAccessTokenSilently()}`,
-                },
-                body: payload,
-            });
+            const response = await updateShop(await getAccessTokenSilently(),payload);
 
-            const success = await response.json();
+
+            const success = response.data;
             if (success) {
                 setIsEditing(false);
                 setErrors({});

@@ -1,72 +1,12 @@
 import React from "react";
-import {
-    FaArrowRight,
-    FaShoppingCart,
-    FaStore,
-    FaUsers,
-    FaChartLine,
-    FaFacebook,
-    FaInstagram,
-    FaGithub,
-} from "react-icons/fa";
+import {socialLinks, stats, theme} from "../../../shared/constants"
+import {FaArrowRight} from "react-icons/fa";
 
-type Stat = {
-    icon: React.ElementType;
-    count: string;
-    label: string;
-    description: string;
-};
-
-type SocialLink = {
-    icon: React.ElementType;
-    link: string;
-    label: string;
-};
 
 const AboutSection: React.FC = () => {
     const handleExplore = (): void => {
         console.log("Exploring KuKuShop");
     };
-
-    const theme = {
-        bgColor: "bg-gradient-to-b from-gray-900 to-black",
-        accentColor: "bg-white",
-        textAccent: "text-white",
-    };
-
-    const stats: Stat[] = [
-        {
-            icon: FaUsers,
-            count: "10K+",
-            label: "Active Users",
-            description:
-                "Engaged users actively shopping and selling on our platform",
-        },
-        {
-            icon: FaStore,
-            count: "5K+",
-            label: "Shops Created",
-            description: "Thriving businesses powered by our e-commerce solution",
-        },
-        {
-            icon: FaShoppingCart,
-            count: "100K+",
-            label: "Products Sold",
-            description: "Successful transactions and happy customers",
-        },
-        {
-            icon: FaChartLine,
-            count: "85%",
-            label: "Growth Rate",
-            description: "Year-over-year platform growth and expansion",
-        },
-    ];
-
-    const socialLinks: SocialLink[] = [
-        {icon: FaFacebook, link: "https://facebook.com", label: "Facebook"},
-        {icon: FaInstagram, link: "https://instagram.com", label: "Instagram"},
-        {icon: FaGithub, link: "https://github.com", label: "Github"},
-    ];
 
     return (
         <div className="min-h-screen bg-black">

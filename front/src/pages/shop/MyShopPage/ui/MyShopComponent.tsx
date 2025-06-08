@@ -7,7 +7,8 @@ import {ErrorPage} from "../../../../shared/ui/error-page";
 import {Loading} from "../../../../shared/ui/loading";
 import {ProductCard} from "../../../../entities/product/ui/ProductCard.tsx";
 import {MyShopBanner} from "./MyShopBanner.tsx";
-import axios from "axios";
+import {getMyProducts} from "../../../../entities/product/api/products.ts";
+import {getMyShop} from "../../../../entities/shop/api/shops.ts";
 
 export const MyShopComponent = () => {
     const [error, setError] = useState<string | null>(null);
@@ -22,15 +23,7 @@ export const MyShopComponent = () => {
         const fetchShopProducts = async () => {
             try {
                 const token = await getAccessTokenSilently();
-                const response = await axios.get(
-                    "http://localhost:8080/api/product/getMyProducts",
-                    {
-                        method: "GET",
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
+                const response = await getMyProducts(token);
                 const productsData = Array.isArray(response.data) ? response.data : [];
                 const productsWithOwner = productsData.map((product) => ({
                     ...product,
@@ -51,14 +44,7 @@ export const MyShopComponent = () => {
         const fetchShop = async () => {
             try {
                 const token = await getAccessTokenSilently();
-                const response = await axios.get(
-                    "http://localhost:8080/api/shop/myShop",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
+                const response = await getMyShop(token);
 
                 if (response.status === 200) {
                     setShop(response.data);

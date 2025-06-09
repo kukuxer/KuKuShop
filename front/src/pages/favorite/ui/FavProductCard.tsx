@@ -5,6 +5,7 @@ import {Link} from "react-router-dom";
 import {Product} from "../../../entities";
 import {AddToBasketButton} from "../../../shared/ui/buttons";
 import {RatingStars} from "../../shop/ui/RatingStars.tsx";
+import {toggleFavoriteProduct} from "../../../entities/product/api/FavProducts.ts";
 
 
 interface ProductCardProps {
@@ -20,19 +21,11 @@ export const FavProductCard: React.FC<ProductCardProps> = ({
     const {getAccessTokenSilently} = useAuth0();
 
     const handleToggleFavorite = async () => {
-        try {
-            const token = await getAccessTokenSilently();
-            await fetch(`http://localhost:8080/api/public/favorites/${product.id}`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            onToggleFavorite(product.id, product.favorite ?? false);
-        } catch (error) {
-            console.error("Failed to toggle favorite", error);
-        }
+        const token = await getAccessTokenSilently();
+        await toggleFavoriteProduct(product.id, token);
+        onToggleFavorite(product.id, product.favorite ?? false);
     };
+
 
     return (
         <div

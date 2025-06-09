@@ -6,6 +6,11 @@ import {ErrorPage} from "../../../shared/ui/error-page";
 import {Product} from "../../../entities";
 import {ProductBasketCard} from "./ProductBasketCard.tsx";
 import {Loading} from "../../../shared/ui/loading";
+import {
+    deleteProductFromBasket,
+    fetchBasketProducts,
+    updateBasketProductQuantity
+} from "../../../entities/product/api/BasketProducts";
 
 
 export const BasketPage = () => {
@@ -16,49 +21,33 @@ export const BasketPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        setLoading(true);
+        const fetchCartItems = async () => {
             try {
                 const token = await getAccessTokenSilently();
-                const response = await fetch(
-                    "http://localhost:8080/api/public/basket/products",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                if (!response.ok) throw new Error("Failed to fetch products");
-                const data: Product[] = await response.json();
-                setCartItems(data);
-            } catch (err) {
-                setError(err as string);
+                const response = await fetchBasketProducts(token);
+                setCartItems(response.data);
+            } catch (error) {
+                console.error("Error fetching basket products:", error);
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
         };
-        fetchProducts();
+
+        fetchCartItems();
     }, [getAccessTokenSilently]);
 
     const deleteProduct = async (id: string) => {
         try {
             const token = await getAccessTokenSilently();
-            const response = await fetch(
-                `http://localhost:8080/api/public/basket/delete/${id}`,
-                {
-                    method: "DELETE",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            if (!response.ok) throw new Error("Failed to delete product");
-
+            await deleteProductFromBasket(id, token);
             setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
         } catch (err) {
-            setError(err as string);
+            console.error("Error deleting product:", err);
+            setError("Failed to delete product");
         }
     };
+
 
     if (loading) return <Loading/>;
     if (error) return <ErrorPage errorCode={error}/>;
@@ -69,27 +58,15 @@ export const BasketPage = () => {
     };
 
     const updateQuantity = async (id: string, change: number) => {
-        const newQuantity =
-            (cartItems.find((item) => item.id === id)?.quantity ?? 0) + change;
+        const currentQuantity = cartItems.find((item) => item.id === id)?.quantity ?? 0;
+        const newQuantity = currentQuantity + change;
 
-        // Prevent negative quantities
-        if (newQuantity && newQuantity < 1) return;
+        if (newQuantity < 1) return;
 
         try {
             const token = await getAccessTokenSilently();
-            const response = await fetch(
-                `http://localhost:8080/api/public/basket/update-quantity/${id}?quantity=${newQuantity}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const updatedItem = await updateBasketProductQuantity(id, newQuantity, token);
 
-            if (!response.ok) throw new Error("Failed to update quantity");
-
-            const updatedItem = await response.json();
             setCartItems((prevItems) =>
                 prevItems.map((item) =>
                     item.id === id ? {...item, quantity: updatedItem.quantity} : item
@@ -99,6 +76,7 @@ export const BasketPage = () => {
             console.error("Error updating quantity:", err);
         }
     };
+
 
     const subtotal = cartItems.reduce(
         (sum: number, item) => sum + Number(item.price) * item.quantity,

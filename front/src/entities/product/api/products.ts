@@ -1,6 +1,7 @@
 // src/api/products.ts
 import axios from "axios";
 
+
 export const getProductById = async (productId: string, token?: string) => {
     const headers = token ? {Authorization: `Bearer ${token}`} : {};
     const res = await axios.get(`http://localhost:8080/api/product/getProduct/${productId}`, {headers});
@@ -55,4 +56,9 @@ export const getProductsByShopName = async (token: string, shopName: string) => 
         {headers}
     );
     return Array.isArray(response.data) ? response.data : [];
+};
+
+export const fetchTopProducts = async (limit: number = 12) => {
+    const response = await axios.get(`http://localhost:8080/api/product/public/top/${limit}`);
+    return response.data;
 };

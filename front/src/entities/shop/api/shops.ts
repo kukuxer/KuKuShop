@@ -57,5 +57,10 @@ export const getMyShop = async (token: string) => {
     );
 }
 
+export const fetchTopShops = async (limit: number = 12) => {
+    const response = await axios.get(`http://localhost:8080/api/shop/public/top/${limit}`);
+    return response.data;
+};
+
 
 

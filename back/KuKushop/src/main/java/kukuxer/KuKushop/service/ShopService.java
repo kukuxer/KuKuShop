@@ -80,8 +80,8 @@ public class ShopService {
     }
 
 
-    public List<ShopDto> findTopShops() {
-        List<Shop> top3ByRating = shopRepository.findTop3ByRating(PageRequest.of(0, 3));
+    public List<ShopDto> findTopShops(int amount) {
+        List<Shop> top3ByRating = shopRepository.findTop3ByRating(PageRequest.of(0, amount));
         List<ShopDto> top3ByRatingDto = new ArrayList<>();
         top3ByRating.forEach(
                 s -> {

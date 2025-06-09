@@ -6,7 +6,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {useLocation, useParams} from "react-router-dom";
 import ProductCommentSection from "./ProductCommentSection.tsx";
 import ProductReview from "./ProductReview.tsx";
-import ImageEnlargementModal from "./ImageEnlargementModal.tsx";
+import {ImageEnlargementModal} from "./ImageEnlargementModal.tsx";
 import {ErrorPage} from "../../../shared/ui/error-page";
 import {Product, Shop, Comment} from "../../../entities";
 import {Loading} from "../../../shared/ui/loading";

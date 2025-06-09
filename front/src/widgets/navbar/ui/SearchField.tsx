@@ -6,6 +6,8 @@ import {useAuth0} from "@auth0/auth0-react";
 import {useNavigate} from "react-router-dom";
 import {Product, Shop} from "../../../entities";
 import axios from "axios";
+import {fetchTopProducts} from "../../../entities/product/api/products.ts";
+import {fetchTopShops} from "../../../entities/shop/api/shops.ts";
 
 export const SearchField = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -18,42 +20,24 @@ export const SearchField = () => {
     const [flatResults, setFlatResults] = useState<(Product | Shop)[]>([]);
     const {getAccessTokenSilently, isAuthenticated} = useAuth0();
 
-    const [popularProducts, setPopularProducts] = useState<Product[]>([]);
+    const [topProducts, setTopProducts] = useState<Product[]>([]);
     const [topShops, setTopShops] = useState<Shop[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchProduct = async () => {
-            try {
-                let headers = {};
-                if (isAuthenticated) {
-                    const token = await getAccessTokenSilently();
-                    headers = {
-                        Authorization: `Bearer ${token}`,
-                    };
-                }
+        const fetchProductAndShops = async () => {
+            const [products, shops] = await Promise.all([
+                fetchTopProducts(3),
+                fetchTopShops(3),
+            ]);
 
-                const response = await axios.get(
-                    "http://localhost:8080/api/product/public/top/3",
-                    {headers}
-                );
-
-                const responseShop = await axios.get(
-                    `http://localhost:8080/api/shop/getTopShops`,
-                    {headers}
-                );
-
-                const data = response.data;
-                const shopData = responseShop.data;
-                setPopularProducts(data);
-                setTopShops(shopData);
-            } catch (err) {
-                console.error("Fetch error:", err);
-            }
+            setTopProducts(products);
+            setTopShops(shops);
         };
 
-        fetchProduct();
+        fetchProductAndShops();
     }, [getAccessTokenSilently, isAuthenticated]);
+
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -147,11 +131,12 @@ export const SearchField = () => {
             <div className={`relative transition-all duration-300 min-w-[280px] sm:min-w-[320px] ${
                 isFocused ? 'transform md:transform-none scale-105 md:scale-100' : ''
             }`}>
-                <div className={`relative bg-gray-900 rounded-2xl md:rounded-full border transition-all duration-300 ${
-                    isFocused
-                        ? 'border-purple-400 shadow-lg shadow-purple-500/20 md:shadow-none'
-                        : 'border-gray-700 hover:border-gray-600'
-                }`}>
+                <div
+                    className={`relative bg-gray-900 rounded-2xl md:rounded-full border transition-all duration-300 ${
+                        isFocused
+                            ? 'border-purple-400 shadow-lg shadow-purple-500/20 md:shadow-none'
+                            : 'border-gray-700 hover:border-gray-600'
+                    }`}>
                     <input
                         ref={inputRef}
                         type="text"
@@ -216,10 +201,11 @@ export const SearchField = () => {
                             <div className="mb-6 md:mb-4">
                                 <div className="flex items-center mb-3 md:mb-2 px-2">
                                     <FiTrendingUp className="text-purple-400 mr-2 text-lg md:text-base"/>
-                                    <h3 className="text-gray-200 text-base md:text-sm font-semibold">Popular Products</h3>
+                                    <h3 className="text-gray-200 text-base md:text-sm font-semibold">Popular
+                                        Products</h3>
                                 </div>
                                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-2">
-                                    {popularProducts.map((product, index) => (
+                                    {topProducts.map((product, index) => (
                                         <div
                                             key={product.id}
                                             onClick={() => {
@@ -262,7 +248,8 @@ export const SearchField = () => {
                             <div>
                                 <div className="flex items-center mb-3 md:mb-2 px-2">
                                     <FiShoppingBag className="text-emerald-400 mr-2 text-lg md:text-base"/>
-                                    <h3 className="text-gray-200 text-base md:text-sm font-semibold">Top Rated Shops</h3>
+                                    <h3 className="text-gray-200 text-base md:text-sm font-semibold">Top Rated
+                                        Shops</h3>
                                 </div>
                                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-2">
                                     {topShops.map((shop, index) => (
@@ -273,7 +260,7 @@ export const SearchField = () => {
                                             }}
                                             key={shop.id}
                                             className={`flex items-center p-3 md:p-2 
-                                                       ${selectedIndex === index + popularProducts.length ? 'bg-purple-900/40' : 'hover:bg-gray-800/80'}
+                                                       ${selectedIndex === index + topProducts.length ? 'bg-purple-900/40' : 'hover:bg-gray-800/80'}
                                                        rounded-xl md:rounded-lg transition-all duration-200 cursor-pointer
                                                        active:scale-95 hover:shadow-lg hover:shadow-emerald-500/10`}
                                         >
@@ -322,7 +309,8 @@ export const SearchField = () => {
                                     {searchResults.products.length > 0 && (
                                         <div>
                                             <div className="flex items-center mb-3 md:mb-2 px-2">
-                                                <FiTrendingUp className="text-purple-400 mr-2 text-lg md:text-base"/>
+                                                <FiTrendingUp
+                                                    className="text-purple-400 mr-2 text-lg md:text-base"/>
                                                 <h3 className="text-gray-200 text-base md:text-sm font-semibold">
                                                     Products ({searchResults.products.length})
                                                 </h3>
@@ -354,8 +342,10 @@ export const SearchField = () => {
                                                                 {product.name}
                                                             </h4>
                                                             <div className="flex items-center">
-                                                                <AiFillStar className="text-yellow-400 text-sm md:text-xs"/>
-                                                                <span className="text-gray-400 text-sm md:text-xs ml-1">
+                                                                <AiFillStar
+                                                                    className="text-yellow-400 text-sm md:text-xs"/>
+                                                                <span
+                                                                    className="text-gray-400 text-sm md:text-xs ml-1">
                                                                     {product.rating}
                                                                 </span>
                                                             </div>
@@ -370,7 +360,8 @@ export const SearchField = () => {
                                     {searchResults.shops.length > 0 && (
                                         <div>
                                             <div className="flex items-center mb-3 md:mb-2 px-2">
-                                                <FiShoppingBag className="text-emerald-400 mr-2 text-lg md:text-base"/>
+                                                <FiShoppingBag
+                                                    className="text-emerald-400 mr-2 text-lg md:text-base"/>
                                                 <h3 className="text-gray-200 text-base md:text-sm font-semibold">
                                                     Shops ({searchResults.shops.length})
                                                 </h3>
@@ -402,8 +393,10 @@ export const SearchField = () => {
                                                                 {shop.name}
                                                             </h4>
                                                             <div className="flex items-center">
-                                                                <AiFillStar className="text-yellow-400 text-sm md:text-xs"/>
-                                                                <span className="text-gray-400 text-sm md:text-xs ml-1">
+                                                                <AiFillStar
+                                                                    className="text-yellow-400 text-sm md:text-xs"/>
+                                                                <span
+                                                                    className="text-gray-400 text-sm md:text-xs ml-1">
                                                                     {shop.rating}
                                                                 </span>
                                                             </div>

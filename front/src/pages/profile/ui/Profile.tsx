@@ -102,16 +102,6 @@ export const Profile: React.FC = () => {
                 payload.append("image", formData.imageFile);
             }
 
-            // const response = await fetch(`http://localhost:8080/api/profile/update`, {
-            //     method: "PUT",
-            //     headers: {
-            //         Authorization: `Bearer ${await getAccessTokenSilently()}`,
-            //     },
-            //     body: payload,
-            // });
-            //
-            // const success = await response.json();
-
             const success = await updateProfile(await getAccessTokenSilently(), payload);
 
             if (success) {

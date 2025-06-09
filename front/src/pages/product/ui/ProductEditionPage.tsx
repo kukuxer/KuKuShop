@@ -7,12 +7,6 @@ import React, {
 } from "react";
 import {useDropzone} from "react-dropzone";
 import {
-    FaGem,
-    FaTshirt,
-    FaMobileAlt,
-    FaAccessibleIcon,
-    FaHome,
-    FaRunning,
     FaTrash,
     FaUpload,
     FaPlus,

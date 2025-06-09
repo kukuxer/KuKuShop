@@ -101,9 +101,9 @@ public class ShopController {
         }
     }
 
-    @GetMapping("/getTopShops")
-    public ResponseEntity<?> getTopShops() {
-        List<ShopDto> topShops = shopService.findTopShops();
+    @GetMapping("/public/top/{number}")
+    public ResponseEntity<?> getTopShops(@PathVariable int number) {
+        List<ShopDto> topShops = shopService.findTopShops(number);
         return ResponseEntity.ok(topShops);
     }
 

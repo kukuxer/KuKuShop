@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {useAuth0} from "@auth0/auth0-react";
 import {
     FiMenu,
@@ -7,7 +7,6 @@ import {
     FiHeart,
     FiUser,
     FiLogOut,
-    FiPackage,
     FiShoppingCart,
     FiDollarSign, FiOctagon,
 } from "react-icons/fi";
@@ -15,6 +14,7 @@ import {Link} from "react-router-dom";
 import {SearchField} from "./SearchField.tsx";
 import {ProfileEntity} from "../../../entities";
 import NavButton from "./NavButton.tsx";
+import { fetchOrCreateProfile } from "../../../entities/profile/api/profiles.ts";
 
 export const Navbar = () => {
     const {
@@ -28,7 +28,6 @@ export const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [profile, setProfile] = useState<ProfileEntity | null>(null);
-    const [shopImage, setShopImage] = useState<string | null>(null);
     const [buyHave, setBuyHave] = useState(false);
     const [favHave, setFavHave] = useState(false);
     const [basketHave, setBasketHave] = useState(false);
@@ -39,64 +38,12 @@ export const Navbar = () => {
             logoutParams: {returnTo: window.location.origin},
         });
 
-    const fetchOrCreateProfile = async () => {
-        try {
+    const loadProfile  = async () => {
             if (!isAuthenticated) return;
 
             const token = await getAccessTokenSilently();
-            const response = await fetch(
-                "http://localhost:8080/api/profile/getOrCreateProfile",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        name: user?.name || "",
-                        email: user?.email || "",
-                        familyName: user?.family_name || "",
-                        givenName: user?.given_name || "",
-                        nickname: user?.nickname || "",
-                        imageUrl: user?.picture || "",
-                    }),
-                }
-            );
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch or create profile");
-            }
-
-            const profileData = await response.json();
+            const profileData = await fetchOrCreateProfile(token, user);
             setProfile(profileData);
-        } catch (error) {
-            console.error("Error fetching or creating profile:", error);
-        }
-    };
-
-    const fetchShopImage = async () => {
-        try {
-            const token = await getAccessTokenSilently();
-
-            const response = await fetch(
-                "http://localhost:8080/api/shop/myShopImage",
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-
-            if (response.ok) {
-                const imageUrl = await response.text();
-                setShopImage(imageUrl);
-            } else {
-                setShopImage("/PublicShopPage.png");
-            }
-        } catch (error) {
-            console.error("Error fetching shop image:", error);
-        }
     };
 
     useEffect(() => {
@@ -104,8 +51,7 @@ export const Navbar = () => {
 
         const fetchData = async () => {
             if (!isAuthenticated) return;
-            await fetchOrCreateProfile();
-            await fetchShopImage();
+            await loadProfile();
         };
 
         if (isMounted) fetchData();

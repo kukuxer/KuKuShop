@@ -5,3 +5,27 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+    @keyframes glowPulse {
+        0%, 100% {
+            box-shadow: 0 0 0 rgba(106, 13, 173, 0.3);
+        }
+        50% {
+            box-shadow: 0 0 16px rgba(106, 13, 173, 0.6);
+        }
+    }
+
+    .animate-glow {
+        animation: glowPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+    }
+
+    .animate-bounce-slow {
+        animation: bounce-slow 1.8s infinite ease-in-out;
+    }
+
+}

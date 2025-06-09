@@ -1,9 +1,9 @@
 import React, {useState, useEffect} from "react";
 import {FaHeart, FaSearch} from "react-icons/fa";
 import {useAuth0} from "@auth0/auth0-react";
-import axios from "axios";
 import {Product} from "../../../entities";
 import {FavProductCard} from "./FavProductCard.tsx";
+import {fetchFavoriteProducts} from "../../../entities/product/api/FavProducts.ts";
 
 export const FavProductsPage: React.FC = () => {
     const [likedProducts, setLikedProducts] = useState<Product[]>([]);
@@ -18,13 +18,7 @@ export const FavProductsPage: React.FC = () => {
         const fetchFavorites = async () => {
             try {
                 const token = await getAccessTokenSilently();
-                const {data} = await axios.get(
-                    "http://localhost:8080/api/public/favorites/products",
-                    {
-                        headers: {Authorization: `Bearer ${token}`},
-                    }
-                );
-
+                const data = await fetchFavoriteProducts(token);
                 setLikedProducts(Array.isArray(data) ? data : []);
             } catch (err) {
                 console.error("Failed to fetch favorite products", err);
@@ -33,6 +27,7 @@ export const FavProductsPage: React.FC = () => {
 
         fetchFavorites();
     }, [getAccessTokenSilently, refreshTrigger]);
+
 
     const handleSort = (type: "price-asc" | "price-desc" | "date") => {
         setSortBy(type);

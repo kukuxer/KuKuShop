@@ -43,6 +43,7 @@ public class SecurityConfig {
                                 "/api/comment/getProductComments/**",
                                 "/api/shop/getTopShops",
                                 "/api/product/public/top/**"
+                                ,"/api/shop/public/top/**"
                         ).permitAll()
                         .requestMatchers("/api/private").authenticated()
                         .anyRequest().authenticated()

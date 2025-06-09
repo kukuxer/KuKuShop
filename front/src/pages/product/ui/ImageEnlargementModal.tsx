@@ -7,11 +7,11 @@ interface ImageEnlargementModalProps {
     onClose: () => void;
 }
 
-const ImageEnlargementModal: React.FC<ImageEnlargementModalProps> = ({
-                                                                         imageUrl,
-                                                                         isOpen,
-                                                                         onClose,
-                                                                     }) => {
+export const ImageEnlargementModal: React.FC<ImageEnlargementModalProps> = ({
+                                                                                imageUrl,
+                                                                                isOpen,
+                                                                                onClose,
+                                                                            }) => {
     useEffect(() => {
         const handleEscKey = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
@@ -58,5 +58,3 @@ const ImageEnlargementModal: React.FC<ImageEnlargementModalProps> = ({
         </div>
     );
 };
-
-export default ImageEnlargementModal;

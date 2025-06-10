@@ -14,7 +14,7 @@ import {Link} from "react-router-dom";
 import {SearchField} from "./SearchField.tsx";
 import {ProfileEntity} from "../../../entities";
 import NavButton from "./NavButton.tsx";
-import { fetchOrCreateProfile } from "../../../entities/profile/api/profiles.ts";
+import {fetchOrCreateProfile} from "../../../entities/profile/api/profiles.ts";
 
 export const Navbar = () => {
     const {
@@ -38,12 +38,12 @@ export const Navbar = () => {
             logoutParams: {returnTo: window.location.origin},
         });
 
-    const loadProfile  = async () => {
-            if (!isAuthenticated) return;
+    const loadProfile = async () => {
+        if (!isAuthenticated) return;
 
-            const token = await getAccessTokenSilently();
-            const profileData = await fetchOrCreateProfile(token, user);
-            setProfile(profileData);
+        const token = await getAccessTokenSilently();
+        const profileData = await fetchOrCreateProfile(token, user);
+        setProfile(profileData);
     };
 
     useEffect(() => {
@@ -203,7 +203,6 @@ export const Navbar = () => {
                             )}
                         </div>
                     </div>
-
 
 
                     <div className="md:hidden">

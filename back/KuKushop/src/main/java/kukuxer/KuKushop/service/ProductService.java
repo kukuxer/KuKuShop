@@ -12,6 +12,8 @@ import kukuxer.KuKushop.repository.ProductRepository;
 import kukuxer.KuKushop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -179,5 +181,41 @@ public class ProductService {
                 productMapper.toDto(p))
         );
         return top3ByRatingDto;
+    }
+
+    public ResponseEntity<?> delete(UUID id, Jwt jwt) {
+        if (!isProductOwner(id, jwt)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("You are not authorized to delete this product.");
+        }
+
+        if (!productRepository.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Product not found.");
+        }
+
+        productRepository.deleteById(id);
+        return ResponseEntity.ok("Product deleted successfully.");
+    }
+
+
+    private boolean isProductOwner(UUID productId, Jwt jwt) {
+        try {
+            Profile profile = profileService.getByAuthId(jwt.getClaim("sub"))
+                    .orElseThrow(() -> new RuntimeException("User not found: " + jwt.getClaim("sub")));
+
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+
+            Shop shop = shopRepository.findById(product.getShopId())
+                    .orElseThrow(() -> new RuntimeException("Shop not found: " + product.getShopId()));
+
+            if (!shop.getUserAuthId().equals(profile.getAuthId())) {
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

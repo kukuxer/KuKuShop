@@ -17,8 +17,9 @@ import {
 import {useAuth0} from "@auth0/auth0-react";
 import {BsChevronDown, BsChevronUp} from "react-icons/bs";
 import {Product} from "../../../entities";
-import {editProduct} from "../../../entities/product/api/products.ts";
+import {deleteProduct, editProduct} from "../../../entities/product/api/products.ts";
 import {categories} from "../../../shared/constants";
+import {useLocation, useNavigate} from "react-router-dom";
 
 interface ProductEditionPageProps {
     product: Product;
@@ -59,6 +60,8 @@ export const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
 
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [deleteInput, setDeleteInput] = useState("");
+    const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         if (product) {
@@ -105,11 +108,13 @@ export const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
             );
             formDataPayload.append(
                 "additionalPictures",
-                formData.additionalImages.map((img) => img.preview).join(",")
+                formData.additionalImages?.map((img) => img.preview).join(",") || ""
             );
-            if (formData.mainImage) {
-                formDataPayload.append("imageUrl", formData.mainImage.preview);
-            }
+            formDataPayload.append(
+                "imageUrl",
+                formData.mainImage?.preview ?? ""
+            );
+
 
             formData.selectedCategories.forEach((cat) =>
                 formDataPayload.append("categories", cat)
@@ -119,7 +124,6 @@ export const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
                 formDataPayload.append("image", formData.mainImage.file);
             }
 
-            // Handle additional images (send either the existing URLs or the new files)
             formData.additionalImages.forEach((img) => {
                 if (img.file) {
                     formDataPayload.append("additionalImages", img.file);
@@ -129,7 +133,7 @@ export const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
             const result = await editProduct(product.id, token, formDataPayload);
 
             if (result) {
-                alert("Product updated successfully.");
+                window.location.reload();
                 onClose();
             } else {
                 alert("Failed to update product.");
@@ -148,12 +152,21 @@ export const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
         }
         return result;
     };
-    const [deleteCode, setDeleteCode] = useState(generateDeleteCode());
+    const [deleteCode] = useState(generateDeleteCode());
 
-    const handleDeleteConfirm = () => {
-        if (deleteInput.trim() === deleteCode) {
-            console.log("Product deleted");
+    const handleDeleteConfirm = async () => {
+        if (deleteInput.trim() !== deleteCode) return;
+
+        try {
+            const token = await getAccessTokenSilently();
+            await deleteProduct(product.id, token);
+            alert("Product deleted successfully.");
+            navigate("/myshop");
             onClose();
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Failed to delete product";
+            console.error("Delete error:", error);
+            alert(message);
         }
     };
 
@@ -323,10 +336,7 @@ export const ProductEditionPage: React.FC<ProductEditionPageProps> = ({
     };
 
     const formatPrice = (value: string) => {
-        // Allow only digits and dots
         const cleaned = value.replace(/[^\d.]/g, "");
-
-        // Match valid price pattern: optional digits, optional dot, optional 2 digits after dot
         const match = cleaned.match(/^(\d*)(\.?)(\d{0,2})/);
         if (!match) return "";
 

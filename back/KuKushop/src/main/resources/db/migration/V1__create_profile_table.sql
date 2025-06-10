@@ -1,3 +1,4 @@
+CREATE SCHEMA IF NOT EXISTS kukushop;
 CREATE TABLE IF NOT EXISTS profiles
 (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -35,7 +36,7 @@ CREATE TABLE IF NOT EXISTS products
     quantity      INT,
     image_url     VARCHAR(2083),
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_shop_id FOREIGN KEY (shop_id) REFERENCES shops (id)
+    CONSTRAINT fk_shop_id FOREIGN KEY (shop_id) REFERENCES shops (id) ON DELETE CASCADE
 ) CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
@@ -60,6 +61,6 @@ CREATE TABLE IF NOT EXISTS favorites
     user_id    BIGINT     NOT NULL,
     product_id BINARY(16) NOT NULL,
     CONSTRAINT fk_user_id_id FOREIGN KEY (user_id) REFERENCES profiles(id),
-    CONSTRAINT fk_product_id_id FOREIGN KEY (product_id) REFERENCES products(id)
+    CONSTRAINT fk_product_id_id FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 

@@ -3,7 +3,7 @@ import {FaStar, FaStarHalf} from "react-icons/fa";
 import {BsChevronLeft, BsChevronRight} from "react-icons/bs";
 import SecurityInfo from "./SecurityInfo.tsx";
 import {useAuth0} from "@auth0/auth0-react";
-import {useLocation, useParams} from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import ProductCommentSection from "./ProductCommentSection.tsx";
 import ProductReview from "./ProductReview.tsx";
 import {ImageEnlargementModal} from "./ImageEnlargementModal.tsx";
@@ -21,7 +21,7 @@ export const ProductPage = () => {
     const [product, setProduct] = useState<Product | null>(null);
     const [shop, setShop] = useState<Shop | null>(null);
     const [comments, setComments] = useState<Comment[]>([]);
-    const {getAccessTokenSilently, isAuthenticated} = useAuth0();
+    const {getAccessTokenSilently, isAuthenticated,isLoading: isAuthLoading} = useAuth0();
     const [selectedImage, setSelectedImage] = useState(0);
     const [currentSort, setCurrentSort] = useState("recent");
     const [currentPage, setCurrentPage] = useState(1);
@@ -38,13 +38,27 @@ export const ProductPage = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
 
+
     useEffect(() => {
         setIsEditing(new URLSearchParams(search).get("isEditing") === "true");
+
     }, [search]);
+
+    useEffect(() => {
+        const url = new URL(window.location.href);
+        const isEditing = url.searchParams.get("isEditing");
+
+        if (isEditing === "true") {
+            url.searchParams.set("isEditing", "false");
+            window.history.replaceState(null, "", url.toString());
+        }
+    }, []);
+
 
 
     useEffect(() => {
         const fetchAll = async () => {
+            setLoading(true);
             setIsEditing(new URLSearchParams(search).get("isEditing") === "true");
             setLoading(true);
 
@@ -85,10 +99,10 @@ export const ProductPage = () => {
             }
         };
 
-        if (productId) {
+        if (!isAuthLoading && productId) {
             fetchAll();
         }
-    }, [productId, search, isAuthenticated, getAccessTokenSilently, refreshTrigger]);
+    }, [productId, search,isAuthenticated,getAccessTokenSilently, refreshTrigger]);
 
 
     const refreshFetchTrigger = async () => {
@@ -174,7 +188,9 @@ export const ProductPage = () => {
         }
     };
 
-    if (loading) return <Loading/>;
+    if (isAuthLoading || loading) {
+        return <Loading />;
+    }
     if (error) return <ErrorPage errorCode={error}/>;
     if (!product || loading) return <ErrorPage errorCode="ИДИИ НАХУУЙ"/>;
 
@@ -339,7 +355,7 @@ export const ProductPage = () => {
 
                     <div className="space-y-6">
                         {comments.map((comment) => (
-                            <ProductReview comment={comment} renderStars={renderStars}/>
+                            <ProductReview key={comment.id} comment={comment} renderStars={renderStars}/>
                         ))}
                         <ProductCommentSection
                             refreshFetchTrigger={refreshFetchTrigger}

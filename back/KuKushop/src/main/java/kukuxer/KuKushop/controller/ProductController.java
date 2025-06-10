@@ -94,5 +94,11 @@ public class ProductController {
         List<ProductDto> topProducts = productService.findTopProducts(number);
         return ResponseEntity.ok(topProducts);
     }
+
+    @DeleteMapping("/delete/{productId}")
+    public ResponseEntity<?> deleteProduct(@PathVariable UUID productId,
+                                           @AuthenticationPrincipal Jwt jwt) {
+        return productService.delete(productId, jwt);
+    }
 }
 

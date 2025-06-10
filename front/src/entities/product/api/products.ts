@@ -38,6 +38,15 @@ export const editProduct = async (
     }
 };
 
+export const deleteProduct = async (productId: string, token: string) => {
+    const response = await axios.delete(`http://localhost:8080/api/product/delete/${productId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+};
+
 export const getMyProducts = async (token: string) => {
     return await axios.get(
         "http://localhost:8080/api/product/getMyProducts",

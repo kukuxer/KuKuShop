@@ -7,6 +7,7 @@ import {MyShopComponent} from "../pages/shop/MyShopPage/ui/MyShopComponent.tsx";
 import {MyShopPage,PublicShopPage, Profile, ProductPage, Home, BasketPage,} from "../pages";
 import {ProductCreationForm, ShopCreationForm} from "../features";
 import {Loading} from "../shared/ui/loading";
+import {ProductSelectorPage} from "../pages/ProductSelector";
 
 const ProtectedShop = withAuthenticationRequired(MyShopPage, {
   onRedirecting: () => <Loading />,
@@ -42,6 +43,7 @@ export  const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/shops/:shopName" element={<PublicShopPage />} />
             <Route path="/products/:productId" element={<ProductPage />} />
+            <Route path="/find/product" element={<ProductSelectorPage />} />
             {/* Secure Route */}
             <Route path="/myshop" element={<ProtectedShop />} />
             <Route

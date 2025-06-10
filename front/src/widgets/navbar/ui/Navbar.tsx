@@ -83,7 +83,7 @@ export const Navbar = () => {
                                 <div className="ml-6 flex space-x-2">
 
                                     <NavButton
-                                        to="/buy"
+                                        to="/find/product"
                                         label="Buy"
                                         icon={
                                             <FiShoppingCart

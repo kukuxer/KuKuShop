@@ -80,7 +80,7 @@ export const ShopCreationForm = () => {
 
                 console.log("navigating..");
                 navigate("/myshopComponent");
-                console.log("PublicShopPage created:", response.data);
+                console.log("PublicShopPage created:", response);
                 setFormData({shopName: "", image: null, description: ""});
                 setAgreement(false);
                 setImagePreview(null);

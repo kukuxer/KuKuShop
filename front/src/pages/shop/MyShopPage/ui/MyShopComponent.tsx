@@ -45,12 +45,7 @@ export const MyShopComponent = () => {
             try {
                 const token = await getAccessTokenSilently();
                 const response = await getMyShop(token);
-
-                if (response.status === 200) {
-                    setShop(response.data);
-                } else {
-                    setError("PublicShopPage not found");
-                }
+                setShop(response);
             } catch (err) {
                 setError("Error fetching shop data");
                 console.error("Error fetching shop:", err);

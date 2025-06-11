@@ -87,9 +87,7 @@ export const MyShopBanner: React.FC<MyShopBannerProps> = ({shop}) => {
 
             const response = await updateShop(await getAccessTokenSilently(),payload);
 
-
-            const success = response.data;
-            if (success) {
+            if (response) {
                 setIsEditing(false);
                 setErrors({});
                 setInitialTitle(title);

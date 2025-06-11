@@ -1,66 +1,30 @@
-import axios from "axios";
+import {getPublic, getWithAuth, postWithAuth, putWithAuth} from "../../../shared/api/apiClient.ts";
+import {MY_URL} from "../../../shared/constants";
 
-export const getShopById = async (shopId: string) => {
-    const res = await axios.get(`http://localhost:8080/api/shop/getById/${shopId}`);
-    return res.data;
-};
+const BASE_URL: string = `${MY_URL}/shop`;
 
-export const getShopByName = async (shopName: string) => {
-    const res = await axios.get(`http://localhost:8080/api/shop/getByName/${shopName}`);
-    return res.data;
-};
+export const getShopById = (shopId: string) =>
+    getPublic(`${BASE_URL}/getById/${shopId}`);
+
+export const getShopByName = (shopName: string) =>
+    getPublic(`${BASE_URL}/shop/getByName/${shopName}`);
 
 
-export const createShop = async (token: string, formData: FormData) => {
-    return await axios.post(
-        "http://localhost:8080/api/shop/create",
-        formData,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-        }
-    );
-}
+export const createShop = (token: string, formData: FormData) =>
+    postWithAuth(`${BASE_URL}/create`, formData, token);
 
-export const doesTheUserOwnAShop = async (token: string) => {
-    return await axios.get(
-        "http://localhost:8080/api/shop/doesTheUserOwnAShop",
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
-    );
-}
+export const doesTheUserOwnAShop = (token: string) =>
+    getWithAuth(`${BASE_URL}/doesTheUserOwnAShop`, token);
 
-export const updateShop = async (token: string, formData: FormData) => {
-    return await axios.put(
-        "http://localhost:8080/api/shop/private/update",
-        formData,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-        }
-    );
-}
 
-export const getMyShop = async (token: string) => {
-    return await axios.get(
-        "http://localhost:8080/api/shop/myShop",
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
-    );
-}
+export const updateShop = (token: string, formData: FormData) =>
+    putWithAuth(`${BASE_URL}/private/update`, formData, token);
 
-export const fetchTopShops = async (limit: number = 12) => {
-    const response = await axios.get(`http://localhost:8080/api/shop/public/top/${limit}`);
-    return response.data;
-};
+export const getMyShop = (token: string) =>
+    getWithAuth(`${BASE_URL}/myShop`, token);
 
+
+export const fetchTopShops = (limit: number = 12) =>
+    getPublic(`${BASE_URL}/public/top/${limit}`);
 
 

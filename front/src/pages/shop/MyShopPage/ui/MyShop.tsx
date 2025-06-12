@@ -20,7 +20,7 @@ export const MyShopPage: React.FC = () => {
                 const token = await getAccessTokenSilently();
                 const response = await doesTheUserOwnAShop(token);
 
-                setHasShop(response.data);
+                setHasShop(response);
             } catch (err) {
                 setError(err as string);
             } finally {

@@ -18,7 +18,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {BsChevronDown, BsChevronUp} from "react-icons/bs";
 import {Product} from "../../../entities";
 import {deleteProduct, editProduct} from "../../../entities/product/api/products.ts";
-import {categories} from "../../../shared/constants";
+import {categories} from "../../../shared/constants/constants.ts";
 import {useLocation, useNavigate} from "react-router-dom";
 
 interface ProductEditionPageProps {

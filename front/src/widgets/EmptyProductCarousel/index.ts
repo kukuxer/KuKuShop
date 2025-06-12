@@ -1,0 +1,1 @@
+export {EmptyProductCarousel} from './EmptyProductCarousel.tsx'

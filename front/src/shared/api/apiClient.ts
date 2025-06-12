@@ -3,6 +3,7 @@ import axios from "axios";
 const createAuthHeaders = (token: string) => ({
     headers: {
         Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
     },
 });
 

@@ -61,7 +61,7 @@ const HeroSection: React.FC = () => {
                             aria-label="PublicShopPage Now"
                         >
                             <FaShoppingCart className="text-lg"/>
-                            PublicShopPage Now
+                            Shop Now
                         </button>
 
                         {!isAuthenticated && (

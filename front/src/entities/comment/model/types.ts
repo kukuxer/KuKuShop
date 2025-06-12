@@ -8,3 +8,8 @@ export interface Comment {
   rating: number;
   productId: string;
 }
+export interface CreateCommentDto {
+  comment: string;
+  rating: number;
+  productId: string | number;
+}

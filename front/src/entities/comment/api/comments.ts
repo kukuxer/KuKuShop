@@ -1,29 +1,13 @@
-import axios from "axios";
+import {getPublic, postWithAuth} from "../../../shared/api/apiClient.ts";
+import {MY_URL} from "../../../shared/constants";
+import {CreateCommentDto} from "../model/types.ts";
 
-interface CreateCommentDto {
-    comment: string;
-    rating: number;
-    productId: string | number;
-}
+const BASE_URL: string = `${MY_URL}/comment`;
 
-export const createProductComment = async (
-    data: CreateCommentDto,
-    token: string
-) => {
-    return await axios.post(
-        `http://localhost:8080/api/comment/create`,
-        data,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-        }
-    );
-};
 
-export const getProductComments = async (productId: string) => {
-    const res = await axios.get(`http://localhost:8080/api/comment/getProductComments/${productId}`);
-    return res.data;
-};
+export const createProductComment = (token: string, data: CreateCommentDto) =>
+    postWithAuth(`${BASE_URL}/create`, data, token);
+
+export const getProductComments = (productId: string) =>
+    getPublic(`${BASE_URL}/getProductComments/${productId}`);
 

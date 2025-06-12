@@ -1,36 +1,36 @@
-import {useState, useEffect} from "react";
-import {FiShoppingBag} from "react-icons/fi";
-import {useAuth0} from "@auth0/auth0-react";
-import {useNavigate} from "react-router-dom";
-import {ErrorPage} from "../../../shared/ui/error-page";
-import {Product} from "../../../entities";
-import {ProductBasketCard} from "./ProductBasketCard.tsx";
-import {Loading} from "../../../shared/ui/loading";
+import { useState, useEffect } from "react";
+import { FiShoppingBag } from "react-icons/fi";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useNavigate } from "react-router-dom";
+import { ErrorPage } from "../../../shared/ui/error-page";
+import { Product } from "../../../entities";
+import { ProductBasketCard } from "./ProductBasketCard.tsx";
+import { Loading } from "../../../shared/ui/loading";
 import {
     deleteProductFromBasket,
     fetchBasketProducts,
-    updateBasketProductQuantity
+    updateBasketProductQuantity,
 } from "../../../entities/product/api/BasketProducts";
-
 
 export const BasketPage = () => {
     const [cartItems, setCartItems] = useState<Product[]>([]);
-    const {getAccessTokenSilently} = useAuth0();
+    const { getAccessTokenSilently } = useAuth0();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
-        setLoading(true);
         const fetchCartItems = async () => {
             try {
+                setLoading(true);
                 const token = await getAccessTokenSilently();
                 const response = await fetchBasketProducts(token);
-                setCartItems(response.data);
+                setCartItems(response);
             } catch (error) {
                 console.error("Error fetching basket products:", error);
+                setError("Unable to load basket.");
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
         };
 
@@ -48,13 +48,8 @@ export const BasketPage = () => {
         }
     };
 
-
-    if (loading) return <Loading/>;
-    if (error) return <ErrorPage errorCode={error}/>;
-
     const removeItem = (id: string) => {
-        deleteProduct(id);
-        setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+        deleteProduct(id); // this already updates the state
     };
 
     const updateQuantity = async (id: string, change: number) => {
@@ -69,32 +64,38 @@ export const BasketPage = () => {
 
             setCartItems((prevItems) =>
                 prevItems.map((item) =>
-                    item.id === id ? {...item, quantity: updatedItem.quantity} : item
+                    item.id === id ? { ...item, quantity: updatedItem.quantity } : item
                 )
             );
         } catch (err) {
             console.error("Error updating quantity:", err);
+            setError("Failed to update quantity");
         }
     };
 
+    if (loading) return <Loading />;
+    if (error) return <ErrorPage errorCode={error} />;
 
-    const subtotal = cartItems.reduce(
-        (sum: number, item) => sum + Number(item.price) * item.quantity,
-        0
-    );
+    const subtotal = Array.isArray(cartItems)
+        ? cartItems.reduce(
+            (sum, item) => sum + Number(item.price) * item.quantity,
+            0
+        )
+        : 0;
+
     const shipping = 9.99;
     const total = subtotal + shipping;
 
     return (
         <div className="min-h-screen bg-gray-900 text-gray-100 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
-                <h1 className="text-5xl font-bold text-purple-300 mb-8 text-center ">
+                <h1 className="text-5xl font-bold text-purple-300 mb-8 text-center">
                     Your Basket
                 </h1>
 
-                {cartItems.length === 0 ? (
+                { ( !cartItems || cartItems.length === 0) ? (
                     <div className="text-center py-12">
-                        <FiShoppingBag className="mx-auto h-16 w-16 text-purple-400"/>
+                        <FiShoppingBag className="mx-auto h-16 w-16 text-purple-400" />
                         <h2 className="mt-4 text-xl font-semibold text-purple-300">
                             Your basket is empty
                         </h2>
@@ -107,6 +108,7 @@ export const BasketPage = () => {
                         <div className="lg:col-span-2 space-y-4">
                             {cartItems.map((item) => (
                                 <ProductBasketCard
+                                    key={item.id}
                                     product={item}
                                     updateQuantity={updateQuantity}
                                     removeItem={removeItem}

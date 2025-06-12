@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/public/basket")
+@RequestMapping("/api/basket")
 @RequiredArgsConstructor
 public class BasketController {
 
@@ -28,7 +28,7 @@ public class BasketController {
         return ResponseEntity.ok().body("Object was successfully deleted");
     }
 
-    @PostMapping("/add/{productId}")
+    @GetMapping("/add/{productId}")
     public ResponseEntity<String> addProduct(
             @PathVariable UUID productId,
             @AuthenticationPrincipal Jwt jwt) {
@@ -37,8 +37,9 @@ public class BasketController {
     }
 
     @GetMapping("/products")
-    public List<BasketProductDto> getAllProducts(@AuthenticationPrincipal Jwt jwt) {
-        return basketService.getAllBasketProducts(jwt);
+    public ResponseEntity<?> getAllProducts(@AuthenticationPrincipal Jwt jwt) {
+       List<BasketProductDto> basketProductDtos =  basketService.getAllBasketProducts(jwt);
+        return ResponseEntity.ok(basketProductDtos);
     }
 
     @PutMapping("/update-quantity/{id}")

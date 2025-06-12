@@ -4,6 +4,7 @@ import {useAuth0} from "@auth0/auth0-react";
 import {ProductEditionPage} from "../../../../pages/product/ui/ProductEditionPage.tsx";
 import {useNavigate} from "react-router-dom";
 import {Product} from "../../../../entities";
+import {addProductToBasket} from "../../../../entities/product/api/BasketProducts.ts";
 
 interface AddToBasketButtonProps {
     product: Product;
@@ -33,21 +34,9 @@ export const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({
         }
 
         if (product.inBasket) return;
-
-        try {
             const token = await getAccessTokenSilently();
-            await axios.post(
-                `http://localhost:8080/api/public/basket/add/${product.id}`,
-                {},
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-        } catch (error) {
-            console.error("Error adding product:", error);
-        } finally {
-            setLoading(false);
-        }
+            await addProductToBasket(product.id, token);
+
     };
 
 

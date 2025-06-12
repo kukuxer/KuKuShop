@@ -1,22 +1,12 @@
-import axios from "axios";
 
-export const fetchFavoriteProducts = async (token: string) => {
-    const response = await axios.get("http://localhost:8080/api/public/favorites/products", {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
-    return response.data;
-};
+import {getWithAuth} from "../../../shared/api/apiClient.ts";
+import {MY_URL} from "../../../shared/constants";
 
-export const toggleFavoriteProduct = async (productId: string, token: string) => {
-    return await axios.post(
-        `http://localhost:8080/api/public/favorites/${productId}`,
-        {},
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
-    );
-};
+const BASE_URL: string = `${MY_URL}/favorites`;
+
+
+export const fetchFavoriteProducts = (token: string) =>
+    getWithAuth(`${BASE_URL}/products`,token);
+
+export const toggleFavoriteProduct = (productId: string,token: string) =>
+    getWithAuth(`${BASE_URL}/${productId}`,token);

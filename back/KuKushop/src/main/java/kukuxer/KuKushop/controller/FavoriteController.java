@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/public/favorites")
+@RequestMapping("/api/favorites")
 @RequiredArgsConstructor
 public class FavoriteController {
 
@@ -21,7 +21,7 @@ public class FavoriteController {
     private final ProfileService profileService;
 
 
-    @PostMapping("/{productId}")
+    @GetMapping("/{productId}")
     public void toggleFavorite(@PathVariable UUID productId, @AuthenticationPrincipal Jwt jwt) {
         String authId = jwt.getClaim("sub");
         Profile user = profileService.getByAuthId(authId).orElseThrow();

@@ -1,38 +1,18 @@
-import axios from "axios";
+import {MY_URL} from "../../../shared/constants";
+import {deleteWithAuth, getWithAuth, putWithAuth} from "../../../shared/api/apiClient.ts";
 
 
-export const fetchBasketProducts = async (token: string) => {
-    return await axios.get(
-        "http://localhost:8080/api/public/basket/products",
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
-    );
-};
+const BASE_URL: string = `${MY_URL}/basket`;
 
-export const deleteProductFromBasket = async (id: string, token: string) => {
-    return await axios.delete(`http://localhost:8080/api/public/basket/delete/${id}`, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    });
-};
 
-export const updateBasketProductQuantity = async (
-    id: string,
-    quantity: number,
-    token: string
-) => {
-    const response = await axios.put(
-        `http://localhost:8080/api/public/basket/update-quantity/${id}?quantity=${quantity}`,
-        {},
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
-    );
-    return response.data;
-};
+export const fetchBasketProducts = (token: string) =>
+    getWithAuth(`${BASE_URL}/products`,token);
+
+export const deleteProductFromBasket = (id: string, token: string) =>
+    deleteWithAuth(`${BASE_URL}/delete/${id}`,token);
+
+export const updateBasketProductQuantity = (id: string, quantity: number, token: string) =>
+    putWithAuth(`${BASE_URL}/delete/${id}`,quantity,token);
+
+export const addProductToBasket = (id: string, token: string) =>
+    getWithAuth(`${BASE_URL}/add/${id}`, token);

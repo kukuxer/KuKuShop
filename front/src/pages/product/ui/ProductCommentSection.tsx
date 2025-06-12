@@ -51,7 +51,7 @@ const ProductCommentSection: React.FC<ProductCommentSectionProps> = ({productId,
                 productId: productId
             };
 
-           await createProductComment(commentDto, token);
+           await createProductComment(token,commentDto);
 
             setFormData({comment: "", rating: 0});
             setShowSuccess(true);

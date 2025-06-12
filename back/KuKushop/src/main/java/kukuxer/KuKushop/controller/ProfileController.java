@@ -46,7 +46,6 @@ public class ProfileController {
 
         Optional<Profile> optionalProfile = profileService.getByAuthId(authId);
         profileDto.setAuthId(authId);
-        System.out.println(profileDto.toString());
         if (optionalProfile.isPresent()) {
             ProfileDto profileDtoResponse = profileMapper.toDto(optionalProfile.get());
             return ResponseEntity.ok(profileDtoResponse);

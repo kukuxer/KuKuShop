@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaHeart } from "react-icons/fa";
 import { useAuth0 } from "@auth0/auth0-react";
+import {toggleFavoriteProduct} from "../../../../entities/product/api/FavProducts.ts";
 
 interface LikeBtnProps {
   isFavorite: boolean;
@@ -22,19 +23,8 @@ export const LikeBtn: React.FC<LikeBtnProps> = ({ isFavorite, productId }) => {
 
       setLocalIsFavorite(!originalState);
 
-      const response = await fetch(
-        `http://localhost:8080/api/public/favorites/${productId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await toggleFavoriteProduct(productId, token);
 
-      if (!response.ok) {
-        setLocalIsFavorite(originalState);
-      }
     } catch (error) {
       console.error("Failed to toggle favorite", error);
       setLocalIsFavorite(originalState);

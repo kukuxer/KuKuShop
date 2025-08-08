@@ -21,8 +21,6 @@ export const router = createBrowserRouter([
             {path: "shops/:shopName", element: <PublicShopPage/>},
             {path: "products/:productId", element: <ProductPage/>},
             {path: "find/product", element: <ProductSelectorPage/>},
-
-
             {path: "myshop", element: <ProtectedShop/>},
             {path: "myshopComponent", element: <ProtectedShopComponent/>},
             {path: "profile", element: <ProtectedProfile/>},

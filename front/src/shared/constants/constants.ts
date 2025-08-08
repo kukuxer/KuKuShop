@@ -26,7 +26,6 @@ export const categories: Category[] = [
 ];
 
 
-
 type SocialLink = {
     icon: React.ElementType;
     link: string;
@@ -38,7 +37,6 @@ export const socialLinks: SocialLink[] = [
     {icon: FaInstagram, link: "https://www.instagram.com/gleebsq/", label: "Instagram"},
     {icon: FaGithub, link: "https://github.com", label: "Github"},
 ];
-
 
 
 type Stat = {

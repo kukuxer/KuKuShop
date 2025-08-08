@@ -1,6 +1,5 @@
 // src/api/products.ts
 import axios from "axios";
-import {MY_URL} from "../../../shared/constants";
 
 
 export const getProductById = async (productId: string, token?: string) => {

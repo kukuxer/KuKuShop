@@ -56,14 +56,14 @@ public class ProfileController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Boolean> updateProfile(
+    public ResponseEntity<?> updateProfile(
             @AuthenticationPrincipal Jwt jwt,
             @RequestPart("profile") ProfileDto profileDto,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
         try {
-            profileService.update(profileDto, image, jwt);
-            return ResponseEntity.ok(true);
+           Profile updatedProfile = profileService.update(profileDto, image, jwt);
+            return ResponseEntity.ok(updatedProfile);
         } catch (Exception e) {
             return ResponseEntity.ok(false);
         }

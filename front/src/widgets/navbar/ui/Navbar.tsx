@@ -12,9 +12,12 @@ import {
 } from "react-icons/fi";
 import {Link} from "react-router-dom";
 import {SearchField} from "./SearchField.tsx";
-import {ProfileEntity} from "../../../entities";
 import NavButton from "./NavButton.tsx";
-import {fetchOrCreateProfile} from "../../../entities/profile/api/profiles.ts";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch, RootState} from "../../../app/store.ts";
+import {loadProfile} from "../../../features/redux/profile";
+
+
 
 export const Navbar = () => {
     const {
@@ -25,9 +28,14 @@ export const Navbar = () => {
         getAccessTokenSilently,
     } = useAuth0();
 
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { profileEntity } = useSelector(
+        (state: RootState) => state.profile
+    );
+
     const [isOpen, setIsOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [profile, setProfile] = useState<ProfileEntity | null>(null);
     const [buyHave, setBuyHave] = useState(false);
     const [favHave, setFavHave] = useState(false);
     const [basketHave, setBasketHave] = useState(false);
@@ -38,28 +46,14 @@ export const Navbar = () => {
             logoutParams: {returnTo: window.location.origin},
         });
 
-    const loadProfile = async () => {
+    useEffect(() => {
         if (!isAuthenticated) return;
 
-        const token = await getAccessTokenSilently();
-        const profileData = await fetchOrCreateProfile(token, user);
-        setProfile(profileData);
-    };
-
-    useEffect(() => {
-        let isMounted = true;
-
-        const fetchData = async () => {
-            if (!isAuthenticated) return;
-            await loadProfile();
-        };
-
-        if (isMounted) fetchData();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [isAuthenticated]);
+        (async () => {
+            const token = await getAccessTokenSilently();
+            dispatch(loadProfile({ token, user }));
+        })();
+    }, [isAuthenticated, dispatch, getAccessTokenSilently, user]);
 
     return (
         <nav className="relative z-50 bg-gray-950 text-white shadow-lg">
@@ -159,13 +153,13 @@ export const Navbar = () => {
                                     >
                                         <img
                                             src={
-                                                profile?.imageUrl ||
+                                                profileEntity?.imageUrl ||
                                                 "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"
                                             }
                                             alt="User"
                                             className="h-10 w-10 rounded-full border-1 border-purple-600 transition duration-300 hover:brightness-75"
                                         />
-                                        <span>{profile?.name}</span>
+                                        <span>{profileEntity?.name}</span>
                                     </button>
 
                                     {isDropdownOpen && (

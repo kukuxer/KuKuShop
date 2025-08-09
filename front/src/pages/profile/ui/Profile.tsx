@@ -1,14 +1,16 @@
 import React, {
     useState,
     ChangeEvent,
-    useEffect,
-    ChangeEventHandler,
+    ChangeEventHandler, useEffect,
 } from "react";
 import {FiEdit} from "react-icons/fi";
 import {useAuth0, User} from "@auth0/auth0-react";
-import {ProfileEntity} from "../../../entities";
+
 import {ImageCropModal} from "../../../shared/lib/crop-image-modal/ImageCropModal.tsx";
-import {getProfile, updateProfile} from "../../../entities/profile/api/profiles.ts";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch, RootState} from "../../../app/store.ts";
+import {updateProfileAsync} from "../../../features/redux/profile";
+
 
 
 interface FormData {
@@ -27,9 +29,7 @@ export const Profile: React.FC = () => {
 
     const {user, getAccessTokenSilently} = useAuth0();
     const typedUser = user as User;
-
     const [isEditing, setIsEditing] = useState(false);
-    const [profile, setProfile] = useState<ProfileEntity | null>(null);
     const [formData, setFormData] = useState<FormData>({
         name: "",
         surname: "",
@@ -38,29 +38,24 @@ export const Profile: React.FC = () => {
         image: "",
     });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-    const [reload, setReload] = useState(false);
+
+    const { profileEntity } = useSelector(
+        (state: RootState) => state.profile
+    );
+    const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const token = await getAccessTokenSilently();
-                const data = await getProfile(token);
-                setProfile(data);
+        if (profileEntity && typedUser) {
+            setFormData({
+                name: profileEntity.name ?? "",
+                surname: profileEntity.familyName ?? "",
+                nickname: profileEntity.nickname ?? "",
+                email: typedUser.email ?? "",
+                image: profileEntity.imageUrl ?? "",
+            });
+        }
+    }, [profileEntity, typedUser]);
 
-                setFormData({
-                    name: data.name || "",
-                    surname: data.familyName || "",
-                    nickname: data.nickname || "",
-                    email: typedUser?.email || "",
-                    image: data.imageUrl || typedUser?.picture || "",
-                });
-            } catch (err) {
-                console.error("Error loading profile:", err);
-            }
-        };
-
-        fetchProfile();
-    }, [getAccessTokenSilently, reload, typedUser?.email, typedUser?.picture]);
 
     const validateForm = (): { [key: string]: string } => {
         const newErrors: { [key: string]: string } = {};
@@ -102,11 +97,13 @@ export const Profile: React.FC = () => {
                 payload.append("image", formData.imageFile);
             }
 
-            const success = await updateProfile(await getAccessTokenSilently(), payload);
+            const success = await dispatch(updateProfileAsync({
+                token: await getAccessTokenSilently(),
+                formData: payload,
+            })).unwrap();
 
             if (success) {
                 setIsEditing(false);
-                setReload((prev) => !prev);
                 setErrors({});
             } else {
                 alert("Failed to update profile");
@@ -124,6 +121,7 @@ export const Profile: React.FC = () => {
             [name]: value,
         }));
     };
+
 
     return (
         <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -227,7 +225,7 @@ export const Profile: React.FC = () => {
                             <div className="flex flex-col items-center gap-4">
                                 <img
                                     src={
-                                        profile?.imageUrl ||
+                                        profileEntity?.imageUrl ||
                                         "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"
                                     }
                                     alt="Profile"
@@ -239,10 +237,10 @@ export const Profile: React.FC = () => {
                                 />
                             </div>
                             <div className="flex-1 space-y-4">
-                                <DisplayField label="Name" value={profile?.name}/>
-                                <DisplayField label="Surname" value={profile?.familyName}/>
-                                <DisplayField label="Nickname" value={profile?.nickname}/>
-                                <DisplayField label="Email" value={typedUser?.email}/>
+                                <DisplayField label="Name" value={formData?.name}/>
+                                <DisplayField label="Surname" value={formData?.surname}/>
+                                <DisplayField label="Nickname" value={formData?.nickname}/>
+                                <DisplayField label="Email" value={formData?.email}/>
                             </div>
                         </>
                     )}

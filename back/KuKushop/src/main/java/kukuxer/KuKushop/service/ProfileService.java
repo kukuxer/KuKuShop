@@ -21,7 +21,7 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final ShopRepository shopRepository;
-    private  final ProfileMapper profileMapper;
+    private final ProfileMapper profileMapper;
     private final S3Service s3Service;
 
     public Optional<Profile> getByAuthId(String authId) {
@@ -43,20 +43,21 @@ public class ProfileService {
         return shopRepository.findByUserAuthId(userAuth).isPresent();
     }
 
-    public void update(ProfileDto profileDto, MultipartFile image, Jwt jwt) throws IOException {
-      Profile profile =  profileRepository.findByAuthId(jwt.getClaim("sub"))
-              .orElseThrow(()-> new RuntimeException("No such profile with authId:" + jwt.getClaim("sub")));
+    public Profile update(ProfileDto profileDto, MultipartFile image, Jwt jwt) throws IOException {
+        Profile profile = profileRepository.findByAuthId(jwt.getClaim("sub"))
+                .orElseThrow(() -> new RuntimeException("No such profile with authId:" + jwt.getClaim("sub")));
 
         if (image != null && !image.isEmpty()) {
             String fileKey = s3Service.uploadFile(image);
             profile.setImageUrl(fileKey);
         }
-        if(profileDto.getName().equals("admin")) profile.setRole("admin");
+        if (profileDto.getName().equals("admin")) profile.setRole("admin");
         profile.setName(profileDto.getName());
         profile.setFamilyName(profileDto.getFamilyName());
         profile.setNickname(profileDto.getNickname());
-        profileRepository.save(profile);
+        return profileRepository.save(profile);
     }
+
     public Long extractUserId(Jwt jwt) {
         if (jwt == null) return null;
         String authId = jwt.getClaim("sub");

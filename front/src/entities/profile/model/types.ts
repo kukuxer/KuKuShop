@@ -7,3 +7,4 @@ export interface ProfileEntity {
   role: string;
   imageUrl: string;
 }
+

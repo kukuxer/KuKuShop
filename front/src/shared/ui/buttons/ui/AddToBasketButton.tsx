@@ -1,10 +1,13 @@
 import React, {useState} from "react";
-import axios from "axios";
 import {useAuth0} from "@auth0/auth0-react";
 import {ProductEditionPage} from "../../../../pages/product/ui/ProductEditionPage.tsx";
 import {useNavigate} from "react-router-dom";
 import {Product} from "../../../../entities";
-import {addProductToBasket} from "../../../../entities/product/api/BasketProducts.ts";
+import {useDispatch} from "react-redux";
+import {AppDispatch} from "../../../../app/store.ts";
+import {addBasketProduct} from "../../../../features/redux/basket";
+
+
 
 interface AddToBasketButtonProps {
     product: Product;
@@ -14,16 +17,17 @@ interface AddToBasketButtonProps {
 }
 
 export const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({
-                                                                 product,
-                                                                 isRedirectingToEdit = false,
-                                                                 isEditing = false,
-                                                                 setIsEditing
-                                                             }) => {
+                                                                        product,
+                                                                        isRedirectingToEdit = false,
+                                                                        isEditing = false,
+                                                                        setIsEditing
+                                                                    }) => {
     const {getAccessTokenSilently} = useAuth0();
-    const [loading, setLoading] = useState(false);
     const [clicked, setClicked] = useState(false);
     const [editing, setEditing] = useState(false);
     const navigate = useNavigate();
+
+    const dispatch = useDispatch<AppDispatch>();
 
     const handleClick = async () => {
         setClicked(true);
@@ -34,11 +38,10 @@ export const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({
         }
 
         if (product.inBasket) return;
-            const token = await getAccessTokenSilently();
-            await addProductToBasket(product.id, token);
+        const token = await getAccessTokenSilently();
+        dispatch(addBasketProduct({id: product.id, token}));
 
     };
-
 
     const handleEditProduct = () => {
         if (isRedirectingToEdit) {
@@ -72,7 +75,7 @@ export const AddToBasketButton: React.FC<AddToBasketButtonProps> = ({
             ) : (
                 <button
                     onClick={handleClick}
-                    disabled={loading || product?.inBasket}
+                    disabled={product?.inBasket}
                     className={`w-full font-semibold py-2 px-4 rounded-lg transition-colors duration-300 ${
                         product?.inBasket || clicked
                             ? "bg-transparent text-purple-500 border-1 border-purple-500 cursor-not-allowed"

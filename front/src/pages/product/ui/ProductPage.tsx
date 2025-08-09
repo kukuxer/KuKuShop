@@ -3,7 +3,7 @@ import {FaStar, FaStarHalf} from "react-icons/fa";
 import {BsChevronLeft, BsChevronRight} from "react-icons/bs";
 import SecurityInfo from "./SecurityInfo.tsx";
 import {useAuth0} from "@auth0/auth0-react";
-import {useLocation, useNavigate, useParams} from "react-router-dom";
+import {useLocation, useParams} from "react-router-dom";
 import ProductCommentSection from "./ProductCommentSection.tsx";
 import ProductReview from "./ProductReview.tsx";
 import {ImageEnlargementModal} from "./ImageEnlargementModal.tsx";

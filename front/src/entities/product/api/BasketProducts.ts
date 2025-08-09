@@ -12,7 +12,7 @@ export const deleteProductFromBasket = (id: string, token: string) =>
     deleteWithAuth(`${BASE_URL}/delete/${id}`,token);
 
 export const updateBasketProductQuantity = (id: string, quantity: number, token: string) =>
-    putWithAuth(`${BASE_URL}/update-quantity/${id}`,quantity,token);
+    putWithAuth(`${BASE_URL}/update-quantity/${id}`, {quantity},token);
 
 export const addProductToBasket = (id: string, token: string) =>
     getWithAuth(`${BASE_URL}/add/${id}`, token);

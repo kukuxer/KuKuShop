@@ -7,7 +7,7 @@ export const getShopById = (shopId: string) =>
     getPublic(`${BASE_URL}/getById/${shopId}`);
 
 export const getShopByName = (shopName: string) =>
-    getPublic(`${BASE_URL}/shop/getByName/${shopName}`);
+    getPublic(`${BASE_URL}/getByName/${shopName}`);
 
 
 export const createShop = (token: string, formData: FormData) =>

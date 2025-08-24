@@ -1,6 +1,7 @@
 import {createSlice} from "@reduxjs/toolkit";
 import {initialState} from "./profile.types.ts";
 import {loadProfile, updateProfileAsync} from "./profile.thunks.ts";
+import {RootState} from "../../../app/store.ts";
 
 const profileSlice = createSlice({
     name: "profile",
@@ -34,5 +35,5 @@ const profileSlice = createSlice({
     }
 });
 
-
+export const profileSelector = (state: RootState) => state.profile;
 export default profileSlice.reducer;

@@ -7,58 +7,68 @@ import {ErrorPage} from "../../../../shared/ui/error-page";
 import {Loading} from "../../../../shared/ui/loading";
 import {ProductCard} from "../../../../entities/product/ui/ProductCard.tsx";
 import {MyShopBanner} from "./MyShopBanner.tsx";
-import {getMyProducts} from "../../../../entities/product/api/products.ts";
-import {getMyShop} from "../../../../entities/shop/api/shops.ts";
+
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch} from "../../../../app/store.ts";
+import {myShopSelector} from "../../../../features/redux/myShop/myShop.slice.ts";
+import {fetchMyProducts, fetchMyShop} from "../../../../features/redux/myShop";
 
 export const MyShopComponent = () => {
-    const [error, setError] = useState<string | null>(null);
-    const [shop, setShop] = useState<Shop>();
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const {getAccessTokenSilently} = useAuth0();
+    const dispatch = useDispatch<AppDispatch>();
 
+    const { myShop, myShopItems, loading, error } = useSelector(myShopSelector);
+
+
+    // useEffect(() => {
+    //     const fetchShopProducts = async () => {
+    //         try {
+    //             const token = await getAccessTokenSilently();
+    //             const response = await getMyProducts(token);
+    //             const productsData = Array.isArray(response.data) ? response.data : [];
+    //             const productsWithOwner = productsData.map((product) => ({
+    //                 ...product,
+    //                 owner: true,
+    //             }));
+    //             setProducts(productsWithOwner);
+    //         } catch (err) {
+    //             setError("Error fetching products");
+    //             console.error("Error fetching products:", err);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+    //     fetchShopProducts();
+    // }, [getAccessTokenSilently]);
+    //
+    // useEffect(() => {
+    //     const fetchShop = async () => {
+    //         try {
+    //             const token = await getAccessTokenSilently();
+    //             const response = await getMyShop(token);
+    //             setShop(response);
+    //         } catch (err) {
+    //             setError("Error fetching shop data");
+    //             console.error("Error fetching shop:", err);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+    //
+    //     fetchShop();
+    // }, [getAccessTokenSilently]);
 
     useEffect(() => {
-        const fetchShopProducts = async () => {
-            try {
-                const token = await getAccessTokenSilently();
-                const response = await getMyProducts(token);
-                const productsData = Array.isArray(response.data) ? response.data : [];
-                const productsWithOwner = productsData.map((product) => ({
-                    ...product,
-                    owner: true,
-                }));
-                setProducts(productsWithOwner);
-            } catch (err) {
-                setError("Error fetching products");
-                console.error("Error fetching products:", err);
-            } finally {
-                setLoading(false);
-            }
+        const fetchData = async () => {
+            const token = await getAccessTokenSilently();
+            await dispatch(fetchMyShop(token));
+            await dispatch(fetchMyProducts(token));
         };
-        fetchShopProducts();
-    }, [getAccessTokenSilently]);
+        fetchData();
+    }, [dispatch, getAccessTokenSilently]);
 
-    useEffect(() => {
-        const fetchShop = async () => {
-            try {
-                const token = await getAccessTokenSilently();
-                const response = await getMyShop(token);
-                setShop(response);
-            } catch (err) {
-                setError("Error fetching shop data");
-                console.error("Error fetching shop:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchShop();
-    }, [getAccessTokenSilently]);
-
-
-    const filteredProducts = products.filter((product) =>
+    const filteredProducts = myShopItems.filter((product) =>
         product.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 

@@ -5,25 +5,25 @@ import {Link} from "react-router-dom";
 import {Product} from "../../../entities";
 import {AddToBasketButton} from "../../../shared/ui/buttons";
 import {RatingStars} from "../../shop/ui/RatingStars.tsx";
-import {toggleFavoriteProduct} from "../../../entities/product/api/FavProducts.ts";
+import {useDispatch} from "react-redux";
+import {AppDispatch} from "../../../app/store.ts";
+import {toggleLiked} from "../../../features/redux/liked";
 
 
 interface ProductCardProps {
     product: Product;
-    onToggleFavorite: (productId: string, isCurrentlyFavorite: boolean) => void;
 }
 
 export const FavProductCard: React.FC<ProductCardProps> = ({
                                                                product,
-                                                               onToggleFavorite,
                                                            }) => {
     const [isHovered, setIsHovered] = useState(false);
     const {getAccessTokenSilently} = useAuth0();
+    const dispatch = useDispatch<AppDispatch>();
 
     const handleToggleFavorite = async () => {
         const token = await getAccessTokenSilently();
-        await toggleFavoriteProduct(product.id, token);
-        onToggleFavorite(product.id, product.favorite ?? false);
+        await dispatch(toggleLiked({id: product.id, token})).unwrap();
     };
 
 

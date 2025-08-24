@@ -1,71 +1,61 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useMemo} from "react";
 import {FaHeart, FaSearch} from "react-icons/fa";
 import {useAuth0} from "@auth0/auth0-react";
-import {Product} from "../../../entities";
 import {FavProductCard} from "./FavProductCard.tsx";
-import {fetchFavoriteProducts} from "../../../entities/product/api/FavProducts.ts";
+
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch} from "../../../app/store.ts";
+import {getLiked} from "../../../features/redux/liked";
+import {likedSelector} from "../../../features/redux/liked/liked.slice.ts";
 
 export const FavProductsPage: React.FC = () => {
-    const [likedProducts, setLikedProducts] = useState<Product[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
-    const [refreshTrigger, setRefreshTrigger] = useState(0);
-    const [sortBy, setSortBy] = useState<"price-asc" | "price-desc" | "date">(
-        "date"
-    );
+    const [sortBy, setSortBy] = useState<"price-asc" | "price-desc" | "date">("date");
     const {getAccessTokenSilently} = useAuth0();
 
+
+    const {items: likedProducts} = useSelector(likedSelector);
+    const dispatch = useDispatch<AppDispatch>();
+
     useEffect(() => {
-        const fetchFavorites = async () => {
-            try {
-                const token = await getAccessTokenSilently();
-                const data = await fetchFavoriteProducts(token);
-                setLikedProducts(Array.isArray(data) ? data : []);
-            } catch (err) {
-                console.error("Failed to fetch favorite products", err);
-            }
-        };
+        (async () => {
+            const token = await getAccessTokenSilently();
+            await dispatch(getLiked(token)).unwrap();
+        })();
+    }, [getAccessTokenSilently, dispatch]);
 
-        fetchFavorites();
-    }, [getAccessTokenSilently, refreshTrigger]);
+    const processedProducts = useMemo(() => {
+        let products = [...likedProducts];
 
+        if (searchQuery) {
+            products = products.filter((p) =>
+                p.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
 
-    const handleSort = (type: "price-asc" | "price-desc" | "date") => {
-        setSortBy(type);
-        const sortedProducts = [...likedProducts];
-        switch (type) {
+        switch (sortBy) {
             case "price-asc":
-                sortedProducts.sort((a, b) => Number(a.price) - Number(b.price));
+                products.sort((a, b) => Number(a.price) - Number(b.price));
                 break;
             case "price-desc":
-                sortedProducts.sort((a, b) => Number(b.price) - Number(a.price));
+                products.sort((a, b) => Number(b.price) - Number(a.price));
                 break;
             case "date":
-                sortedProducts.sort(
+                products.sort(
                     (a, b) =>
                         new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime()
                 );
                 break;
         }
-        setLikedProducts(sortedProducts);
+
+        return products;
+    }, [likedProducts, searchQuery, sortBy]);
+
+    const handleSort = (type: "price-asc" | "price-desc" | "date") => {
+        setSortBy(type);
     };
 
-    const handleToggleFavorite = (
-        productId: string,
-        isCurrentlyFavorite: boolean
-    ) => {
-        if (isCurrentlyFavorite) {
-            setLikedProducts((prev) =>
-                prev.filter((p) => String(p.id) !== productId)
-            );
-            setRefreshTrigger((prev) => prev + 1);
-        } else {
-            fetchFavorites();
-        }
-    };
 
-    const filteredProducts = likedProducts.filter((product) =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
 
     return (
         <div className="min-h-screen bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
@@ -75,6 +65,7 @@ export const FavProductsPage: React.FC = () => {
                         Liked Products
                     </h1>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                        {/* search */}
                         <div className="relative">
                             <input
                                 type="text"
@@ -85,12 +76,11 @@ export const FavProductsPage: React.FC = () => {
                             />
                             <FaSearch className="absolute left-3 top-3 text-gray-400"/>
                         </div>
+                        {/* sort */}
                         <select
                             value={sortBy}
                             onChange={(e) =>
-                                handleSort(
-                                    e.target.value as "price-asc" | "price-desc" | "date"
-                                )
+                                handleSort(e.target.value as "price-asc" | "price-desc" | "date")
                             }
                             className="px-4 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                         >
@@ -101,7 +91,7 @@ export const FavProductsPage: React.FC = () => {
                     </div>
                 </div>
 
-                {filteredProducts.length === 0 ? (
+                {processedProducts.length === 0 ? (
                     <div className="text-center py-12">
                         <FaHeart className="text-6xl text-gray-400 mx-auto mb-4"/>
                         <p className="text-xl text-gray-300">
@@ -110,11 +100,10 @@ export const FavProductsPage: React.FC = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filteredProducts.map((product) => (
+                        {processedProducts.map((product) => (
                             <FavProductCard
                                 key={product.id}
                                 product={product}
-                                onToggleFavorite={handleToggleFavorite}
                             />
                         ))}
                     </div>
@@ -125,7 +114,3 @@ export const FavProductsPage: React.FC = () => {
 };
 
 export default FavProductsPage;
-
-function fetchFavorites() {
-    throw new Error("Function not implemented.");
-}

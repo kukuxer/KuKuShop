@@ -8,8 +8,9 @@ import {useAuth0, User} from "@auth0/auth0-react";
 
 import {ImageCropModal} from "../../../shared/lib/crop-image-modal/ImageCropModal.tsx";
 import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch, RootState} from "../../../app/store.ts";
+import {AppDispatch} from "../../../app/store.ts";
 import {updateProfileAsync} from "../../../features/redux/profile";
+import {profileSelector} from "../../../features/redux/profile/profile.slice.ts";
 
 
 
@@ -39,9 +40,7 @@ export const Profile: React.FC = () => {
     });
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-    const { profileEntity } = useSelector(
-        (state: RootState) => state.profile
-    );
+    const { profileEntity } = useSelector(profileSelector);
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {

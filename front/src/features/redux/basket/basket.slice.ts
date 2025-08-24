@@ -2,6 +2,7 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {Product} from "../../../entities";
 import  { initialState } from "./basket.types";
 import {addBasketProduct, changeProductQuantity, getBasket, removeBasketProduct} from "./basket.thunks.ts";
+import {RootState} from "../../../app/store.ts";
 
 
 const basketSlice = createSlice({
@@ -56,5 +57,6 @@ const basketSlice = createSlice({
     },
 });
 
+export const basketSelector = (state: RootState) => state.basket;
 export const { addItem, removeItem, updateQuantity, clearBasket } = basketSlice.actions;
 export default basketSlice.reducer;

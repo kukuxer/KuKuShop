@@ -1,6 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import {basketReducer} from "../features/redux/basket";
 import {profileReducer} from "../features/redux/profile";
+import {likedReducer} from "../features/redux/liked";
+import {myShopReducer} from "../features/redux/myShop";
 
 
 
@@ -8,7 +10,9 @@ import {profileReducer} from "../features/redux/profile";
 export const store = configureStore({
     reducer: {
         profile: profileReducer,
-        basket: basketReducer
+        basket: basketReducer,
+        liked: likedReducer,
+        myShop: myShopReducer
     },
 });
 

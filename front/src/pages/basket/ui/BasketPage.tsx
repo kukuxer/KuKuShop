@@ -1,35 +1,29 @@
 import {useEffect, useState} from "react";
-import { FiShoppingBag } from "react-icons/fi";
-import { useAuth0 } from "@auth0/auth0-react";
-import { useNavigate } from "react-router-dom";
-import { ErrorPage } from "../../../shared/ui/error-page";
-import { ProductBasketCard } from "./ProductBasketCard.tsx";
-import { Loading } from "../../../shared/ui/loading";
+import {FiShoppingBag} from "react-icons/fi";
+import {useAuth0} from "@auth0/auth0-react";
+import {useNavigate} from "react-router-dom";
+import {ErrorPage} from "../../../shared/ui/error-page";
+import {ProductBasketCard} from "./ProductBasketCard.tsx";
+import {Loading} from "../../../shared/ui/loading";
 import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch, RootState} from "../../../app/store.ts";
+import {AppDispatch} from "../../../app/store.ts";
 import {changeProductQuantity, getBasket, removeBasketProduct} from "../../../features/redux/basket";
-
+import {basketSelector} from "../../../features/redux/basket/basket.slice.ts";
 
 
 export const BasketPage = () => {
 
-    const { getAccessTokenSilently } = useAuth0();
+    const {getAccessTokenSilently} = useAuth0();
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
     const dispatch = useDispatch<AppDispatch>();
 
-    const { items: basketItems, loading } = useSelector(
-        (state: RootState) => state.basket
-    );
+    const {items: basketItems, loading} = useSelector(basketSelector);
 
     useEffect(() => {
         const fetchBasket = async () => {
-            try {
-                const token = await getAccessTokenSilently();
-                await dispatch(getBasket(token)).unwrap();
-            } catch (error) {
-                console.error("Error fetching basket products:", error);
-            }
+            const token = await getAccessTokenSilently();
+            await dispatch(getBasket(token)).unwrap();
         };
         fetchBasket();
     }, [dispatch, getAccessTokenSilently]);
@@ -37,7 +31,7 @@ export const BasketPage = () => {
     const deleteProduct = async (id: string) => {
         try {
             const token = await getAccessTokenSilently();
-            await dispatch(removeBasketProduct({ id, token })).unwrap();
+            await dispatch(removeBasketProduct({id, token})).unwrap();
         } catch (err) {
             console.error("Error deleting product:", err);
             setError("Failed to delete product");
@@ -50,7 +44,7 @@ export const BasketPage = () => {
         if (newQuantity < 1) return;
         try {
             const token = await getAccessTokenSilently();
-            await dispatch(changeProductQuantity({ id, quantity: newQuantity, token }));
+            await dispatch(changeProductQuantity({id, quantity: newQuantity, token}));
 
         } catch (err) {
             console.error("Error updating quantity:", err);
@@ -58,8 +52,8 @@ export const BasketPage = () => {
         }
     };
 
-    if (loading) return <Loading />;
-    if (error) return <ErrorPage errorCode={error} />;
+    if (loading) return <Loading/>;
+    if (error) return <ErrorPage errorCode={error}/>;
 
     const subtotal = Array.isArray(basketItems)
         ? basketItems.reduce(
@@ -79,9 +73,9 @@ export const BasketPage = () => {
                 <h1 className="text-5xl font-bold text-purple-300 mb-8 text-center">
                     Your Basket
                 </h1>
-                {( !basketItems || basketItems.length === 0) ? (
+                {(!basketItems || basketItems.length === 0) ? (
                     <div className="text-center py-12">
-                        <FiShoppingBag className="mx-auto h-16 w-16 text-purple-400" />
+                        <FiShoppingBag className="mx-auto h-16 w-16 text-purple-400"/>
                         <h2 className="mt-4 text-xl font-semibold text-purple-300">
                             Your basket is empty
                         </h2>

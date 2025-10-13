@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FaHeart } from "react-icons/fa";
 import { useAuth0 } from "@auth0/auth0-react";
-import {toggleFavoriteProduct} from "../../../../entities/product/api/FavProducts.ts";
 import { useDispatch } from "react-redux";
 import {AppDispatch} from "../../../../app/store.ts";
+import {toggleLiked} from "../../../../features/redux/liked";
 
 interface LikeBtnProps {
   isFavorite: boolean;
@@ -13,7 +13,6 @@ interface LikeBtnProps {
 export const LikeBtn: React.FC<LikeBtnProps> = ({ isFavorite, productId }) => {
   const [localIsFavorite, setLocalIsFavorite] = useState(isFavorite);
   const { getAccessTokenSilently } = useAuth0();
-  // todo  i dont know what is this but fix
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
@@ -21,18 +20,9 @@ export const LikeBtn: React.FC<LikeBtnProps> = ({ isFavorite, productId }) => {
   }, [isFavorite]);
 
   const handleToggleFavorite = async () => {
-    const originalState = localIsFavorite;
-    try {
-      const token = await getAccessTokenSilently();
-
-      setLocalIsFavorite(!originalState);
-
-      await toggleFavoriteProduct(productId, token);
-
-    } catch (error) {
-      console.error("Failed to toggle favorite", error);
-      setLocalIsFavorite(originalState);
-    }
+    const token = await getAccessTokenSilently();
+    dispatch(toggleLiked({ id: productId, token }));
+    setLocalIsFavorite(!localIsFavorite);
   };
 
   return (

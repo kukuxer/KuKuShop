@@ -1,44 +1,37 @@
 import {useAuth0} from "@auth0/auth0-react";
-import {useState, useEffect} from "react";
+import {useEffect} from "react";
 import {MyShopComponent} from "./MyShopComponent.tsx";
 import {ErrorPage} from "../../../../shared/ui/error-page";
-import {Loading} from "../../../../shared/ui/loading";
 import {ShopCreationForm} from "../../../../features";
-import {doesTheUserOwnAShop} from "../../../../entities/shop/api/shops.ts";
+import {useDispatch, useSelector} from "react-redux";
+import {AppDispatch} from "../../../../app/store.ts";
+import {myShopSelector} from "../../../../features/redux/myShop/myShop.slice.ts";
+import {fetchUserShopOwnership} from "../../../../features/redux/myShop";
 
 export const MyShopPage: React.FC = () => {
     const {isAuthenticated, getAccessTokenSilently} = useAuth0();
-    const [hasShop, setHasShop] = useState<boolean | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+
+    const { ownsShop ,error} = useSelector(myShopSelector);
+
+    const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
-        const checkIfUserOwnsShop = async () => {
+        const fetchShopData = async () => {
             if (!isAuthenticated) return;
-
-            try {
                 const token = await getAccessTokenSilently();
-                const response = await doesTheUserOwnAShop(token);
-
-                setHasShop(response);
-            } catch (err) {
-                setError(err as string);
-            } finally {
-                setLoading(false);
-            }
+                dispatch(fetchUserShopOwnership(token));
+                // console.log("Do user owns a page: " + ownsShop);
         };
 
-        checkIfUserOwnsShop();
-    }, [isAuthenticated, getAccessTokenSilently]);
+        fetchShopData();
+    }, [dispatch, isAuthenticated, getAccessTokenSilently]);
 
-    if (loading) {
-        return <Loading/>;
-    }
+
 
     if (error) {
         return <ErrorPage errorCode={error}/>;
     }
 
-    return <div>{hasShop ? <MyShopComponent/> : <ShopCreationForm/>}</div>;
+    return <div>{ownsShop ? <MyShopComponent/> : <ShopCreationForm/>}</div>;
 };
 

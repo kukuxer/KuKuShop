@@ -1,8 +1,8 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {Product} from "../../../entities";
 import {RootState} from "../../../app/store.ts";
-import { initialState } from "./myShop.types.ts";
-import {fetchMyProducts, fetchMyShop} from "./myShop.thunks.ts";
+import {initialState} from "./myShop.types.ts";
+import {fetchMyProducts, fetchMyShop, fetchUserShopOwnership} from "./myShop.thunks.ts";
 
 
 const myShopSlice = createSlice({
@@ -44,7 +44,13 @@ const myShopSlice = createSlice({
             .addCase(fetchMyShop.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message || "Failed to load shop";
-            });
+            })
+            .addCase(fetchUserShopOwnership.fulfilled, (state, action) => {
+                state.ownsShop = action.payload;
+            }).addCase(fetchUserShopOwnership.rejected, (state, action) => {
+            state.error = action.error.message || "Failed to check ownership";
+        })
+
     },
 });
 

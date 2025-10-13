@@ -27,7 +27,5 @@ public class Comment {
     Double rating;
     @CreationTimestamp
     LocalDateTime creationDate;
-
-
-
+    
 }

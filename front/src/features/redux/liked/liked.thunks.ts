@@ -15,8 +15,8 @@ export const toggleLiked = createAsyncThunk<
     { id: string; token: string }
 >(
     'liked/toggleLiked',
-    async ({ id, token }) => {
+    async ({id, token}) => {
         await toggleFavoriteProduct(id, token);
-        return { id };
+        return {id};
     }
 );

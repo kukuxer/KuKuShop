@@ -2,7 +2,6 @@ import {useState, useEffect} from "react";
 import {FaShoppingCart, FaSearch, FaPlus} from "react-icons/fa";
 import {useAuth0} from "@auth0/auth0-react";
 import {Link} from "react-router-dom";
-import {Product, Shop} from "../../../../entities";
 import {ErrorPage} from "../../../../shared/ui/error-page";
 import {Loading} from "../../../../shared/ui/loading";
 import {ProductCard} from "../../../../entities/product/ui/ProductCard.tsx";
@@ -110,7 +109,7 @@ export const MyShopComponent = () => {
     return (
         <div className="min-h-screen bg-gray-900">
             <div className="relative ">
-                <MyShopBanner shop={shop}/>
+                <MyShopBanner shop={myShop}/>
             </div>
             <nav className="bg-gray-900 p-4 sticky top-0 border-b border-gray-800">
                 <div className="container mx-auto flex items-center justify-center">

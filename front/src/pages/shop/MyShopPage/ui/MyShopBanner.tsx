@@ -8,7 +8,7 @@ import {ImageCropModal} from "../../../../shared/lib/crop-image-modal/ImageCropM
 import {updateShop} from "../../../../entities/shop/api/shops.ts";
 
 interface MyShopBannerProps {
-    shop?: Shop;
+    shop: Shop | null ;
 }
 
 export const MyShopBanner: React.FC<MyShopBannerProps> = ({shop}) => {
@@ -79,7 +79,7 @@ export const MyShopBanner: React.FC<MyShopBannerProps> = ({shop}) => {
 
             if (imageUrl.startsWith("data:image") || imageUrl.startsWith("blob:")) {
                 const blob = await (await fetch(imageUrl)).blob();
-                const extension = blob.type.split("/")[1]; // e.g., "jpeg" or "png"
+                const extension = blob.type.split("/")[1];
                 const filename = `banner_${Date.now()}.${extension}`;
                 const file = new File([blob], filename, {type: blob.type});
                 payload.append("image", file);

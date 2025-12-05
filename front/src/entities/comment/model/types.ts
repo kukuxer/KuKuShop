@@ -1,4 +1,4 @@
-export interface Comment {
+export interface CommentEntity {
   id: string;
   author: string;
   comment: string;
@@ -13,3 +13,8 @@ export interface CreateCommentDto {
   rating: number;
   productId: string | number;
 }
+export type CommentFormErrors = {
+    comment?: string;
+    rating?: string;
+    global?: string;
+};

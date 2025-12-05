@@ -1,9 +1,9 @@
 import React from "react";
-import {Comment} from "../../../entities";
+import {CommentEntity} from "../../../entities";
 
 interface ProductReviewProps {
-    comment: Comment;
-    renderStars: (rating: number) => React.ReactNode[];
+    comment: CommentEntity;
+    renderStars: (rating: number) => React.ReactNode;
 }
 
 const ProductReview: React.FC<ProductReviewProps> = ({comment, renderStars}) => {

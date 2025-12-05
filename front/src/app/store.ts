@@ -1,18 +1,17 @@
-import { configureStore } from '@reduxjs/toolkit';
+import {configureStore} from '@reduxjs/toolkit';
 import {basketReducer} from "../features/redux/basket";
 import {profileReducer} from "../features/redux/profile";
 import {likedReducer} from "../features/redux/liked";
 import {myShopReducer} from "../features/redux/myShop";
-
-
-
+import {commentReducer} from "../features/redux/comment";
 
 export const store = configureStore({
     reducer: {
         profile: profileReducer,
         basket: basketReducer,
         liked: likedReducer,
-        myShop: myShopReducer
+        myShop: myShopReducer,
+        comment: commentReducer
     },
 });
 

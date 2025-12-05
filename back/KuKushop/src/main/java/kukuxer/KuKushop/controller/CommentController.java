@@ -24,8 +24,8 @@ public class CommentController {
             @RequestBody CommentDto commentDto,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        commentService.createComment(commentDto, jwt);
-        return ResponseEntity.ok().build();
+
+        return ResponseEntity.ok(commentService.createComment(commentDto, jwt));
     }
 
     @GetMapping("getProductComments/{productId}")

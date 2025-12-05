@@ -20,7 +20,6 @@ export const MyShopPage: React.FC = () => {
             if (!isAuthenticated) return;
                 const token = await getAccessTokenSilently();
                 dispatch(fetchUserShopOwnership(token));
-                // console.log("Do user owns a page: " + ownsShop);
         };
 
         fetchShopData();

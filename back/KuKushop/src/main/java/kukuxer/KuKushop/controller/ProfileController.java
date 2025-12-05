@@ -26,8 +26,7 @@ public class ProfileController {
     @PostMapping
     public ResponseEntity<ProfileDto> createProfile(@RequestBody ProfileDto profileDto) {
         ProfileDto createdProfileDto = profileMapper.INSTANCE.toDto(
-                profileService.createProfile(profileDto)
-        );
+                profileService.createProfile(profileDto));
         return ResponseEntity.ok(createdProfileDto);
     }
 
@@ -35,7 +34,6 @@ public class ProfileController {
     public ResponseEntity<?> getProfile(@AuthenticationPrincipal Jwt jwt) {
         Profile profile = profileService.getByAuthId(jwt.getClaim("sub"))
                 .orElseThrow(() -> new RuntimeException("no user with this authId"));
-
         return ResponseEntity.ok(profileMapper.toDto(profile));
     }
 
@@ -59,8 +57,7 @@ public class ProfileController {
     public ResponseEntity<?> updateProfile(
             @AuthenticationPrincipal Jwt jwt,
             @RequestPart("profile") ProfileDto profileDto,
-            @RequestPart(value = "image", required = false) MultipartFile image
-    ) {
+            @RequestPart(value = "image", required = false) MultipartFile image) {
         try {
            Profile updatedProfile = profileService.update(profileDto, image, jwt);
             return ResponseEntity.ok(updatedProfile);
@@ -68,6 +65,5 @@ public class ProfileController {
             return ResponseEntity.ok(false);
         }
     }
-
 
 }

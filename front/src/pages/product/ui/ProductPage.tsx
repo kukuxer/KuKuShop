@@ -8,19 +8,24 @@ import ProductCommentSection from "./ProductCommentSection.tsx";
 import ProductReview from "./ProductReview.tsx";
 import {ImageEnlargementModal} from "./ImageEnlargementModal.tsx";
 import {ErrorPage} from "../../../shared/ui/error-page";
-import {Product, Shop, Comment} from "../../../entities";
+import {Product, Shop} from "../../../entities";
 import {Loading} from "../../../shared/ui/loading";
 import {AddToBasketButton, LikeBtn} from "../../../shared/ui/buttons";
 import {ProductRatingStar} from "../../shop/ui/ProductRatingStar.tsx";
 import {ShopCard} from "../../../entities/shop/ui/ShopCard.tsx";
 import {getProductById} from "../../../entities/product/api/products.ts";
 import {getShopById} from "../../../entities/shop/api/shops.ts";
-import {getProductComments} from "../../../entities/comment/api/comments.ts";
+import {useDispatch, useSelector} from "react-redux";
+import {commentSelector} from "../../../features/redux/comment/comment.slice.ts";
+import {AppDispatch} from "../../../app/store.ts";
+import {getProductCommentsByProductId} from "../../../features/redux/comment";
 
 export const ProductPage = () => {
+
+    const dispatch = useDispatch<AppDispatch>();
     const [product, setProduct] = useState<Product | null>(null);
     const [shop, setShop] = useState<Shop | null>(null);
-    const [comments, setComments] = useState<Comment[]>([]);
+    const {comments} = useSelector(commentSelector);
     const {getAccessTokenSilently, isAuthenticated,isLoading: isAuthLoading} = useAuth0();
     const [selectedImage, setSelectedImage] = useState(0);
     const [currentSort, setCurrentSort] = useState("recent");
@@ -36,7 +41,7 @@ export const ProductPage = () => {
     const {search} = useLocation();
 
     const [isEditing, setIsEditing] = useState(false);
-    const [refreshTrigger, setRefreshTrigger] = useState<boolean>(false);
+
 
 
     useEffect(() => {
@@ -53,61 +58,58 @@ export const ProductPage = () => {
             window.history.replaceState(null, "", url.toString());
         }
     }, []);
-
-
-
+// fetch product
     useEffect(() => {
-        const fetchAll = async () => {
-            setLoading(true);
-            setIsEditing(new URLSearchParams(search).get("isEditing") === "true");
+        const loadProduct = async () => {
             setLoading(true);
 
             try {
-                let token: string | undefined = undefined;
-                if (isAuthenticated) {
-                    token = await getAccessTokenSilently();
-                }
+                const token = isAuthenticated
+                    ? await getAccessTokenSilently()
+                    : undefined;
 
-                const product = await getProductById(productId as string, token);
-                setProduct(product);
-                setSelectedPicture(product.imageUrl);
-                console.log("Product data:", product);
+                const productData = await getProductById(productId!, token);
 
-                if (product.shopId) {
-                    try {
-                        const shop = await getShopById(product.shopId);
-                        setShop(shop);
-                        console.log("Shop data:", shop);
-                    } catch (err) {
-                        setError("No shop found with this ID");
-                    }
-                }
-
-                try {
-                    const comments = await getProductComments(productId as string);
-                    setComments(comments);
-                    console.log("Comments:", comments);
-                } catch (err) {
-                    console.error("Failed to fetch comments:", err);
-                }
+                setProduct(productData);
+                setSelectedPicture(productData.imageUrl);
 
             } catch (err) {
-                setError("Failed to fetch product");
-                console.error("Fetch error:", err);
+                console.error(err);
+                setError("Failed to load product");
             } finally {
                 setLoading(false);
             }
         };
 
         if (!isAuthLoading && productId) {
-            fetchAll();
+            loadProduct();
         }
-    }, [productId, search,isAuthenticated,getAccessTokenSilently, refreshTrigger]);
+    }, [productId, isAuthLoading, isAuthenticated]);
+
+// fetch shop
+    useEffect(() => {
+        if (!product?.shopId) return;
+
+        const loadShop = async () => {
+            try {
+                const shopData = await getShopById(product.shopId);
+                setShop(shopData);
+            } catch (err: unknown) {
+                setError("Shop not found" + err);
+            }
+        };
+
+        loadShop();
+    }, [product?.shopId]);
+ // fetch comments
+    useEffect(() => {
+        if (productId) {
+            dispatch(getProductCommentsByProductId(productId));
+        }
+    }, [productId]);
 
 
-    const refreshFetchTrigger = async () => {
-        setRefreshTrigger(!refreshTrigger);
-    }
+
 
 
     const renderStars = (rating: number) => {
@@ -358,7 +360,6 @@ export const ProductPage = () => {
                             <ProductReview key={comment.id} comment={comment} renderStars={renderStars}/>
                         ))}
                         <ProductCommentSection
-                            refreshFetchTrigger={refreshFetchTrigger}
                             productId={productId}
                         />
                     </div>
@@ -372,7 +373,8 @@ export const ProductPage = () => {
                             <BsChevronLeft/>
                         </button>
                         <span className="px-4 py-2 rounded-lg bg-gray-800">
-              {currentPage}
+
+                            {currentPage}
             </span>
                         <button
                             onClick={() => setCurrentPage(currentPage + 1)}

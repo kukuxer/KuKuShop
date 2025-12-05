@@ -29,7 +29,7 @@ public class CommentService {
     private final ShopRepository shopRepository;
     private final CommentMapper commentMapper;
 
-    public void createComment(CommentDto commentDto, Jwt jwt) {
+    public CommentDto createComment(CommentDto commentDto, Jwt jwt) {
         String userAuthId = jwt.getClaim("sub");
         Profile profile = profileRepository.findByAuthId(userAuthId).orElseThrow(
                 () -> new RuntimeException("user with auth id" + userAuthId + " not found.")
@@ -48,6 +48,10 @@ public class CommentService {
         updateProductRating(product);
         updateShopRating(product);
         productRepository.save(product);
+        CommentDto commentDto1 = commentMapper.toDto(savedComment);
+        commentDto1.setUserId(profile.getId());
+        commentDto1.setProfileImage(profile.getImageUrl());
+        return commentDto1;
     }
 
 

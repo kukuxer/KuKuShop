@@ -24,6 +24,13 @@ export const categories: Category[] = [
     {id: "homeGoods", name: "Home Goods", icon: FaHome},
     {id: "sports & outdoors", name: "sports & outdoors", icon: FaRunning},
 ];
+export const additionalCategories = [
+    "Audio",
+    "Smart Home",
+    "Wearables",
+    "Accessories",
+    "Camera"
+];
 
 
 type SocialLink = {

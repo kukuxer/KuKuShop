@@ -70,4 +70,8 @@ public class ProfileService {
                 .map(Profile::getId)
                 .orElse(null);
     }
+    public Profile requireProfile(Jwt jwt) {
+        return getByAuthId(jwt.getClaim("sub"))
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 }

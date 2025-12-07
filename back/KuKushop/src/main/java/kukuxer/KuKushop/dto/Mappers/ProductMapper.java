@@ -1,10 +1,8 @@
 package kukuxer.KuKushop.dto.Mappers;
 
 import kukuxer.KuKushop.dto.ProductDto;
-import kukuxer.KuKushop.dto.ProfileDto;
 import kukuxer.KuKushop.entity.Category;
 import kukuxer.KuKushop.entity.Product;
-import kukuxer.KuKushop.entity.Profile;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

@@ -1,6 +1,31 @@
 // src/api/products.ts
 import axios from "axios";
 
+export const fetchProducts = async ({ page, size, name, categories, token }: {
+    page?: number;
+    size?: number;
+    name?: string;
+    categories?: string[];
+    token?: string;
+}) => {
+    const params = new URLSearchParams();
+
+    params.append("page", String(page));
+    params.append("size", String(size));
+    if (name) params.append("name", name);
+    if (categories?.length) params.append("categories", categories.join(","));
+
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    const res = await axios.get(
+        `http://localhost:8080/api/product/public/get?${params.toString()}`,
+        { headers }
+    );
+
+    return res.data;
+};
+
+
 
 export const getProductById = async (productId: string, token?: string) => {
     const headers = token ? {Authorization: `Bearer ${token}`} : {};

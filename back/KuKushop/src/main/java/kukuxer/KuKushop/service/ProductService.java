@@ -11,7 +11,10 @@ import kukuxer.KuKushop.repository.CategoryRepository;
 import kukuxer.KuKushop.repository.ProductRepository;
 import kukuxer.KuKushop.repository.ShopRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -38,102 +41,115 @@ public class ProductService {
     private final ShopRepository shopRepository;
 
 
+    /* ---------------------------------------------------
+     * PRODUCT CRUD
+     * --------------------------------------------------- */
+
+    public Page<ProductDto> getProducts(Pageable pageable,
+                                        int numberOfProducts,
+                                        String name,
+                                        List<String> categoryNames,
+                                        Jwt jwt) {
+
+        Page<Product> page;
+
+
+        if (categoryNames != null && !categoryNames.isEmpty()) {
+            categoryNames = categoryNames.stream()
+                    .map(String::toLowerCase)
+                    .toList();
+        }
+
+        boolean hasCategories = categoryNames != null && !categoryNames.isEmpty();
+
+        if (hasCategories) {
+            page = productRepository.findByNameAndCategories(name, categoryNames, pageable);
+        } else {
+            page = productRepository.findByName(name, pageable);
+        }
+
+        // Limit results
+        List<ProductDto> content = page.getContent().stream()
+                .limit(numberOfProducts)
+                .map(productMapper::toDto)
+                .toList();
+
+        // Optional JWT info
+        if (jwt != null) {
+            content = applyUserFlagsToList(content, jwt);
+        }
+
+        return new PageImpl<>(content, pageable, page.getTotalElements());
+    }
+
     public List<Product> getProductsByShopId(Long id) {
         return productRepository.getAllByShopId(id);
     }
 
-    public ProductDto createProduct(ProductDto productDto, MultipartFile image, MultipartFile[] additionalImages, Long shopId) throws IOException {
-        List<String> fileKeys = new ArrayList<>();
-        if (image != null && !image.isEmpty()) {
-            String fileKey = s3Service.uploadFile(image);
-            productDto.setImageUrl(fileKey);
-        }
-        if (additionalImages != null) {
-            for (MultipartFile additionalImage : additionalImages) {
-                fileKeys.add(s3Service.uploadFile(additionalImage));
-            }
-            productDto.setAdditionalPictures(fileKeys);
-        }
-        Product product = ProductMapper.INSTANCE.toEntity(productDto);
-        Set<Category> categoryEntities = productDto.getCategories().stream()
-                .map(name -> categoryRepository.findByName(name.toLowerCase().trim())
-                        .orElseGet(() -> Category.builder()
-                                .name(name.toLowerCase().trim())
-                                .build()))
-                .collect(Collectors.toSet());
 
-        product.setCategories(categoryEntities);
+
+    public ProductDto createProduct(ProductDto productDto, MultipartFile image,
+                                    MultipartFile[] additionalImages, Long shopId) throws IOException {
+
+        if (image != null && !image.isEmpty()) {
+            productDto.setImageUrl(s3Service.uploadFile(image));
+        }
+
+        if (additionalImages != null) {
+            List<String> files = new ArrayList<>();
+            for (MultipartFile file : additionalImages) {
+                if (!file.isEmpty()) {
+                    files.add(s3Service.uploadFile(file));
+                }
+            }
+            productDto.setAdditionalPictures(files);
+        }
+
+        Product product = ProductMapper.INSTANCE.toEntity(productDto);
+        product.setCategories(resolveCategories(productDto.getCategories()));
         product.setShopId(shopId);
-        System.out.println(product);
-        Product savedProduct = productRepository.save(product);
-        return productMapper.toDto(savedProduct);
+
+        return productMapper.toDto(productRepository.save(product));
     }
 
-    public ProductDto getProductDtoById(UUID uuid, Jwt jwt) {
-        Long userId = profileService.extractUserId(jwt);
-        Product product = productRepository.findById(uuid)
-                .orElseThrow(() -> new RuntimeException("no product with this id" + uuid));
+    public ProductDto getProductDtoById(UUID id, Jwt jwt) {
 
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("No product with id " + id));
 
-        ProductDto productDto = productMapper.toDto(product);
+        ProductDto dto = productMapper.toDto(product);
 
-        if (userId == null) {
-            return productDto;
-        }
-
-        productDto.setInBasket(basketService.isInBasket(product.getId(), userId));
-        productDto.setFavorite(favoriteService.isFavorite(product.getId(), userId));
-        Shop shop = shopService.getById(product.getShopId());
-        if (jwt.getClaim("sub").equals(shop.getUserAuthId())) {
-            productDto.setOwner(true);
-        }
-        return productDto;
+        return applyUserFlagsToDto(dto, jwt);
     }
 
     public List<ProductDto> getShopProductsDtoByName(String shopName, Jwt jwt) {
-        Long userId = profileService.extractUserId(jwt);
+
         Shop shop = shopService.getByName(shopName);
         List<Product> products = getProductsByShopId(shop.getId());
 
-        final Set<UUID> favoriteProductIds;
-        final Set<UUID> basketProductIds;
-
-        if (userId != null) {
-            favoriteProductIds = new HashSet<>(favoriteService.getFavoriteProductIdsByUserId(userId));
-            basketProductIds = basketService.getAllBasketProducts(jwt)
-                    .stream()
-                    .map(BasketProductDto::getId)
-                    .collect(Collectors.toSet());
-        } else {
-            favoriteProductIds = Collections.emptySet();
-            basketProductIds = Collections.emptySet();
-        }
-
-        return products.stream()
-                .map(product -> {
-                    ProductDto dto = productMapper.toDto(product);
-                    dto.setFavorite(favoriteProductIds.contains(product.getId()));
-                    dto.setInBasket(basketProductIds.contains(product.getId()));
-                    return dto;
-                })
-                .collect(Collectors.toList());
+        return applyUserFlagsToList(
+                products.stream()
+                        .map(productMapper::toDto)
+                        .collect(Collectors.toList()),
+                jwt
+        );
     }
+
+
+    /* ---------------------------------------------------
+     * UPDATE
+     * --------------------------------------------------- */
 
     @Transactional
     public void update(ProductDto productDto, UUID productId, MultipartFile image,
-                       MultipartFile[] additionalImages, Jwt jwt) throws IOException {
+                       MultipartFile[] extraImages, Jwt jwt) throws IOException {
 
-        Profile profile = profileService.getByAuthId(jwt.getClaim("sub"))
-                .orElseThrow(() -> new RuntimeException("User not found: " + jwt.getClaim("sub")));
+        Profile profile = profileService.requireProfile(jwt);
+        Product product = requireProduct(productId);
+        Shop shop = shopService.requireShop(product.getShopId());
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
-
-        Shop shop = shopRepository.findById(product.getShopId())
-                .orElseThrow(() -> new RuntimeException("Shop not found: " + product.getShopId()));
-
-        if (!shop.getUserAuthId().equals(profile.getAuthId())) {
-            throw new RuntimeException("User doesn't own this product to change");
+        if (!isOwner(shop, profile)) {
+            throw new RuntimeException("User does not own this product.");
         }
 
         product.setName(productDto.getName());
@@ -142,46 +158,32 @@ public class ProductService {
         product.setQuantity(productDto.getQuantity());
         product.setAdditionalPictures(productDto.getAdditionalPictures());
 
-        if (productDto.getImageUrl().isEmpty()) product.setImageUrl(null);
+        if (productDto.getImageUrl().isEmpty()) {
+            product.setImageUrl(null);
+        }
 
         if (image != null && !image.isEmpty()) {
             product.setImageUrl(s3Service.uploadFile(image));
-        } else {
-            product.setImageUrl(productDto.getImageUrl());
         }
 
-        if (additionalImages != null && additionalImages.length > 0) {
-            List<String> uploadedFiles = new ArrayList<>();
-            for (MultipartFile additionalImage : additionalImages) {
-                if (additionalImage != null && !additionalImage.isEmpty()) {
-                    uploadedFiles.add(s3Service.uploadFile(additionalImage));
+        if (extraImages != null && extraImages.length > 0) {
+            List<String> files = new ArrayList<>();
+            for (MultipartFile file : extraImages) {
+                if (!file.isEmpty()) {
+                    files.add(s3Service.uploadFile(file));
                 }
             }
-            product.setAdditionalPictures(uploadedFiles);
+            product.setAdditionalPictures(files);
         }
 
-        Set<Category> categoryEntities = productDto.getCategories().stream()
-                .map(name -> {
-                    String cleanName = name.toLowerCase().trim();
-                    return categoryRepository.findByName(cleanName)
-                            .orElseGet(() -> categoryRepository.save(Category.builder()
-                                    .name(cleanName)
-                                    .build()));
-                })
-                .collect(Collectors.toSet());
-        product.setCategories(categoryEntities);
-
+        product.setCategories(resolveCategories(productDto.getCategories()));
         productRepository.save(product);
     }
 
-    public List<ProductDto> findTopProducts(int number) {
-        List<Product> top3ByRating = productRepository.findTop3ByRating(PageRequest.of(0, number));
-        List<ProductDto> top3ByRatingDto = new ArrayList<>();
-        top3ByRating.forEach(p -> top3ByRatingDto.add(
-                productMapper.toDto(p))
-        );
-        return top3ByRatingDto;
-    }
+
+    /* ---------------------------------------------------
+     * DELETE
+     * --------------------------------------------------- */
 
     public ResponseEntity<?> delete(UUID id, Jwt jwt) {
         if (!isProductOwner(id, jwt)) {
@@ -199,23 +201,93 @@ public class ProductService {
     }
 
 
+    /* ---------------------------------------------------
+     * TOP PRODUCTS
+     * --------------------------------------------------- */
+
+    public List<ProductDto> findTopProducts(int number) {
+        return productRepository.findTop3ByRating(PageRequest.of(0, number))
+                .stream()
+                .map(productMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+
+    /* ---------------------------------------------------
+     * HELPERS
+     * --------------------------------------------------- */
+
+    private Set<Category> resolveCategories(Set<String> names) {
+        return names.stream()
+                .map(name -> {
+                    String clean = name.toLowerCase().trim();
+                    return categoryRepository.findByName(clean)
+                            .orElseGet(() -> categoryRepository.save(Category.builder()
+                                    .name(clean)
+                                    .build()));
+                })
+                .collect(Collectors.toSet());
+    }
+
+
+
+    public Product requireProduct(UUID id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
+
+    public boolean isOwner(Shop shop, Profile profile) {
+        return shop.getUserAuthId().equals(profile.getAuthId());
+    }
+
     private boolean isProductOwner(UUID productId, Jwt jwt) {
         try {
-            Profile profile = profileService.getByAuthId(jwt.getClaim("sub"))
-                    .orElseThrow(() -> new RuntimeException("User not found: " + jwt.getClaim("sub")));
-
-            Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
-
-            Shop shop = shopRepository.findById(product.getShopId())
-                    .orElseThrow(() -> new RuntimeException("Shop not found: " + product.getShopId()));
-
-            if (!shop.getUserAuthId().equals(profile.getAuthId())) {
-                return false;
-            }
-            return true;
+            Profile profile = profileService.requireProfile(jwt);
+            Product product = requireProduct(productId);
+            Shop shop = shopService.requireShop(product.getShopId());
+            return isOwner(shop, profile);
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /* ---------------------------------------------------
+     * DTO ENRICHMENT
+     * --------------------------------------------------- */
+
+    private ProductDto applyUserFlagsToDto(ProductDto dto, Jwt jwt) {
+
+        if (jwt == null) return dto;
+
+        Long userId = profileService.extractUserId(jwt);
+        if (userId == null) return dto;
+
+        Shop shop = shopService.getById(dto.getShopId());
+
+        dto.setInBasket(basketService.isInBasket(dto.getId(), userId));
+        dto.setFavorite(favoriteService.isFavorite(dto.getId(), userId));
+        dto.setOwner(jwt.getClaim("sub").equals(shop.getUserAuthId()));
+
+        return dto;
+    }
+
+    private List<ProductDto> applyUserFlagsToList(List<ProductDto> list, Jwt jwt) {
+
+        if (jwt == null) return list;
+
+        Profile profile = profileService.requireProfile(jwt);
+        long userId = profile.getId();
+        String authId = profile.getAuthId();
+
+        return list.stream()
+                .map(dto -> {
+                    Shop shop = shopService.getById(dto.getShopId());
+                    dto.setFavorite(favoriteService.isFavorite(dto.getId(), userId));
+                    dto.setInBasket(basketService.isInBasket(dto.getId(), userId));
+                    dto.setOwner(authId.equals(shop.getUserAuthId()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

@@ -5,13 +5,15 @@ import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.service.ProductService;
 import kukuxer.KuKushop.service.ShopService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.io.IOException;
 import java.util.List;
@@ -25,6 +27,28 @@ public class ProductController {
 
     private final ProductService productService;
     private final ShopService shopService;
+
+    @GetMapping("/public/get")
+    public ResponseEntity<Page<ProductDto>> getProducts(
+            @RequestParam(defaultValue = "20") int numberOfProducts,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) List<String> categories,
+            Pageable pageable,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+
+        if (numberOfProducts > 200) numberOfProducts = 200;
+
+        Page<ProductDto> products = productService.getProducts(
+                pageable,
+                numberOfProducts,
+                name,
+                categories,
+                jwt
+        );
+
+        return ResponseEntity.ok(products);
+    }
 
     @GetMapping("/getMyProducts")
     public ResponseEntity<?> getMyProducts(@AuthenticationPrincipal Jwt jwt) {
@@ -94,6 +118,7 @@ public class ProductController {
         List<ProductDto> topProducts = productService.findTopProducts(number);
         return ResponseEntity.ok(topProducts);
     }
+
 
     @DeleteMapping("/delete/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable UUID productId,

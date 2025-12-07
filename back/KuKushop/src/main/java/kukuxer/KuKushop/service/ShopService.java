@@ -100,4 +100,8 @@ public class ShopService {
         ));
         return shopsDto;
     }
+    public Shop requireShop(Long id) {
+        return shopRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Shop not found"));
+    }
 }

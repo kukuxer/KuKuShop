@@ -3,6 +3,7 @@ package kukuxer.KuKushop.controller;
 
 import kukuxer.KuKushop.dto.Mappers.ShopMapper;
 import kukuxer.KuKushop.dto.ShopDto;
+import kukuxer.KuKushop.entity.Product;
 import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.service.ProfileService;
 import kukuxer.KuKushop.service.ShopService;
@@ -110,6 +111,12 @@ public class ShopController {
     @GetMapping("/getShops/{name}")
     public ResponseEntity<?> getShopsByName(@PathVariable String name){
         return ResponseEntity.ok(shopService.findShopsByName(name));
+    }
+
+    @GetMapping("/public/searchShops/{term}")
+    public ResponseEntity<List<Shop>> getShops(@PathVariable String term) {
+        List<Shop> shops = shopService.searchShops(term);
+        return ResponseEntity.ok(shops);
     }
 
 }

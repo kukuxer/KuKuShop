@@ -62,6 +62,7 @@ public class ProfileController {
            Profile updatedProfile = profileService.update(profileDto, image, jwt);
             return ResponseEntity.ok(updatedProfile);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return ResponseEntity.ok(false);
         }
     }

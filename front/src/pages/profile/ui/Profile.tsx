@@ -1,18 +1,12 @@
-import React, {
-    useState,
-    ChangeEvent,
-    ChangeEventHandler, useEffect,
-} from "react";
-import {FiEdit} from "react-icons/fi";
-import {useAuth0, User} from "@auth0/auth0-react";
+import React, { useState, ChangeEvent, ChangeEventHandler, useEffect } from "react";
+import { FiEdit } from "react-icons/fi";
+import { useAuth0, User } from "@auth0/auth0-react";
 
-import {ImageCropModal} from "../../../shared/lib/crop-image-modal/ImageCropModal.tsx";
-import {useDispatch, useSelector} from "react-redux";
-import {AppDispatch} from "../../../app/store.ts";
-import {updateProfileAsync} from "../../../features/redux/profile";
-import {profileSelector} from "../../../features/redux/profile/profile.slice.ts";
-
-
+import { ImageCropModal } from "../../../shared/lib/crop-image-modal/ImageCropModal.tsx";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../../app/store.ts";
+import { updateProfileAsync } from "../../../features/redux/profile";
+import { profileSelector } from "../../../features/redux/profile/profile.slice.ts";
 
 interface FormData {
     name: string;
@@ -24,11 +18,10 @@ interface FormData {
 }
 
 export const Profile: React.FC = () => {
-
     const [cropModalOpen, setCropModalOpen] = useState(false);
     const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
-    const {user, getAccessTokenSilently} = useAuth0();
+    const { user, getAccessTokenSilently } = useAuth0();
     const typedUser = user as User;
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState<FormData>({
@@ -55,16 +48,12 @@ export const Profile: React.FC = () => {
         }
     }, [profileEntity, typedUser]);
 
-
     const validateForm = (): { [key: string]: string } => {
         const newErrors: { [key: string]: string } = {};
         if (!formData.name.trim()) newErrors.name = "Name is required";
         if (!formData.surname.trim()) newErrors.surname = "Surname is required";
-        if (!formData.email.trim()) {
-            newErrors.email = "Email is required";
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = "Email is invalid";
-        }
+        if (!formData.email.trim()) newErrors.email = "Email is required";
+        else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email is invalid";
         return newErrors;
     };
 
@@ -86,26 +75,24 @@ export const Profile: React.FC = () => {
                 familyName: formData.surname,
                 role: "user",
             };
-
-            payload.append(
-                "profile",
-                new Blob([JSON.stringify(profile)], {type: "application/json"})
-            );
+            payload.append("profile", new Blob([JSON.stringify(profile)], { type: "application/json" }));
 
             if (formData.imageFile) {
                 payload.append("image", formData.imageFile);
             }
+
 
             const success = await dispatch(updateProfileAsync({
                 token: await getAccessTokenSilently(),
                 formData: payload,
             })).unwrap();
 
+
             if (success) {
                 setIsEditing(false);
                 setErrors({});
             } else {
-                alert("Failed to update profile");
+                alert("Faile d to update profile" + errors);
             }
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -114,13 +101,9 @@ export const Profile: React.FC = () => {
     };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
-
 
     return (
         <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -132,7 +115,7 @@ export const Profile: React.FC = () => {
                             onClick={() => setIsEditing(true)}
                             className="p-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white transition-colors"
                         >
-                            <FiEdit size={20}/>
+                            <FiEdit size={20} />
                         </button>
                     )}
                 </div>
@@ -223,10 +206,7 @@ export const Profile: React.FC = () => {
                         <>
                             <div className="flex flex-col items-center gap-4">
                                 <img
-                                    src={
-                                        profileEntity?.imageUrl ||
-                                        "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"
-                                    }
+                                    src={profileEntity?.imageUrl || "https://i.pinimg.com/736x/c8/ec/05/c8ec0552d878e70bd29c25d0957a6faf.jpg"}
                                     alt="Profile"
                                     className="w-32 h-32 rounded-full object-cover border-4 border-purple-600"
                                     onError={(e) => {
@@ -236,15 +216,16 @@ export const Profile: React.FC = () => {
                                 />
                             </div>
                             <div className="flex-1 space-y-4">
-                                <DisplayField label="Name" value={formData?.name}/>
-                                <DisplayField label="Surname" value={formData?.surname}/>
-                                <DisplayField label="Nickname" value={formData?.nickname}/>
-                                <DisplayField label="Email" value={formData?.email}/>
+                                <DisplayField label="Name" value={formData?.name} />
+                                <DisplayField label="Surname" value={formData?.surname} />
+                                <DisplayField label="Nickname" value={formData?.nickname} />
+                                <DisplayField label="Email" value={formData?.email} />
                             </div>
                         </>
                     )}
                 </div>
             </div>
+
             {cropModalOpen && selectedImageFile && (
                 <ImageCropModal
                     image={URL.createObjectURL(selectedImageFile)}
@@ -255,30 +236,19 @@ export const Profile: React.FC = () => {
                         setSelectedImageFile(null);
                     }}
                     onSave={(croppedImage: string) => {
-                        // Convert base64 to Blob -> File
-                        const byteString = atob(croppedImage.split(',')[1]);
-                        const mimeString = croppedImage.split(',')[0].split(':')[1].split(';')[0];
-
+                        const byteString = atob(croppedImage.split(",")[1]);
+                        const mimeString = croppedImage.split(",")[0].split(":")[1].split(";")[0];
                         const ab = new ArrayBuffer(byteString.length);
                         const ia = new Uint8Array(ab);
-                        for (let i = 0; i < byteString.length; i++) {
-                            ia[i] = byteString.charCodeAt(i);
-                        }
-
-                        const blob = new Blob([ab], {type: mimeString});
-                        const croppedFile = new File([blob], selectedImageFile?.name ?? 'cropped.jpg', {type: mimeString});
-
-                        setFormData((prev) => ({
-                            ...prev,
-                            image: croppedImage,
-                            imageFile: croppedFile,
-                        }));
+                        for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+                        const blob = new Blob([ab], { type: mimeString });
+                        const croppedFile = new File([blob], selectedImageFile?.name ?? "cropped.jpg", { type: mimeString });
+                        setFormData(prev => ({ ...prev, image: croppedImage, imageFile: croppedFile }));
                         setCropModalOpen(false);
                         setSelectedImageFile(null);
                     }}
                 />
             )}
-
         </div>
     );
 };
@@ -309,7 +279,7 @@ const InputField = ({
     </div>
 );
 
-const DisplayField = ({label, value}: { label: string; value?: string }) => (
+const DisplayField = ({ label, value }: { label: string; value?: string }) => (
     <div>
         <h3 className="text-sm font-medium text-gray-400">{label}</h3>
         <p className="text-white text-lg">{value}</p>

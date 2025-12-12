@@ -42,4 +42,11 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             @Param("categoryNames") List<String> categoryNames,
             Pageable pageable
     );
+
+    @Query("SELECT p FROM Product p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :term, '%'))")
+    List<Product> searchProducts(@Param("term") String term);
+
+
+
+
 }

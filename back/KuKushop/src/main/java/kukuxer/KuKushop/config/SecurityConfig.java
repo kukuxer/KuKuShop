@@ -44,7 +44,9 @@ public class SecurityConfig {
                                 "/api/shop/getTopShops",
                                 "/api/product/public/top/**",
                                 "/api/shop/public/top/**",
-                                "api/product/public/get/**"
+                                "/api/product/public/get/**",
+                                "/api/product/public/searchProducts/**",
+                                "/api/shop/public/searchShops/**"
                         ).permitAll()
                         .requestMatchers("/api/private").authenticated()
                         .anyRequest().authenticated()

@@ -26,6 +26,16 @@ public class ShopService {
     private final S3Service s3Service;
     private final ShopMapper shopMapper;
 
+
+
+    // SEARCH
+    public List<Shop> searchShops(String term) {
+        if (term == null || term.isBlank()) {
+            return List.of();
+        }
+        return shopRepository.searchShops(term);
+    }
+
     public ShopDto createShop(ShopDto shopDto, String authId, MultipartFile image) throws IOException {
         boolean exists = shopRepository.findByUserAuthId(authId).isPresent();
         boolean theSameName = shopRepository.findByName(shopDto.getName()).isPresent();

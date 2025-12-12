@@ -1,6 +1,7 @@
 package kukuxer.KuKushop.controller;
 
 import kukuxer.KuKushop.dto.ProductDto;
+import kukuxer.KuKushop.entity.Product;
 import kukuxer.KuKushop.entity.Shop;
 import kukuxer.KuKushop.service.ProductService;
 import kukuxer.KuKushop.service.ShopService;
@@ -124,6 +125,11 @@ public class ProductController {
     public ResponseEntity<?> deleteProduct(@PathVariable UUID productId,
                                            @AuthenticationPrincipal Jwt jwt) {
         return productService.delete(productId, jwt);
+    }
+    @GetMapping("/public/searchProducts/{term}")
+    public ResponseEntity<List<Product>> getProducts(@PathVariable String term) {
+        List<Product> products = productService.searchProducts(term);
+        return ResponseEntity.ok(products);
     }
 }
 

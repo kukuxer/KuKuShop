@@ -46,21 +46,29 @@ public class ProfileService {
     public Profile update(ProfileDto profileDto, MultipartFile image, Jwt jwt) throws IOException {
         Profile profile = profileRepository.findByAuthId(jwt.getClaim("sub"))
                 .orElseThrow(() -> new RuntimeException("No such profile with authId:" + jwt.getClaim("sub")));
-        Shop shop = shopRepository.findByUserAuthId(profile.getAuthId())
-                .orElseThrow(() -> new RuntimeException("No such shop with authId:" + profile.getAuthId()));
+
+        Shop shop = shopRepository.findByUserAuthId(profile.getAuthId()).orElse(null);
 
         if (image != null && !image.isEmpty()) {
             String fileKey = s3Service.uploadFile(image);
             profile.setImageUrl(fileKey);
         }
-        if (profileDto.getName().equals("admin")) profile.setRole("admin");
+
+        if ("admin".equals(profileDto.getName())) {
+            profile.setRole("admin");
+        }
         profile.setName(profileDto.getName());
-        shop.setOwnerName(profileDto.getName());
         profile.setFamilyName(profileDto.getFamilyName());
         profile.setNickname(profileDto.getNickname());
-        shopRepository.save(shop);
+
+        if (shop != null) {
+            shop.setOwnerName(profileDto.getName());
+            shopRepository.save(shop);
+        }
+
         return profileRepository.save(profile);
     }
+
 
     public Long extractUserId(Jwt jwt) {
         if (jwt == null) return null;

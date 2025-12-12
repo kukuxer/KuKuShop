@@ -25,6 +25,10 @@ export const fetchProducts = async ({ page, size, name, categories, token }: {
     return res.data;
 };
 
+export const searchProducts = async (term: string) => {
+    const response = await axios.get(`http://localhost:8080/api/product/public/searchProducts/${term}`);
+    return response.data;
+};
 
 
 export const getProductById = async (productId: string, token?: string) => {

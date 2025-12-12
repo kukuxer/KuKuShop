@@ -27,4 +27,6 @@ export const getMyShop = (token: string) =>
 export const fetchTopShops = (limit: number = 12) =>
     getPublic(`${BASE_URL}/public/top/${limit}`);
 
+export const searchShops = async (term: string) => getPublic(`${BASE_URL}/public/searchShops/${term}`)
+
 

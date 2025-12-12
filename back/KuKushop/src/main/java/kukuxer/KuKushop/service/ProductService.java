@@ -41,6 +41,15 @@ public class ProductService {
     private final ShopRepository shopRepository;
 
 
+    // SEARCH
+    public List<Product> searchProducts(String term) {
+        if (term == null || term.isBlank()) {
+            return List.of();
+        }
+        return productRepository.searchProducts(term);
+    }
+
+
     /* ---------------------------------------------------
      * PRODUCT CRUD
      * --------------------------------------------------- */

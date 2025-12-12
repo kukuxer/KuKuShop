@@ -5,9 +5,8 @@ import {debounce} from "lodash";
 import {useAuth0} from "@auth0/auth0-react";
 import {useNavigate} from "react-router-dom";
 import {Product, Shop} from "../../../entities";
-import axios from "axios";
-import {fetchTopProducts} from "../../../entities/product/api/products.ts";
-import {fetchTopShops} from "../../../entities/shop/api/shops.ts";
+import {fetchTopProducts, searchProducts} from "../../../entities/product/api/products.ts";
+import {fetchTopShops, searchShops} from "../../../entities/shop/api/shops.ts";
 
 export const SearchField = () => {
     const [searchTerm, setSearchTerm] = useState("");
@@ -65,28 +64,23 @@ export const SearchField = () => {
             }
 
             try {
-                let headers = {};
-                if (isAuthenticated) {
-                    const token = await getAccessTokenSilently();
-                    headers = {Authorization: `Bearer ${token}`};
-                }
-
-                const [productsRes, shopsRes] = await Promise.all([
-                    axios.get(`http://localhost:8080/api/product/getProducts/${encodeURIComponent(term)}`, {headers}),
-                    axios.get(`http://localhost:8080/api/shop/getShops/${encodeURIComponent(term)}`, {headers}),
+                const [products, shops] = await Promise.all([
+                    searchProducts(term),
+                    searchShops(term)
                 ]);
 
                 setSearchResults({
-                    products: productsRes.data || [],
-                    shops: shopsRes.data || [],
+                    products: Array.isArray(products) ? products.slice(0, 8) : [],
+                    shops: Array.isArray(shops) ? shops.slice(0, 8) : [],
                 });
             } catch (err) {
                 console.error("Search error:", err);
-                setSearchResults({products: [], shops: []});
+                setSearchResults({ products: [], shops: [] });
             }
         }, 300),
-        [isAuthenticated, getAccessTokenSilently]
+        []
     );
+
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -94,7 +88,7 @@ export const SearchField = () => {
         handleSearch(value);
     };
 
-    const handleKeyDown = (e: { key: string; preventDefault: () => void; }) => {
+    const handleKeyDown = (e: { key: string; preventDefault: () => void }) => {
         if (!isDropdownOpen) return;
 
         if (e.key === "ArrowDown") {
@@ -127,10 +121,8 @@ export const SearchField = () => {
 
     return (
         <div className="relative w-full max-w-2xl mx-auto px-2 sm:px-4 min-w-0 flex-1" ref={dropdownRef}>
-            {/* Search Input Container */}
-            <div className={`relative transition-all duration-300 min-w-[280px] sm:min-w-[320px] ${
-                isFocused ? 'transform md:transform-none scale-105 md:scale-100' : ''
-            }`}>
+            <div
+                className={`relative transition-all duration-300 min-w-[280px] sm:min-w-[320px] ${isFocused ? 'transform md:transform-none scale-105 md:scale-100' : ''}`}>
                 <div
                     className={`relative bg-gray-900 rounded-2xl md:rounded-full border transition-all duration-300 ${
                         isFocused
@@ -153,15 +145,14 @@ export const SearchField = () => {
                         aria-label="Search input field"
                     />
 
-                    {/* Search Icon */}
-                    <div className={`absolute left-4 md:left-3 top-1/2 transform -translate-y-1/2 
-                                   transition-all duration-300 ${
-                        isFocused ? 'text-purple-400 scale-110' : 'text-gray-400'
-                    }`}>
+                    <div
+                        className={`absolute left-4 md:left-3 top-1/2 transform -translate-y-1/2 transition-all duration-300 ${
+                            isFocused ? 'text-purple-400 scale-110' : 'text-gray-400'
+                        }`}
+                    >
                         <FiSearch className="text-xl md:text-lg"/>
                     </div>
 
-                    {/* Clear Button */}
                     {searchTerm && (
                         <button
                             onClick={clearSearch}
@@ -177,57 +168,54 @@ export const SearchField = () => {
                     )}
                 </div>
 
-                {/* Mobile search indicator */}
-                <div className={`md:hidden absolute -bottom-1 left-1/2 transform -translate-x-1/2 
+                <div
+                    className={`md:hidden absolute -bottom-1 left-1/2 transform -translate-x-1/2 
                                w-1/3 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 
                                transition-all duration-300 ${
-                    isFocused ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
-                }`}/>
+                        isFocused ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
+                    }`}
+                />
             </div>
 
-            {/* Search Dropdown */}
+            {/* DROPDOWN */}
             {isDropdownOpen && (
-                <div className={`absolute w-full mt-3 md:mt-2 
-                               bg-gray-900 backdrop-blur-sm bg-opacity-95 md:bg-opacity-100
-                               rounded-2xl md:rounded-lg shadow-2xl
-                               border border-gray-800 md:border-gray-700
-                               overflow-hidden z-50 
-                               max-h-[75vh] md:max-h-[70vh] overflow-y-auto
+                <div
+                    className={`absolute w-full mt-3 md:mt-2 bg-gray-900 backdrop-blur-sm bg-opacity-95 md:bg-opacity-100
+                               rounded-2xl md:rounded-lg shadow-2xl border border-gray-800 md:border-gray-700
+                               overflow-hidden z-50 max-h-[75vh] md:max-h-[70vh] overflow-y-auto
                                animate-in slide-in-from-top-2 duration-300`}>
 
+                    {/* NO SEARCH YET → SHOW POPULAR */}
                     {!searchResults ? (
                         <div className="p-4 md:p-3">
-                            {/* Popular Products Section */}
+                            {/* POPULAR PRODUCTS */}
                             <div className="mb-6 md:mb-4">
                                 <div className="flex items-center mb-3 md:mb-2 px-2">
                                     <FiTrendingUp className="text-purple-400 mr-2 text-lg md:text-base"/>
-                                    <h3 className="text-gray-200 text-base md:text-sm font-semibold">Popular
-                                        Products</h3>
+                                    <h3 className="text-gray-200 text-base md:text-sm font-semibold">
+                                        Popular Products
+                                    </h3>
                                 </div>
+
                                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-2">
                                     {topProducts.map((product, index) => (
                                         <div
-                                            key={product.id}
+                                            key={product.id ?? `top-product-${index}`}
                                             onClick={() => {
                                                 navigate(`/products/${product.id}`);
                                                 setIsDropdownOpen(false);
                                             }}
                                             className={`flex items-center p-3 md:p-2 
-                                                       ${selectedIndex === index ? 'bg-purple-900/40' : 'hover:bg-gray-800/80'}
-                                                       rounded-xl md:rounded-lg transition-all duration-200 cursor-pointer
-                                                       active:scale-95 hover:shadow-lg hover:shadow-purple-500/10`}
+                                                ${selectedIndex === index ? 'bg-purple-900/40' : 'hover:bg-gray-800/80'}
+                                                rounded-xl md:rounded-lg transition-all duration-200 cursor-pointer`}
                                         >
-                                            <div className="relative">
-                                                <img
-                                                    src={product.imageUrl || "/Default.png"}
-                                                    alt={product.name}
-                                                    className="w-14 h-14 md:w-12 md:h-12 object-cover rounded-xl md:rounded-md
-                                                             ring-2 ring-gray-700 hover:ring-purple-500/50 transition-all duration-200"
-                                                    onError={(e) => {
-                                                        (e.target as HTMLImageElement).src = "/Default.png";
-                                                    }}
-                                                />
-                                            </div>
+                                            <img
+                                                src={product.imageUrl || "/Default.png"}
+                                                alt={product.name}
+                                                className="w-14 h-14 md:w-12 md:h-12 object-cover rounded-xl"
+                                                onError={(e) => ((e.target as HTMLImageElement).src = "/Default.png")}
+                                            />
+
                                             <div className="ml-4 md:ml-3 flex-1 min-w-0">
                                                 <h4 className="text-gray-200 font-medium text-base md:text-sm truncate mb-1">
                                                     {product.name}
@@ -244,37 +232,34 @@ export const SearchField = () => {
                                 </div>
                             </div>
 
-                            {/* Top Shops Section */}
+                            {/* TOP SHOPS */}
                             <div>
                                 <div className="flex items-center mb-3 md:mb-2 px-2">
                                     <FiShoppingBag className="text-emerald-400 mr-2 text-lg md:text-base"/>
-                                    <h3 className="text-gray-200 text-base md:text-sm font-semibold">Top Rated
-                                        Shops</h3>
+                                    <h3 className="text-gray-200 text-base md:text-sm font-semibold">
+                                        Top Rated Shops
+                                    </h3>
                                 </div>
+
                                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-2">
                                     {topShops.map((shop, index) => (
                                         <div
+                                            key={shop.id ?? `top-shop-${index}`}
                                             onClick={() => {
                                                 navigate(`/shops/${shop.name}`);
                                                 setIsDropdownOpen(false);
                                             }}
-                                            key={shop.id}
                                             className={`flex items-center p-3 md:p-2 
-                                                       ${selectedIndex === index + topProducts.length ? 'bg-purple-900/40' : 'hover:bg-gray-800/80'}
-                                                       rounded-xl md:rounded-lg transition-all duration-200 cursor-pointer
-                                                       active:scale-95 hover:shadow-lg hover:shadow-emerald-500/10`}
+                                                ${selectedIndex === index + topProducts.length ? 'bg-purple-900/40' : 'hover:bg-gray-800/80'}
+                                                rounded-xl md:rounded-lg transition-all duration-200 cursor-pointer`}
                                         >
-                                            <div className="relative">
-                                                <img
-                                                    src={shop.imageUrl || "/PublicShopPage.png"}
-                                                    alt={shop.name}
-                                                    className="w-12 h-12 md:w-10 md:h-10 object-cover rounded-full
-                                                             ring-2 ring-gray-700 hover:ring-emerald-500/50 transition-all duration-200"
-                                                    onError={(e) => {
-                                                        (e.target as HTMLImageElement).src = "/Default.png";
-                                                    }}
-                                                />
-                                            </div>
+                                            <img
+                                                src={shop.imageUrl || "/Default.png"}
+                                                alt={shop.name}
+                                                className="w-12 h-12 md:w-10 md:h-10 object-cover rounded-full"
+                                                onError={(e) => ((e.target as HTMLImageElement).src = "/Default.png")}
+                                            />
+
                                             <div className="ml-4 md:ml-3 flex-1 min-w-0">
                                                 <h4 className="text-gray-200 font-medium text-base md:text-sm truncate mb-1">
                                                     {shop.name}
@@ -293,6 +278,7 @@ export const SearchField = () => {
                         </div>
                     ) : (
                         <div className="p-4 md:p-3">
+                            {/* NO RESULTS */}
                             {searchResults.products.length === 0 && searchResults.shops.length === 0 ? (
                                 <div className="text-center py-8 md:py-6">
                                     <div className="text-gray-500 text-6xl md:text-4xl mb-4">🔍</div>
@@ -305,47 +291,43 @@ export const SearchField = () => {
                                 </div>
                             ) : (
                                 <div className="space-y-6 md:space-y-4">
-                                    {/* Products Results */}
+
+                                    {/* PRODUCT RESULTS */}
                                     {searchResults.products.length > 0 && (
                                         <div>
                                             <div className="flex items-center mb-3 md:mb-2 px-2">
-                                                <FiTrendingUp
-                                                    className="text-purple-400 mr-2 text-lg md:text-base"/>
+                                                <FiTrendingUp className="text-purple-400 mr-2 text-lg md:text-base"/>
                                                 <h3 className="text-gray-200 text-base md:text-sm font-semibold">
                                                     Products ({searchResults.products.length})
                                                 </h3>
                                             </div>
+
                                             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-2">
                                                 {searchResults.products.map((product, index) => (
                                                     <div
+                                                        key={product.id ?? `search-product-${index}`}
                                                         onClick={() => {
                                                             navigate(`/products/${product.id}`);
                                                             setIsDropdownOpen(false);
                                                         }}
-                                                        key={product.id}
                                                         className={`flex items-center p-3 md:p-2 
-                                                                   ${selectedIndex === index ? 'bg-purple-900/40' : 'hover:bg-gray-800/80'}
-                                                                   rounded-xl md:rounded-lg transition-all duration-200 cursor-pointer
-                                                                   active:scale-95 hover:shadow-lg hover:shadow-purple-500/10`}
+                                                            ${selectedIndex === index ? 'bg-purple-900/40' : 'hover:bg-gray-800/80'}
+                                                            rounded-xl md:rounded-lg transition-all duration-200 cursor-pointer`}
                                                     >
                                                         <img
-                                                            src={product.imageUrl}
+                                                            src={product.imageUrl || "/Default.png"}
                                                             alt={product.name}
-                                                            className="w-14 h-14 md:w-12 md:h-12 object-cover rounded-xl md:rounded-md
-                                                                     ring-2 ring-gray-700 hover:ring-purple-500/50 transition-all duration-200"
-                                                            onError={(e) => {
-                                                                (e.target as HTMLImageElement).src = "/Default.png";
-                                                            }}
+                                                            className="w-14 h-14 md:w-12 md:h-12 object-cover rounded-xl"
+                                                            onError={(e) => ((e.target as HTMLImageElement).src = "/Default.png")}
                                                         />
+
                                                         <div className="ml-4 md:ml-3 flex-1 min-w-0">
                                                             <h4 className="text-gray-200 font-medium text-base md:text-sm truncate mb-1">
                                                                 {product.name}
                                                             </h4>
                                                             <div className="flex items-center">
-                                                                <AiFillStar
-                                                                    className="text-yellow-400 text-sm md:text-xs"/>
-                                                                <span
-                                                                    className="text-gray-400 text-sm md:text-xs ml-1">
+                                                                <AiFillStar className="text-yellow-400 text-sm md:text-xs"/>
+                                                                <span className="text-gray-400 text-sm md:text-xs ml-1">
                                                                     {product.rating}
                                                                 </span>
                                                             </div>
@@ -356,47 +338,42 @@ export const SearchField = () => {
                                         </div>
                                     )}
 
-                                    {/* Shops Results */}
+                                    {/* SHOP RESULTS */}
                                     {searchResults.shops.length > 0 && (
                                         <div>
                                             <div className="flex items-center mb-3 md:mb-2 px-2">
-                                                <FiShoppingBag
-                                                    className="text-emerald-400 mr-2 text-lg md:text-base"/>
+                                                <FiShoppingBag className="text-emerald-400 mr-2 text-lg md:text-base"/>
                                                 <h3 className="text-gray-200 text-base md:text-sm font-semibold">
                                                     Shops ({searchResults.shops.length})
                                                 </h3>
                                             </div>
+
                                             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-2">
                                                 {searchResults.shops.map((shop, index) => (
                                                     <div
+                                                        key={shop.id ?? `search-shop-${index}`}
                                                         onClick={() => {
                                                             navigate(`/shops/${shop.name}`);
                                                             setIsDropdownOpen(false);
                                                         }}
-                                                        key={shop.id}
                                                         className={`flex items-center p-3 md:p-2 
-                                                                   ${selectedIndex === index + searchResults.products.length ? 'bg-purple-900/40' : 'hover:bg-gray-800/80'}
-                                                                   rounded-xl md:rounded-lg transition-all duration-200 cursor-pointer
-                                                                   active:scale-95 hover:shadow-lg hover:shadow-emerald-500/10`}
+                                                            ${selectedIndex === index + searchResults.products.length ? 'bg-purple-900/40' : 'hover:bg-gray-800/80'}
+                                                            rounded-xl md:rounded-lg transition-all duration-200 cursor-pointer`}
                                                     >
                                                         <img
-                                                            src={shop.imageUrl}
+                                                            src={shop.imageUrl || "/Default.png"}
                                                             alt={shop.name}
-                                                            className="w-12 h-12 md:w-10 md:h-10 object-cover rounded-full
-                                                                     ring-2 ring-gray-700 hover:ring-emerald-500/50 transition-all duration-200"
-                                                            onError={(e) => {
-                                                                (e.target as HTMLImageElement).src = "/Default.png";
-                                                            }}
+                                                            className="w-12 h-12 md:w-10 md:h-10 object-cover rounded-full"
+                                                            onError={(e) => ((e.target as HTMLImageElement).src = "/Default.png")}
                                                         />
+
                                                         <div className="ml-4 md:ml-3 flex-1 min-w-0">
                                                             <h4 className="text-gray-200 font-medium text-base md:text-sm truncate mb-1">
                                                                 {shop.name}
                                                             </h4>
                                                             <div className="flex items-center">
-                                                                <AiFillStar
-                                                                    className="text-yellow-400 text-sm md:text-xs"/>
-                                                                <span
-                                                                    className="text-gray-400 text-sm md:text-xs ml-1">
+                                                                <AiFillStar className="text-yellow-400 text-sm md:text-xs"/>
+                                                                <span className="text-gray-400 text-sm md:text-xs ml-1">
                                                                     {shop.rating}
                                                                 </span>
                                                             </div>
@@ -406,6 +383,7 @@ export const SearchField = () => {
                                             </div>
                                         </div>
                                     )}
+
                                 </div>
                             )}
                         </div>
